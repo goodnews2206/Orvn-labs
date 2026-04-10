@@ -1,106 +1,213 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import AGSFlowAnimation from "./AGSFlowAnimation";
 
+// ─── Animation Variants ──────────────────────────────────────────────────────
+const fadeUp = (delay = 0) => ({
+  hidden: { opacity: 0, y: 28 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay } },
+});
+
+// ─── Main Hero ────────────────────────────────────────────────────────────────
 const Hero = () => {
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
-  
-  const content = {
-    ceoName: "Daniel Oyegoke",
-    statsValue: "1,244,092",
-    subHeadline: "The AGS Framework deploys an autonomous SuperStaff that captures, qualifies, and converts demand before your agents ever step in. Built to recover millions for $50M+ operators.",
-  };
+  const [bannerVisible, setBannerVisible] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Direct scroll function for the Manifesto
-  const scrollToManifesto = () => {
-    const section = document.querySelector('#manifesto');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollTo = (id) => {
+    document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <div className="bg-background text-on-surface font-body selection:bg-primary selection:text-black min-h-screen flex flex-col relative overflow-x-hidden">
-      
-      {/* TOP BANNER */}
-      {isBannerVisible && (
-        <div className="fixed top-0 w-full z-[60] bg-neutral-950 text-white border-b border-neutral-800 px-6 py-3 flex justify-between items-center animate-in slide-in-from-top duration-300">
-          <div className="flex-1 text-center font-label text-[11px] md:text-xs uppercase tracking-widest">
-            Read CEO {content.ceoName}’s <button onClick={scrollToManifesto} className="underline decoration-primary underline-offset-4 hover:text-primary transition-colors">Letter to Shareholders</button>
-          </div>
-          <button onClick={() => setIsBannerVisible(false)} className="text-neutral-500 hover:text-white transition-colors p-1">✕</button>
-        </div>
-      )}
+    <div className="bg-background text-ink font-body overflow-x-hidden">
 
-      {/* NAVBAR */}
-      <nav className={`fixed ${isBannerVisible ? 'top-[45px]' : 'top-0'} w-full z-50 bg-neutral-950/60 backdrop-blur-xl flex justify-between items-center px-8 py-4 border-b border-neutral-900/50 transition-all duration-300`}>
-        <div className="text-xl font-black tracking-tighter text-neutral-50 font-headline uppercase">
-          ORVN LABS
-        </div>
-        
-        <div className="hidden md:flex items-center gap-8">
-          <div className="flex items-center gap-6 font-label font-bold tracking-tight uppercase text-xs">
-            <a className="text-neutral-500 hover:text-primary transition-colors" href="#logic">Logic</a>
-            <a className="text-neutral-500 hover:text-primary transition-colors" href="#protocol">Protocol</a>
-            <button onClick={scrollToManifesto} className="text-primary border-b-2 border-primary pb-1 cursor-pointer">The Letter</button>
+      {/* ── TOP BANNER ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {bannerVisible && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-primary overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-6 py-2.5 max-w-7xl mx-auto">
+              <div className="flex-1 text-center font-label text-[11px] text-white/90 tracking-wide">
+                Read Daniel Oyegoke's{" "}
+                <button
+                  onClick={() => scrollTo("#manifesto")}
+                  className="underline underline-offset-2 font-semibold text-white hover:opacity-80 transition-opacity"
+                >
+                  Letter to Founders
+                </button>
+              </div>
+              <button
+                onClick={() => setBannerVisible(false)}
+                className="text-white/60 hover:text-white transition-colors ml-4 text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── NAVBAR ─────────────────────────────────────────────── */}
+      <nav className={`sticky top-0 z-50 bg-white transition-shadow duration-300 ${scrolled ? "shadow-sm border-b border-line" : "border-b border-line"}`}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo */}
+          <span className="font-headline font-extrabold text-xl tracking-tight text-ink">
+            ORVN <span className="text-primary">LABS</span>
+          </span>
+
+          {/* Nav Links */}
+          <div className="hidden md:flex items-center gap-8 font-label text-sm font-medium text-ink-mid">
+            <button onClick={() => scrollTo("#logic")}    className="hover:text-primary transition-colors">The Problem</button>
+            <button onClick={() => scrollTo("#protocol")} className="hover:text-primary transition-colors">How It Works</button>
+            <button onClick={() => scrollTo("#manifesto")}className="hover:text-primary transition-colors">The Letter</button>
+            <button onClick={() => scrollTo("#intelligence")} className="hover:text-primary transition-colors">Intelligence</button>
           </div>
-          <div className="flex items-center gap-4 border-l border-neutral-900 pl-8">
-            <button className="bg-gradient-to-br from-primary to-primary-container text-black px-5 py-1.5 rounded-md font-label font-bold text-xs uppercase tracking-wider transition-transform active:scale-95">
-              Deploy
-            </button>
-          </div>
+
+          {/* CTA */}
+          <button
+            onClick={() => scrollTo("#diagnostic")}
+            className="bg-primary hover:bg-primary-light transition-colors text-white font-label font-semibold text-sm px-5 py-2.5 rounded-lg"
+          >
+            Find My Revenue Leak →
+          </button>
         </div>
       </nav>
 
-      {/* HERO MAIN */}
-      <main className="flex-1">
-        <section className="relative min-h-screen flex flex-col items-center justify-center px-8 pt-20">
-          <div className="absolute inset-0 bg-obsidian-grid bg-[size:60px_60px] [mask-image:radial-gradient(circle_at_center,black,transparent_80%)] opacity-30 z-0"></div>
+      {/* ── HERO SECTION ───────────────────────────────────────── */}
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 py-24 overflow-hidden">
 
-          <div className="relative z-10 max-w-6xl w-full flex flex-col md:flex-row items-center gap-16">
-            <div className="flex-1 space-y-8">
-              <div className="inline-flex items-center gap-2 bg-surface-container-highest px-3 py-1 rounded-sm border border-outline-variant/10">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
-                <span className="font-label text-[10px] uppercase tracking-[0.2em] text-primary">System Active</span>
-              </div>
+        {/* Dot grid background */}
+        <div
+          className="absolute inset-0 bg-dot-grid bg-[size:28px_28px] opacity-40 pointer-events-none"
+          style={{ maskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent)" }}
+        />
 
-              <h1 className="font-headline font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter leading-[0.85] text-on-surface">
-                REAL ESTATE IS 10% BRICK AND 90% HUMAN PSYCHOLOGY.<br /><br />
-                THE BRICK IS <span className="text-primary-dim">10%.</span><br />
-                WE ENGINEER <span className="[text-shadow:0_0_15px_rgba(204,151,255,0.4)] text-primary">THE 90%.</span>
-              </h1>
+        {/* Purple glow blob */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary opacity-[0.06] blur-[100px] rounded-full pointer-events-none" />
 
-              <p className="font-label text-lg md:text-xl text-on-surface-variant max-w-xl leading-relaxed">
-                The AGS Framework deploys an <span className="text-white font-semibold">autonomous SuperStaff</span> that captures, qualifies, and converts demand before your agents ever step in. Built to recover millions for <span className="text-secondary font-bold">$50M+ operators.</span>
-              </p>
+        <div className="relative z-10 max-w-4xl w-full text-center flex flex-col items-center gap-8">
 
-              <div className="flex flex-col sm:flex-row gap-6 items-start">
-                <button className="group relative px-8 py-5 bg-surface-container-high/40 backdrop-blur-md border border-primary/30 rounded-lg overflow-hidden transition-all hover:border-primary">
-                  <span className="relative z-10 font-label font-bold tracking-widest text-on-surface flex items-center gap-3 uppercase">
-                    [Find My Revenue Leak]
-                    <span className="transition-transform group-hover:translate-x-1">→</span>
-                  </span>
-                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </button>
+          {/* Eyebrow */}
+          <motion.div variants={fadeUp(0)} initial="hidden" animate="show">
+            <span className="inline-flex items-center gap-2 bg-primary-pale text-primary font-label text-xs font-semibold px-4 py-1.5 rounded-full border border-primary/20">
+              <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+              AGS System — Now Deploying
+            </span>
+          </motion.div>
 
-                <div className="flex flex-col gap-1 font-label">
-                  <span className="text-[10px] text-neutral-600 uppercase tracking-widest">Active Nodes</span>
-                  <span className="text-xl font-bold text-neutral-300">{content.statsValue}</span>
-                </div>
-              </div>
+          {/* Headline */}
+          <motion.h1
+            variants={fadeUp(0.1)}
+            initial="hidden"
+            animate="show"
+            className="font-headline font-extrabold text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.0] text-ink"
+          >
+            Real estate is{" "}
+            <span className="text-ink-dim">10% brick</span>
+            <br /> and 90% human psychology.
+            <br />
+            <span className="text-primary">We engineer the 90%.</span>
+          </motion.h1>
+
+          {/* Sub-headline */}
+          <motion.p
+            variants={fadeUp(0.2)}
+            initial="hidden"
+            animate="show"
+            className="font-body text-ink-mid text-lg md:text-xl max-w-2xl leading-relaxed"
+          >
+            Buyers move on when your team hesitates. The AGS deploys an autonomous SuperStaff that intercepts, qualifies, and books appointments — before your agents even pick up the phone. Built for{" "}
+            <span className="text-ink font-semibold">$50M+ real estate firms.</span>
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            variants={fadeUp(0.3)}
+            initial="hidden"
+            animate="show"
+            className="flex flex-col sm:flex-row items-center gap-4"
+          >
+            <button
+              onClick={() => scrollTo("#diagnostic")}
+              className="bg-primary hover:bg-primary-light transition-all text-white font-label font-semibold px-8 py-4 rounded-xl text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5"
+            >
+              Find My Revenue Leak
+            </button>
+            <button
+              onClick={() => scrollTo("#protocol")}
+              className="font-label font-semibold text-sm text-ink-mid hover:text-primary transition-colors flex items-center gap-2"
+            >
+              See How It Works <span>→</span>
+            </button>
+          </motion.div>
+
+          {/* ── AGS FLOW ANIMATION ───────────────────────────── */}
+          <motion.div
+            variants={fadeUp(0.45)}
+            initial="hidden"
+            animate="show"
+            className="w-full max-w-2xl mt-4"
+          >
+            <AGSFlowAnimation />
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* ── STATS MARQUEE ──────────────────────────────────────── */}
+      <div className="border-y border-line bg-surface overflow-hidden py-1">
+        <div className="flex animate-marquee whitespace-nowrap w-max">
+          {[
+            "Revenue up 600% in 3 months",
+            "Leads intercepted in under 3 seconds",
+            "20% valuation increase",
+            "Zero downtime deployment",
+            "Works 24/7 — no sick days, no hesitation",
+            "Built for $50M+ operators",
+            "Revenue up 600% in 3 months",
+            "Leads intercepted in under 3 seconds",
+            "20% valuation increase",
+            "Zero downtime deployment",
+            "Works 24/7 — no sick days, no hesitation",
+            "Built for $50M+ operators",
+          ].map((text, i) => (
+            <span key={i} className="font-label text-xs text-ink-mid font-medium px-10 flex items-center gap-4">
+              <span className="w-1 h-1 bg-primary rounded-full inline-block" />
+              {text}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── CRM LOGO BAR ───────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 py-14 flex flex-col items-center gap-8">
+        <p className="font-label text-xs text-ink-dim uppercase tracking-widest font-medium">
+          Embeds into the tools you already use
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-10 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+          {[
+            { name: "HubSpot",        src: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png",           label: "HubSpot"         },
+            { name: "Salesforce",     src: "https://c1.sfdcstatic.com/content/dam/web/en_us/www/images/home/logo-salesforce-m.svg",label: "Salesforce"      },
+            { name: "Follow Up Boss", src: "https://followupboss.com/wp-content/uploads/2022/04/fub-icon.png",                   label: "Follow Up Boss"  },
+            { name: "BoomTown",       src: "https://boomtownroi.com/wp-content/uploads/2020/03/BoomTown-favicon.png",            label: "BoomTown"        },
+          ].map((crm) => (
+            <div key={crm.name} className="flex items-center gap-2 font-label font-semibold text-sm text-ink-mid">
+              <img src={crm.src} alt={crm.name} className="w-6 h-6 object-contain" onError={(e) => e.target.style.display = "none"} />
+              {crm.label}
             </div>
+          ))}
+        </div>
+      </div>
 
-            <div className="flex-1 relative hidden xl:block">
-              <div className="aspect-square bg-surface-container-low rounded-xl border border-outline-variant/10 relative overflow-hidden flex items-center justify-center p-8 group">
-                <div className="absolute inset-0 bg-obsidian-grid bg-[size:60px_60px] opacity-20"></div>
-                <img 
-                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Industrial Infrastructure" 
-                  className="w-full h-full object-cover rounded-lg opacity-40 mix-blend-screen grayscale transition-transform duration-1000 group-hover:scale-105"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
     </div>
   );
 };

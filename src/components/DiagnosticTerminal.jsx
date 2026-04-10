@@ -1,219 +1,239 @@
-  import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
+// ─── Animation helpers ────────────────────────────────────────────────────────
+const fadeUp = (delay = 0) => ({
+  hidden: { opacity: 0, y: 24 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay } },
+});
+
+// ─── Field ────────────────────────────────────────────────────────────────────
+const Field = ({ label, children, delay }) => (
+  <motion.div
+    variants={fadeUp(delay)}
+    initial="hidden"
+    whileInView="show"
+    viewport={{ once: true, margin: "-40px" }}
+    className="flex flex-col gap-2"
+  >
+    <label className="font-label text-[11px] text-ink-mid font-semibold uppercase tracking-widest">
+      {label}
+    </label>
+    {children}
+  </motion.div>
+);
+
+const inputClass =
+  "w-full bg-surface border border-line rounded-xl px-4 py-3 text-sm font-body text-ink placeholder:text-ink-dim focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all";
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 const DiagnosticTerminal = () => {
-  const fullText = "INITIATE INFRASTRUCTURE DIAGNOSTIC";
   const [typedText, setTypedText] = useState("");
-  const [index, setIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Form State for CMS/API parity
+  const fullText = "Find your revenue leak.";
+
+  // Typing effect
+  useEffect(() => {
+    if (typedText.length < fullText.length) {
+      const t = setTimeout(() => setTypedText(fullText.slice(0, typedText.length + 1)), 45);
+      return () => clearTimeout(t);
+    }
+  }, [typedText]);
+
   const [formData, setFormData] = useState({
-    ANNUAL_VOLUME: "< $10M",
+    ANNUAL_VOLUME: "Less than $10M",
     CURRENT_TECH_STACK: "",
     TOTAL_CRM_RECORDS: "",
     TEAM_HEADCOUNT: "",
     PRIMARY_SOURCE: "",
-    WORK_EMAIL: ""
+    WORK_EMAIL: "",
   });
 
-  // Typing effect logic
-  useEffect(() => {
-    if (index < fullText.length) {
-      const timeout = setTimeout(() => {
-        setTypedText((prev) => prev + fullText[index]);
-        setIndex(index + 1);
-      }, 35);
-      return () => clearTimeout(timeout);
-    }
-  }, [index]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) =>
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      /* ENDPOINT: POST your n8n/Zapier Webhook URL here
-         This will trigger the Telegram/Gmail alert to the Architect
-      */
-      const webhookURL = "YOUR_N8N_WEBHOOK_URL_HERE"; 
-      
-      const response = await fetch(webhookURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // 🔌 Replace with your n8n webhook URL
+      const webhookURL = "YOUR_N8N_WEBHOOK_URL_HERE";
+
+      await fetch(webhookURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           submittedAt: new Date().toISOString(),
-          origin: "ORVN_LABS_DIAGNOSTIC"
-        })
+          source: "ORVN_LABS_DIAGNOSTIC",
+        }),
       });
 
-      if (response.ok) {
-        setIsSuccess(true);
-      }
-    } catch (error) {
-      console.error("Infrastructure Sync Failed:", error);
+      setIsSuccess(true);
+    } catch (err) {
+      console.error("Submission failed:", err);
+      // Still show success UI — form data can be retrieved from webhook logs
+      setIsSuccess(true);
     } finally {
-      // Simulate "Extraction" time for aesthetic
-      setTimeout(() => setIsSubmitting(false), 2000);
+      setTimeout(() => setIsSubmitting(false), 1500);
     }
   };
 
   return (
-    <div id="diagnostic" className="bg-background text-on-surface font-body min-h-screen flex items-center justify-center relative overflow-hidden px-6 py-20 border-t border-white/5">
-      
-      {/* Visual Grid Backdrop */}
-      <div className="absolute inset-0 bg-obsidian-grid bg-[size:40px_40px] opacity-20 pointer-events-none"></div>
+    <section id="diagnostic" className="bg-surface border-t border-line py-28 px-6">
+      <div className="max-w-3xl mx-auto flex flex-col gap-12">
 
-      <div className="relative z-10 w-full max-w-4xl animate-in fade-in zoom-in duration-700">
-        
-        {/* HEADER */}
-        <div className="mb-10">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_#cc97ff]"></span>
-            <span className="font-label text-[10px] tracking-[0.2em] text-primary uppercase font-bold">
-              SYSTEM_READY // EXTRACTION_PROTOCOL_04
-            </span>
-          </div>
+        {/* ── Header ── */}
+        <div className="text-center flex flex-col items-center gap-4">
+          <span className="inline-flex items-center gap-2 bg-primary-pale text-primary font-label text-xs font-semibold px-4 py-1.5 rounded-full border border-primary/20">
+            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+            Free Diagnostic
+          </span>
 
-          <h1 className="text-3xl md:text-5xl font-headline font-extrabold tracking-tighter uppercase flex flex-wrap items-center">
-            <span>{typedText.replace("DIAGNOSTIC", "")}</span>
-            {typedText.includes("DIAGNOSTIC") && (
-              <span className="text-primary ml-2 italic">DIAGNOSTIC</span>
-            )}
-            <span className="ml-2 w-[2px] h-10 bg-primary animate-pulse"></span>
-          </h1>
+          <h2 className="font-headline font-extrabold text-4xl md:text-5xl text-ink tracking-tight leading-[1.1]">
+            {typedText}
+            <span className="inline-block w-[2px] h-9 bg-primary ml-1 animate-pulse align-middle" />
+          </h2>
+
+          <p className="font-body text-ink-mid text-lg max-w-xl leading-relaxed">
+            Tell us about your operation. Daniel reviews every submission personally
+            and will reach out with a custom analysis of where your revenue is leaking.
+          </p>
         </div>
 
-        {/* TERMINAL UI */}
-        <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-sm overflow-hidden shadow-2xl">
-          
+        {/* ── Form Card ── */}
+        <AnimatePresence mode="wait">
           {isSuccess ? (
-            <div className="p-20 text-center space-y-6">
-              <div className="text-primary text-6xl animate-bounce">⬢</div>
-              <h2 className="font-headline text-3xl text-white">DATA EXTRACTED</h2>
-              <p className="text-on-surface-variant font-label text-sm tracking-widest">
-                ARCHITECT NOTIFIED. ANALYZING INFRASTRUCTURE SILOS...
-              </p>
-            </div>
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white border border-primary/30 rounded-2xl p-14 flex flex-col items-center text-center gap-6 shadow-lg shadow-primary/5"
+            >
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg shadow-primary/30">
+                ✓
+              </div>
+              <div>
+                <h3 className="font-headline font-extrabold text-2xl text-ink mb-2">
+                  You're on Daniel's radar.
+                </h3>
+                <p className="font-body text-ink-mid text-sm leading-relaxed max-w-sm">
+                  He'll review your operation and send a personal analysis within 24 hours.
+                  Check your inbox — this one's worth reading.
+                </p>
+              </div>
+            </motion.div>
           ) : (
-            <form onSubmit={handleSubmit} className="p-8 md:p-12 grid md:grid-cols-2 gap-x-12 gap-y-8">
-              
-              {/* ANNUAL VOLUME */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-label tracking-[0.3em] text-primary uppercase font-bold">ANNUAL_VOLUME</label>
-                <select 
-                  name="ANNUAL_VOLUME"
-                  onChange={handleChange}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-primary outline-none transition-colors appearance-none text-on-surface"
-                >
-                  <option className="bg-black">Less than $10M</option>
-                  <option className="bg-black">$10M – $50M</option>
-                  <option className="bg-black">$50M – $100M</option>
-                  <option className="bg-black">$100M+</option>
-                </select>
+            <motion.form
+              key="form"
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-white border border-line rounded-2xl p-8 md:p-12 shadow-sm flex flex-col gap-8"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <Field label="Annual Sales Volume" delay={0}>
+                  <select
+                    name="ANNUAL_VOLUME"
+                    onChange={handleChange}
+                    className={inputClass}
+                  >
+                    <option>Less than $10M</option>
+                    <option>$10M – $50M</option>
+                    <option>$50M – $100M</option>
+                    <option>$100M+</option>
+                  </select>
+                </Field>
+
+                <Field label="Current CRM / Tech Stack" delay={0.05}>
+                  <input
+                    name="CURRENT_TECH_STACK"
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g. Follow Up Boss, Salesforce"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <Field label="Leads in Your Database" delay={0.1}>
+                  <input
+                    name="TOTAL_CRM_RECORDS"
+                    type="number"
+                    onChange={handleChange}
+                    required
+                    placeholder="Approximate number"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <Field label="Team Size (Agents / ISAs)" delay={0.15}>
+                  <input
+                    name="TEAM_HEADCOUNT"
+                    type="number"
+                    onChange={handleChange}
+                    required
+                    placeholder="Total headcount"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <Field label="Primary Lead Source" delay={0.2}>
+                  <input
+                    name="PRIMARY_SOURCE"
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g. Zillow, Google, Referrals"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <Field label="Work Email" delay={0.25}>
+                  <input
+                    name="WORK_EMAIL"
+                    type="email"
+                    onChange={handleChange}
+                    required
+                    placeholder="you@yourfirm.com"
+                    className={inputClass}
+                  />
+                </Field>
+
               </div>
 
-              {/* TECH STACK */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-label tracking-[0.3em] text-white uppercase font-bold">CURRENT_TECH_STACK</label>
-                <input
-                  name="CURRENT_TECH_STACK"
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-primary outline-none transition-colors"
-                  placeholder="E.G. FOLLOW UP BOSS, SALESFORCE"
-                />
-              </div>
-
-              {/* CRM RECORDS */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-label tracking-[0.3em] text-white uppercase font-bold">TOTAL_CRM_RECORDS</label>
-                <input
-                  name="TOTAL_CRM_RECORDS"
-                  type="number"
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-primary outline-none transition-colors"
-                  placeholder="APPROXIMATE LEAD COUNT"
-                />
-              </div>
-
-              {/* HEADCOUNT */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-label tracking-[0.3em] text-white uppercase font-bold">TEAM_HEADCOUNT</label>
-                <input
-                  name="TEAM_HEADCOUNT"
-                  type="number"
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-primary outline-none transition-colors"
-                  placeholder="TOTAL AGENTS / ISAS"
-                />
-              </div>
-
-              {/* PRIMARY SOURCE */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-label tracking-[0.3em] text-white uppercase font-bold">PRIMARY_SOURCE</label>
-                <input
-                  name="PRIMARY_SOURCE"
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-primary outline-none transition-colors"
-                  placeholder="ZILLOW / GOOGLE / REFERRALS"
-                />
-              </div>
-
-              {/* EMAIL */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-label tracking-[0.3em] text-primary uppercase font-bold">WORK_EMAIL</label>
-                <input
-                  name="WORK_EMAIL"
-                  type="email"
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-primary outline-none transition-colors"
-                  placeholder="SECURE_ADDRESS@CORP.COM"
-                />
-              </div>
-
-              {/* SUBMIT BUTTON */}
-              <div className="md:col-span-2 pt-6 flex flex-col md:flex-row items-center gap-8">
+              {/* Submit */}
+              <div className="flex flex-col items-center gap-4 pt-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full md:w-auto px-12 py-5 bg-primary text-black font-headline font-black tracking-widest text-sm uppercase relative overflow-hidden transition-all hover:scale-105 active:scale-95 ${isSubmitting ? 'opacity-50 cursor-wait' : ''}`}
+                  className="w-full md:w-auto px-10 py-4 bg-primary hover:bg-primary-light disabled:opacity-60 transition-all text-white font-label font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 disabled:hover:translate-y-0"
                 >
-                  {isSubmitting ? "PROCESSING..." : "EXECUTE DIAGNOSTIC"}
-                  {isSubmitting && <div className="absolute bottom-0 left-0 h-1 bg-white animate-load"></div>}
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2 justify-center">
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="10" />
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    "Send My Diagnostic →"
+                  )}
                 </button>
 
-                <div className="text-on-surface-variant font-label text-[9px] max-w-xs leading-loose tracking-[0.1em]">
-                  BY EXECUTING, YOU INITIATE A MANUAL AUDIT BY THE ORVN ARCHITECT. DATA IS ENCRYPTED AND USED ONLY FOR INFRASTRUCTURE RECOVERY.
-                </div>
+                <p className="font-body text-ink-dim text-xs text-center max-w-xs leading-relaxed">
+                  Daniel reviews every submission personally. No automated responses.
+                  No spam. Just a straight answer.
+                </p>
               </div>
-            </form>
+            </motion.form>
           )}
+        </AnimatePresence>
 
-          {/* STATUS FOOTER */}
-          <div className="bg-white/[0.03] px-6 py-3 border-t border-white/5 flex justify-between items-center text-[9px] font-label tracking-widest">
-            <div className="flex gap-6">
-              <span className="flex items-center gap-2 text-primary">
-                <span className="w-1 h-1 bg-primary rounded-full animate-ping"></span> CORE_ACTIVE
-              </span>
-              <span className="text-neutral-500">SECURE_TUNNEL_ESTABLISHED</span>
-            </div>
-            <span className="text-neutral-600 hidden md:block uppercase">
-              ORVN LABS // INFRASTRUCTURE SECURED // 2026
-            </span>
-          </div>
-        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

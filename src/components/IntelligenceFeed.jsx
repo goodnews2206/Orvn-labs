@@ -1,157 +1,146 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 
-const IntelligenceFeed = () => {
-  // CMS STATE: Architect manually uploads YouTube ID, Miro URL, and Metadata here
-  const [feedItems] = useState([
-    {
-      id: "session-01",
-      tag: "ALPHA_REPORT_V.02",
-      timestamp: "2024.08.12",
-      title: "SYSTEM ARCHITECTURE MAP: CORE OMNI-CHANNEL",
-      description: "Detailed visualization of the lead-handling logic through autonomous node networks. Analyzing the impact of sub-second response latency on conversion ratios.",
-      youtubeId: "dQw4w9WgXcQ", // Replace with actual ID
-      miroUrl: "#",
-      miroTitle: "Open System Architecture Board",
-      categories: ["DATA_VIS", "INFRA_STRAT"],
-      sessionLabel: "CORE_LOGIC_SESSION_01"
-    },
-    {
-      id: "session-02",
-      tag: "P&L_AUDIT_X01",
-      timestamp: "2024.08.15",
-      title: "INDUSTRIAL RE P&L: OPTIMIZATION PARAMETERS",
-      description: "A comprehensive deep-dive into real estate profit and loss frameworks. Identifying leakage points in traditional human-led operation models versus automated infrastructure.",
-      youtubeId: "dQw4w9WgXcQ", // Replace with actual ID
-      miroUrl: "#",
-      miroTitle: "Watch Financial Analysis Session",
-      categories: ["FINANCE", "OPERATIONS"],
-      sessionLabel: "RE_P&L_DEEP_DIVE"
-    }
-  ]);
+// ─── Animation helpers ────────────────────────────────────────────────────────
+const fadeUp = (delay = 0) => ({
+  hidden: { opacity: 0, y: 28 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay } },
+});
 
-  return (
-    <main id="intelligence" className="relative pt-32 pb-20 px-8 max-w-7xl mx-auto border-t border-white/5">
-      
-      {/* SECTION HEADER */}
-      <header className="mb-20 flex flex-col md:flex-row justify-between items-end gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <div className="max-w-2xl">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-            <span className="font-label text-[10px] tracking-[0.2em] text-primary uppercase font-bold">
-              Active Intelligence Feed // 05
+// ─── Feed Data — Architect updates this manually ───────────────────────────
+const feedItems = [
+  {
+    id: "session-01",
+    tag: "System Architecture",
+    date: "Aug 12, 2024",
+    title: "Core Omni-Channel Lead Flow",
+    description:
+      "A detailed walkthrough of how the AGS routes inbound leads across channels — SMS, email, and call — without dropping a single touchpoint. See the full node architecture and how response latency directly impacts conversion.",
+    youtubeId: "dQw4w9WgXcQ", // Replace with real ID
+    resourceLabel: "Open Architecture Board",
+    resourceUrl: "#",
+  },
+  {
+    id: "session-02",
+    tag: "Financial Analysis",
+    date: "Aug 15, 2024",
+    title: "RE P&L Optimization Deep Dive",
+    description:
+      "Where are the real money leaks in a traditional brokerage? This session breaks down a real P&L report side-by-side with an AGS-augmented operation — and shows exactly where the numbers change.",
+    youtubeId: "dQw4w9WgXcQ", // Replace with real ID
+    resourceLabel: "Watch Full Analysis",
+    resourceUrl: "#",
+  },
+];
+
+// ─── Feed Card ────────────────────────────────────────────────────────────────
+const FeedCard = ({ item, index }) => (
+  <motion.article
+    variants={fadeUp(index * 0.1)}
+    initial="hidden"
+    whileInView="show"
+    viewport={{ once: true, margin: "-60px" }}
+    className="group bg-white border border-line rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500"
+  >
+    <div className="grid grid-cols-1 lg:grid-cols-12">
+
+      {/* YouTube Embed */}
+      <div className="lg:col-span-7 relative bg-ink aspect-video lg:aspect-auto lg:h-auto">
+        <iframe
+          className="w-full h-full min-h-[260px] opacity-90 group-hover:opacity-100 transition-opacity"
+          src={`https://www.youtube.com/embed/${item.youtubeId}?controls=1&rel=0`}
+          title={item.title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+
+      {/* Content */}
+      <div className="lg:col-span-5 p-8 flex flex-col justify-between gap-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <span className="bg-primary-pale text-primary font-label text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-md">
+              {item.tag}
+            </span>
+            <span className="font-label text-[10px] text-ink-dim">
+              {item.date}
             </span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-headline font-extrabold tracking-tighter text-white mb-6 uppercase leading-[0.9]">
-            INDUSTRIAL <br/> INTELLIGENCE.
-          </h1>
-          <p className="text-on-surface-variant font-body text-lg max-w-lg leading-relaxed">
-            Deep-dives into RE P&L reports, system architecture, and lead-handling logic. Verified repository of high-performance technical assets.
+
+          <h3 className="font-headline font-extrabold text-2xl text-ink tracking-tight leading-tight">
+            {item.title}
+          </h3>
+
+          <p className="font-body text-ink-mid text-sm leading-relaxed">
+            {item.description}
           </p>
         </div>
-        
-        <div className="hidden md:flex flex-col items-end gap-2 font-label text-[10px] text-neutral-500 tracking-widest">
-          <span>LATENCY: 14MS</span>
-          <span>STATUS: OPS_NORMAL</span>
-          <div className="h-[1px] w-32 bg-white/10"></div>
+
+        {/* Resource Link */}
+        <a
+          href={item.resourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group/link flex items-center gap-4 p-5 bg-surface border border-line rounded-xl hover:border-primary/30 hover:bg-primary-pale transition-all duration-300"
+        >
+          <div className="w-10 h-10 bg-white border border-line rounded-xl flex items-center justify-center text-primary shadow-sm group-hover/link:shadow-md transition-shadow">
+            ↗
+          </div>
+          <div className="flex-1">
+            <p className="font-label text-[9px] text-ink-dim uppercase tracking-widest mb-0.5">
+              Resource
+            </p>
+            <p className="font-label text-sm text-ink font-semibold group-hover/link:text-primary transition-colors">
+              {item.resourceLabel}
+            </p>
+          </div>
+          <span className="text-ink-dim group-hover/link:text-primary group-hover/link:translate-x-1 transition-all">→</span>
+        </a>
+      </div>
+
+    </div>
+  </motion.article>
+);
+
+// ─── Main Section ─────────────────────────────────────────────────────────────
+const IntelligenceFeed = () => (
+  <section id="intelligence" className="bg-surface border-t border-line py-28 px-6">
+    <div className="max-w-6xl mx-auto flex flex-col gap-16">
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="w-8 h-[2px] bg-primary rounded-full" />
+            <span className="font-label text-xs text-primary font-semibold uppercase tracking-widest">
+              Intelligence Feed
+            </span>
+          </div>
+          <h2 className="font-headline font-extrabold text-4xl md:text-5xl text-ink tracking-tight leading-[1.1] mb-4">
+            Industrial intelligence.
+          </h2>
+          <p className="font-body text-ink-mid text-lg leading-relaxed">
+            Deep-dives into real estate P&L, system architecture, and lead-handling logic.
+            Each session is a hands-on breakdown — not theory, not fluff.
+          </p>
         </div>
-      </header>
 
-      {/* REPOSITORY GRID */}
-      <div className="grid grid-cols-1 gap-16">
-        {feedItems.map((item) => (
-          <article 
-            key={item.id} 
-            className="group relative bg-surface-container-low border border-white/5 hover:border-primary/30 transition-all duration-500 overflow-hidden"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-              
-              {/* MEDIA CANVAS (YOUTUBE EMBED) */}
-              <div className="lg:col-span-7 relative h-[450px] bg-black">
-                <iframe
-                  className="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity"
-                  src={`https://www.youtube.com/embed/${item.youtubeId}?autoplay=0&mute=1&controls=1`}
-                  title={item.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-                
-                {/* Floating Label */}
-                <div className="absolute bottom-6 left-6 bg-black/80 backdrop-blur-md px-4 py-1.5 border border-white/10 rounded-sm text-[10px] font-label text-primary tracking-[0.2em] font-bold">
-                  {item.sessionLabel}
-                </div>
-              </div>
+        <div className="shrink-0 flex items-center gap-2 font-label text-xs text-ink-dim">
+          <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+          Updated manually by the Architect
+        </div>
+      </div>
 
-              {/* TECHNICAL CONTENT */}
-              <div className="lg:col-span-5 p-10 flex flex-col justify-between bg-[#111111]">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <span className="bg-primary/10 text-primary font-label text-[10px] px-2 py-1 font-bold tracking-widest">
-                      {item.tag}
-                    </span>
-                    <span className="text-neutral-600 font-label text-[10px] tracking-widest">
-                      TS: {item.timestamp}
-                    </span>
-                  </div>
-                  
-                  <h2 className="text-2xl md:text-3xl font-headline font-bold text-white tracking-tighter uppercase leading-tight">
-                    {item.title}
-                  </h2>
-                  
-                  <p className="text-on-surface-variant font-body text-sm leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-
-                <div className="mt-10 space-y-4">
-                  {/* MIRO LINK / ACTION */}
-                  <a 
-                    href={item.miroUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-5 bg-black border border-white/5 flex items-center gap-5 group/link hover:bg-white/[0.03] transition-all"
-                  >
-                    <div className="w-12 h-12 bg-white/5 rounded flex items-center justify-center text-primary group-hover/link:text-white transition-colors">
-                      <span className="material-symbols-outlined">account_tree</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-label text-[9px] text-neutral-500 uppercase tracking-widest mb-1">Resource Link</div>
-                      <div className="text-xs text-white uppercase font-bold tracking-tight group-hover/link:text-primary transition-colors">
-                        {item.miroTitle}
-                      </div>
-                    </div>
-                    <span className="material-symbols-outlined text-neutral-600 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform text-sm">
-                      north_east
-                    </span>
-                  </a>
-
-                  {/* METADATA TAGS */}
-                  <div className="flex gap-2">
-                    {item.categories.map((cat) => (
-                      <span key={cat} className="text-[9px] font-label text-neutral-500 bg-white/5 px-2 py-1 tracking-widest uppercase">
-                        {cat}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
+      {/* Cards */}
+      <div className="flex flex-col gap-8">
+        {feedItems.map((item, i) => (
+          <FeedCard key={item.id} item={item} index={i} />
         ))}
       </div>
 
-      {/* SIDEBAR FLOATING INDEX */}
-      <div className="hidden 2xl:block fixed right-12 top-1/2 -translate-y-1/2 space-y-4 pointer-events-none opacity-40">
-        <div className="w-[1px] h-32 bg-gradient-to-b from-transparent via-primary to-transparent mx-auto"></div>
-        <div 
-          className="font-label text-[8px] text-primary tracking-[0.4em] uppercase py-4" 
-          style={{ writingMode: 'vertical-rl' }}
-        >
-          REPOSITORY_INDEX_05
-        </div>
-      </div>
-    </main>
-  );
-};
+    </div>
+  </section>
+);
 
 export default IntelligenceFeed;
