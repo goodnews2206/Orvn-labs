@@ -4,44 +4,36 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        purple: {
-          DEFAULT: "#5B3FD4",
-          lt: "#7B5FEA",
-          dk: "#3A2899",
+        navy: {
+          DEFAULT: "#1B2559",
+          light: "#2D3A7C",
+          dark: "#111840",
         },
-        bg: {
-          DEFAULT: "#090612",
-          2: "#0E0A1C",
-          3: "#141026",
-          4: "#1A1530",
+        slate: {
+          50: "#F8F9FC",
+          100: "#F1F3F9",
+          200: "#E2E6F0",
+          300: "#C8CEDF",
+          400: "#8E97B5",
+          500: "#5A6480",
+          600: "#3D4560",
         },
-        orvn: {
-          white: "#F2EEFF",
-          off: "#D0C8EC",
-          muted: "#68607F",
-          dim: "#221D38",
-          green: "#22C55E",
-          amber: "#F59E0B",
-          red: "#EF4444",
-          teal: "#06B6D4",
+        accent: {
+          DEFAULT: "#1B2559",
+          green: "#0D9E6E",
+          red: "#DC2626",
+          amber: "#D97706",
         },
       },
       fontFamily: {
-        clash: ["'Clash Display'", "sans-serif"],
-        epilogue: ["'Epilogue'", "sans-serif"],
+        serif: ["'Instrument Serif'", "Georgia", "serif"],
+        sans: ["'Inter'", "system-ui", "sans-serif"],
         mono: ["'JetBrains Mono'", "monospace"],
       },
-      backgroundImage: {
-        "grid-purple":
-          "linear-gradient(rgba(91,63,212,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(91,63,212,.055) 1px,transparent 1px)",
-      },
-      backgroundSize: {
-        grid: "56px 56px",
-      },
       boxShadow: {
-        glow: "0 14px 44px rgba(91,63,212,0.42)",
-        "glow-sm": "0 8px 30px rgba(91,63,212,0.3)",
-        card: "0 0 80px rgba(91,63,212,.15), 0 40px 80px rgba(0,0,0,.4)",
+        card: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)",
+        "card-hover": "0 4px 6px rgba(0,0,0,0.06), 0 16px 32px rgba(0,0,0,0.1)",
+        "navy-glow": "0 8px 32px rgba(27,37,89,0.2)",
       },
     },
   },
