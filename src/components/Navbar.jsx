@@ -82,7 +82,7 @@ export default function Navbar() {
               fontWeight: 700,
               fontSize: 17,
               letterSpacing: '-0.01em',
-              color: '#1B2559',
+              color: ' #5B3FD4',
             }}
           >
             ORVN Labs
@@ -100,16 +100,16 @@ export default function Navbar() {
                 fontWeight: 500,
                 color:
                   location.pathname === link.to.split('#')[0]
-                    ? '#1B2559'
+                    ? ' #5B3FD4'
                     : '#5A6480',
                 textDecoration: 'none',
                 transition: 'color 0.2s',
               }}
-              onMouseEnter={e => (e.target.style.color = '#1B2559')}
+              onMouseEnter={e => (e.target.style.color = ' #5B3FD4')}
               onMouseLeave={e =>
                 (e.target.style.color =
                   location.pathname === link.to.split('#')[0]
-                    ? '#1B2559'
+                    ? ' #5B3FD4'
                     : '#5A6480')
               }
             >
@@ -129,7 +129,7 @@ export default function Navbar() {
                   fontWeight: 500,
                   fontSize: 14,
                   cursor: 'pointer',
-                  color: '#1B2559',
+                  color: ' #5B3FD4',
                 }}
               >
                 Client Login
@@ -139,7 +139,7 @@ export default function Navbar() {
             <Link to="/demo">
               <motion.button
                 whileHover={{
-                  background: '#2D3A7C',
+                  background: '#7B5FEA',
                   y: -1,
                   boxShadow: '0 8px 24px rgba(27,37,89,0.25)',
                 }}
@@ -147,7 +147,7 @@ export default function Navbar() {
                 style={{
                   padding: '9px 18px',
                   borderRadius: 8,
-                  background: '#1B2559',
+                  background: ' #5B3FD4',
                   color: 'white',
                   border: 'none',
                   fontWeight: 600,
@@ -178,7 +178,7 @@ export default function Navbar() {
           <motion.div
             animate={{ rotate: open ? 180 : 0 }}
             transition={{ duration: 0.3 }}
-            style={{ color: '#1B2559' }}
+            style={{ color: ' #5B3FD4' }}
           >
             {open ? <X size={24} /> : <Menu size={24} />}
           </motion.div>
@@ -233,7 +233,7 @@ export default function Navbar() {
                   padding: '13px 0',
                   fontSize: 15,
                   fontWeight: 500,
-                  color: '#1B2559',
+                  color: ' #5B3FD4',
                   textDecoration: 'none',
                   borderBottom: '1px solid #F1F3F9',
                 }}
@@ -262,7 +262,7 @@ export default function Navbar() {
                   width: '100%',
                   padding: '12px',
                   borderRadius: 8,
-                  background: '#1B2559',
+                  background: ' #5B3FD4',
                   border: 'none',
                   color: 'white',
                   fontWeight: 600,

@@ -13,8 +13,8 @@ const INNER = { maxWidth: 1160, margin: '0 auto' };
 
 const EyeBrow = ({ text }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-    <div style={{ width: 20, height: 1.5, background: '#1B2559' }} />
-    <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1B2559', fontFamily: "'JetBrains Mono', monospace" }}>{text}</span>
+    <div style={{ width: 20, height: 1.5, background: ' #5B3FD4' }} />
+    <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ' #5B3FD4', fontFamily: "'JetBrains Mono', monospace" }}>{text}</span>
   </div>
 );
 
@@ -32,7 +32,7 @@ function Problem() {
       <div style={INNER}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <EyeBrow text="The Human Factor Problem" />
-          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: '#1B2559', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
+          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: ' #5B3FD4', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
             Three Reasons Your Pipeline Is Haemorrhaging Revenue
           </h2>
           <p style={{ color: '#5A6480', fontSize: 16, lineHeight: 1.75, marginBottom: 56, maxWidth: 500 }}>
@@ -49,9 +49,9 @@ function Problem() {
               whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(27,37,89,0.1)', borderColor: '#C8CEDF' }}
               style={{ background: 'white', border: '1px solid #E2E6F0', borderRadius: 14, padding: 32, position: 'relative', overflow: 'hidden', transition: 'all 0.25s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
             >
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg, #1B2559, #2D3A7C)' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,  #5B3FD4, #7B5FEA)' }} />
               <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 56, color: '#F1F3F9', lineHeight: 1, marginBottom: 12 }}>{p.num}</div>
-              <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1B2559', marginBottom: 10 }}>{p.title}</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: ' #5B3FD4', marginBottom: 10 }}>{p.title}</h3>
               <p style={{ color: '#5A6480', fontSize: 14, lineHeight: 1.7 }}>{p.body}</p>
             </motion.div>
           ))}
@@ -75,7 +75,7 @@ function HowItWorks() {
       <div style={INNER}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <EyeBrow text="The AGS Framework" />
-          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: '#1B2559', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
+          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: ' #5B3FD4', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
             Three Phases. One Autonomous Floor.
           </h2>
           <p style={{ color: '#5A6480', fontSize: 16, lineHeight: 1.75, marginBottom: 56, maxWidth: 500 }}>
@@ -93,10 +93,10 @@ function HowItWorks() {
               style={{ background: 'white', border: '1px solid #E2E6F0', borderRadius: 14, padding: 32, boxShadow: '0 1px 3px rgba(0,0,0,0.05)', transition: 'all 0.25s' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1B2559', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'white' }}>{phase.num}</div>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: ' #5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'white' }}>{phase.num}</div>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8E97B5' }}>{phase.tag}</span>
               </div>
-              <h3 style={{ fontSize: 19, fontWeight: 600, color: '#1B2559', marginBottom: 10 }}>{phase.title}</h3>
+              <h3 style={{ fontSize: 19, fontWeight: 600, color: ' #5B3FD4', marginBottom: 10 }}>{phase.title}</h3>
               <p style={{ color: '#5A6480', fontSize: 14, lineHeight: 1.7, marginBottom: phase.tags.length > 0 || phase.note ? 16 : 0 }}>{phase.body}</p>
               {phase.tags.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -105,7 +105,7 @@ function HowItWorks() {
                   ))}
                 </div>
               )}
-              {phase.note && <p style={{ fontSize: 12, color: '#1B2559', fontWeight: 500, fontFamily: "'JetBrains Mono', monospace" }}>{phase.note}</p>}
+              {phase.note && <p style={{ fontSize: 12, color: ' #5B3FD4', fontWeight: 500, fontFamily: "'JetBrains Mono', monospace" }}>{phase.note}</p>}
             </motion.div>
           ))}
         </div>
@@ -128,7 +128,7 @@ function Capabilities() {
       <div style={INNER}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <EyeBrow text="PAS Capabilities" />
-          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: '#1B2559', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
+          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: ' #5B3FD4', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
             What the SuperStaff Actually Does
           </h2>
           <p style={{ color: '#5A6480', fontSize: 16, lineHeight: 1.75, marginBottom: 56, maxWidth: 500 }}>
@@ -148,16 +148,16 @@ function Capabilities() {
               whileHover={{ y: -3, boxShadow: '0 10px 24px rgba(27,37,89,0.09)', borderColor: '#C8CEDF' }}
               style={{ background: 'white', border: '1px solid #E2E6F0', borderRadius: 14, padding: 28, boxShadow: '0 1px 3px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}
             >
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F1F3F9', border: '1px solid #E2E6F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B2559', marginBottom: 16 }}>{cap.icon}</div>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1B2559', marginBottom: 8 }}>{cap.title}</h3>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F1F3F9', border: '1px solid #E2E6F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: ' #5B3FD4', marginBottom: 16 }}>{cap.icon}</div>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: ' #5B3FD4', marginBottom: 8 }}>{cap.title}</h3>
               <p style={{ fontSize: 13.5, color: '#5A6480', lineHeight: 1.7 }}>{cap.body}</p>
             </motion.div>
           ))}
         </div>
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} style={{ textAlign: 'center', marginTop: 56 }}>
           <Link to="/why-orvn">
-            <motion.button whileHover={{ background: '#2D3A7C', y: -1, boxShadow: '0 10px 28px rgba(27,37,89,0.2)' }} whileTap={{ scale: 0.97 }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1B2559', color: 'white', padding: '14px 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, border: 'none', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}>
+            <motion.button whileHover={{ background: '#7B5FEA', y: -1, boxShadow: '0 10px 28px rgba(27,37,89,0.2)' }} whileTap={{ scale: 0.97 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: ' #5B3FD4', color: 'white', padding: '14px 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, border: 'none', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}>
               See Why ORVN Labs Wins <ArrowRight size={15} />
             </motion.button>
           </Link>
