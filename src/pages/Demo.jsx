@@ -177,12 +177,12 @@ function VoiceDemo() {
         </div>
         <h3 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 24, fontWeight: 400, color: '#5B3FD4', marginBottom: 12 }}>Live Voice Demo</h3>
         <p style={{ color: '#5A6480', fontSize: 15, lineHeight: 1.75, marginBottom: 32, maxWidth: 360, margin: '0 auto 32px' }}>
-          Call the ORVN PAS directly and experience the voice qualification flow in real time. Powered by Vapi AI.
+          Call the ORVN PAS directly and experience the voice qualification flow in real time. Powered by ORVN
         </p>
         <a href="tel:+1-800-ORVN-AI" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#5B3FD4', color: 'white', padding: '14px 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}>
           <Phone size={15} /> Start Voice Demo
         </a>
-        <p style={{ color: '#8E97B5', fontSize: 12, marginTop: 16 }}>Powered by Vapi AI — no app download required</p>
+        <p style={{ color: '#8E97B5', fontSize: 12, marginTop: 16 }}>Powered by ORVN</p>
       </div>
     </div>
   );

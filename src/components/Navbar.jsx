@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Zap } from 'lucide-react';
-import logo from '../assets/logo.jpg'; // 🔥 IMPORT YOUR LOGO
+import logo from '../assets/logo.jpg';
 
 const links = [
   { label: 'The Problem', to: '/product' },
@@ -42,7 +42,7 @@ export default function Navbar() {
           left: 0,
           right: 0,
           zIndex: 900,
-          height: 68,
+          height: 80, // ⬅️ increased height
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -56,13 +56,13 @@ export default function Navbar() {
             : '1px solid transparent',
         }}
       >
-        {/* 🔥 Logo (UPDATED) */}
+        {/* 🔥 Bigger Logo */}
         <Link
           to="/"
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 12, // ⬅️ slightly increased
             textDecoration: 'none',
           }}
         >
@@ -70,19 +70,19 @@ export default function Navbar() {
             src={logo}
             alt="ORVN Labs logo"
             style={{
-              width: 34,
-              height: 34,
+              width: 48,  // ⬅️ bigger logo
+              height: 48,
               objectFit: 'contain',
-              borderRadius: 6, // optional
+              borderRadius: 8,
             }}
           />
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
               fontWeight: 700,
-              fontSize: 17,
+              fontSize: 22, // ⬅️ bigger text
               letterSpacing: '-0.01em',
-              color: ' #5B3FD4',
+              color: '#5B3FD4',
             }}
           >
             ORVN Labs
@@ -100,16 +100,16 @@ export default function Navbar() {
                 fontWeight: 500,
                 color:
                   location.pathname === link.to.split('#')[0]
-                    ? ' #5B3FD4'
+                    ? '#5B3FD4'
                     : '#5A6480',
                 textDecoration: 'none',
                 transition: 'color 0.2s',
               }}
-              onMouseEnter={e => (e.target.style.color = ' #5B3FD4')}
+              onMouseEnter={e => (e.target.style.color = '#5B3FD4')}
               onMouseLeave={e =>
                 (e.target.style.color =
                   location.pathname === link.to.split('#')[0]
-                    ? ' #5B3FD4'
+                    ? '#5B3FD4'
                     : '#5A6480')
               }
             >
@@ -129,7 +129,7 @@ export default function Navbar() {
                   fontWeight: 500,
                   fontSize: 14,
                   cursor: 'pointer',
-                  color: ' #5B3FD4',
+                  color: '#5B3FD4',
                 }}
               >
                 Client Login
@@ -147,7 +147,7 @@ export default function Navbar() {
                 style={{
                   padding: '9px 18px',
                   borderRadius: 8,
-                  background: ' #5B3FD4',
+                  background: '#5B3FD4',
                   color: 'white',
                   border: 'none',
                   fontWeight: 600,
@@ -158,7 +158,7 @@ export default function Navbar() {
                   gap: 7,
                 }}
               >
-                <Zap size={13} /> Test the AI
+                <Zap size={14} /> Test the AI
               </motion.button>
             </Link>
           </div>
@@ -178,9 +178,9 @@ export default function Navbar() {
           <motion.div
             animate={{ rotate: open ? 180 : 0 }}
             transition={{ duration: 0.3 }}
-            style={{ color: ' #5B3FD4' }}
+            style={{ color: '#5B3FD4' }}
           >
-            {open ? <X size={24} /> : <Menu size={24} />}
+            {open ? <X size={26} /> : <Menu size={26} />}
           </motion.div>
         </button>
       </motion.nav>
@@ -214,7 +214,7 @@ export default function Navbar() {
             transition={{ duration: 0.25 }}
             style={{
               position: 'fixed',
-              top: 68,
+              top: 80, // ⬅️ match navbar height
               left: 0,
               right: 0,
               zIndex: 899,
@@ -233,7 +233,7 @@ export default function Navbar() {
                   padding: '13px 0',
                   fontSize: 15,
                   fontWeight: 500,
-                  color: ' #5B3FD4',
+                  color: '#5B3FD4',
                   textDecoration: 'none',
                   borderBottom: '1px solid #F1F3F9',
                 }}
@@ -262,7 +262,7 @@ export default function Navbar() {
                   width: '100%',
                   padding: '12px',
                   borderRadius: 8,
-                  background: ' #5B3FD4',
+                  background: '#5B3FD4',
                   border: 'none',
                   color: 'white',
                   fontWeight: 600,
