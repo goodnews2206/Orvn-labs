@@ -1,11 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --navy: #1B2559;
-  --navy-light: #2D3A7C;
-  --navy-dark: #111840;
+  --navy: #5B3FD4;
+  --navy-light: #7B5FEA;
+  --navy-dark: #3A2899;
   --white: #FFFFFF;
   --off: #F8F9FC;
   --slate-100: #F1F3F9;
@@ -17,8 +19,9 @@
   --red: #DC2626;
   --amber: #D97706;
   --border: #E2E6F0;
+  --purple-glow: rgba(91,63,212,0.12);
 }
-
+  
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; }

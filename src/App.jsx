@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import LogoWatermark from './components/LogoWatermark';
 import Home from './pages/Home';
 import Product from './pages/Product';
 import WhyORVN from './pages/WhyORVN';
@@ -27,6 +28,7 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
+      <LogoWatermark />
       <Navbar />
       <AnimatedRoutes />
       <Footer />
