@@ -18,8 +18,8 @@ const INNER = { maxWidth: 1160, margin: '0 auto' };
 
 const EyeBrow = ({ text }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-    <div style={{ width: 20, height: 1.5, background: '#1B2559' }} />
-    <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1B2559', fontFamily: "'JetBrains Mono', monospace" }}>
+    <div style={{ width: 20, height: 1.5, background: '#5B3FD4' }} />
+    <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5B3FD4', fontFamily: "'JetBrains Mono', monospace" }}>
       {text}
     </span>
   </div>
@@ -55,7 +55,7 @@ function Hero() {
             }}
           >
             <span className="animate-blink" style={{ width: 6, height: 6, borderRadius: '50%', background: '#0D9E6E', display: 'block' }} />
-            <span style={{ fontSize: 12, color: '#1B2559', fontWeight: 500, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>
+            <span style={{ fontSize: 12, color: '#5B3FD4', fontWeight: 500, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>
               Performative AI Infrastructure — Real Estate
             </span>
           </motion.div>
@@ -67,13 +67,13 @@ function Hero() {
               fontFamily: "'Instrument Serif', Georgia, serif",
               fontSize: 'clamp(42px, 5.5vw, 76px)',
               fontWeight: 400, lineHeight: 1.08,
-              letterSpacing: '-0.02em', color: '#1B2559',
+              letterSpacing: '-0.02em', color: '#5B3FD4',
               marginBottom: 24,
             }}
           >
             Your Leads Die<br />
             While Your<br />
-            <em style={{ fontStyle: 'italic', color: '#2D3A7C' }}>Agents Sleep.</em>
+            <em style={{ fontStyle: 'italic', color: '#7B5FEA' }}>Agents Sleep.</em>
           </motion.h1>
 
           <motion.p
@@ -91,11 +91,11 @@ function Hero() {
           >
             <Link to="/demo">
               <motion.button
-                whileHover={{ background: '#2D3A7C', y: -2, boxShadow: '0 12px 32px rgba(27,37,89,0.25)' }}
+                whileHover={{ background: '#7B5FEA', y: -2, boxShadow: '0 12px 32px rgba(27,37,89,0.25)' }}
                 whileTap={{ scale: 0.97 }}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
-                  background: '#1B2559', color: 'white',
+                  background: '#5B3FD4', color: 'white',
                   padding: '14px 26px', borderRadius: 10,
                   fontWeight: 600, fontSize: 15, border: 'none', cursor: 'pointer',
                   fontFamily: "'Inter', sans-serif",
@@ -109,7 +109,7 @@ function Hero() {
                 whileHover={{ background: '#F1F3F9', borderColor: '#C8CEDF' }}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
-                  background: 'white', color: '#1B2559',
+                  background: 'white', color: '#5B3FD4',
                   padding: '14px 26px', borderRadius: 10,
                   fontWeight: 500, fontSize: 15,
                   border: '1px solid #E2E6F0', cursor: 'pointer',
@@ -134,7 +134,7 @@ function Hero() {
               { num: '$90', suf: 'k', label: 'Avg human ISA annual cost' },
             ].map((s, i) => (
               <div key={i}>
-                <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: '#1B2559', lineHeight: 1 }}>
+                <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: '#5B3FD4', lineHeight: 1 }}>
                   {s.num}<span style={{ fontSize: 18, color: '#5A6480' }}>{s.suf}</span>
                 </div>
                 <div style={{ fontSize: 12, color: '#8E97B5', marginTop: 4, maxWidth: 120 }}>{s.label}</div>
@@ -185,9 +185,9 @@ function HeroMockup() {
 
       {/* Chat header */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F3F9', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#1B2559', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'white', flexShrink: 0 }}>A</div>
+        <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'white', flexShrink: 0 }}>A</div>
         <div>
-          <div style={{ fontWeight: 600, fontSize: 14, color: '#1B2559' }}>Alex — Premier Realty</div>
+          <div style={{ fontWeight: 600, fontSize: 14, color: '#5B3FD4' }}>Alex — Premier Realty</div>
           <div style={{ fontSize: 11, color: '#0D9E6E', display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0D9E6E', display: 'inline-block' }} />
             Online · ORVN PAS Active
@@ -206,13 +206,13 @@ function HeroMockup() {
             style={{ display: 'flex', gap: 8, flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}
           >
             {msg.role === 'ai' && (
-              <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#1B2559', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
+              <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
             )}
             <div style={{
               maxWidth: '78%', padding: '9px 13px', fontSize: 12.5, lineHeight: 1.55,
               borderRadius: msg.role === 'ai' ? '14px 14px 14px 4px' : '14px 14px 4px 14px',
-              background: msg.role === 'ai' ? 'white' : '#1B2559',
-              color: msg.role === 'ai' ? '#1B2559' : 'white',
+              background: msg.role === 'ai' ? 'white' : '#5B3FD4',
+              color: msg.role === 'ai' ? '#5B3FD4' : 'white',
               boxShadow: msg.role === 'ai' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               border: msg.role === 'ai' ? '1px solid #F1F3F9' : 'none',
             }}>
@@ -223,7 +223,7 @@ function HeroMockup() {
         {/* Typing */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.0 }}
           style={{ display: 'flex', gap: 8 }}>
-          <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#1B2559', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
+          <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
           <div style={{ display: 'flex', gap: 3, padding: '10px 14px', background: 'white', border: '1px solid #F1F3F9', borderRadius: '14px 14px 14px 4px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', alignItems: 'center' }}>
             {[0, 0.18, 0.36].map((d, i) => (
               <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8CEDF', display: 'block', animation: `typing 1.2s ${d}s infinite` }} />
@@ -237,7 +237,7 @@ function HeroMockup() {
         <div style={{ flex: 1, background: '#F8F9FC', border: '1px solid #E2E6F0', borderRadius: 20, padding: '8px 14px', fontSize: 12, color: '#8E97B5' }}>
           Reply to Alex...
         </div>
-        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#1B2559', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <ArrowRight size={14} color="white" />
         </div>
       </div>
@@ -250,7 +250,7 @@ function HeroMockup() {
       >
         <CheckCircle size={16} color="#0D9E6E" />
         <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#1B2559' }}>Appointment Booked — Thursday 2PM</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#5B3FD4' }}>Appointment Booked — Thursday 2PM</div>
           <div style={{ fontSize: 11, color: '#5A6480' }}>Confirmation sent · Agent notified · CRM updated</div>
         </div>
       </motion.div>
@@ -372,7 +372,7 @@ function Calculator() {
       <div style={INNER}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <EyeBrow text="Free Revenue Audit" />
-          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: '#1B2559', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
+          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(30px, 3.5vw, 48px)', fontWeight: 400, color: '#5B3FD4', lineHeight: 1.1, marginBottom: 14, maxWidth: 640 }}>
             How Much Revenue Is Your Brokerage Bleeding Monthly?
           </h2>
           <p style={{ color: '#5A6480', fontSize: 16, lineHeight: 1.75, marginBottom: 48, maxWidth: 540 }}>
@@ -383,7 +383,7 @@ function Calculator() {
         <div className="calc-inner" style={{ background: 'white', border: '1px solid #E2E6F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.04), 0 16px 32px rgba(0,0,0,0.06)' }}>
           {/* Card header */}
           <div style={{ padding: '20px 32px', borderBottom: '1px solid #F1F3F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FAFBFD' }}>
-            <span style={{ fontWeight: 600, fontSize: 15, color: '#1B2559' }}>Speed-to-Lead Revenue Audit</span>
+            <span style={{ fontWeight: 600, fontSize: 15, color: '#5B3FD4' }}>Speed-to-Lead Revenue Audit</span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#8E97B5' }}>60 seconds</span>
           </div>
 
@@ -398,7 +398,7 @@ function Calculator() {
               ].map(f => (
                 <div key={f.id}>
                   <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8E97B5', marginBottom: 8 }}>
-                    {f.label}{f.required && <span style={{ color: '#1B2559', marginLeft: 4 }}>*</span>}
+                    {f.label}{f.required && <span style={{ color: '#5B3FD4', marginLeft: 4 }}>*</span>}
                   </label>
                   <div style={{ position: 'relative' }}>
                     {f.prefix && <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: '#8E97B5' }}>{f.prefix}</span>}
@@ -410,10 +410,10 @@ function Calculator() {
                       style={{
                         width: '100%', background: '#F8F9FC', border: '1px solid #E2E6F0',
                         borderRadius: 8, padding: `12px ${f.prefix ? '40px' : '14px'} 12px ${f.prefix ? '28px' : '14px'}`,
-                        fontSize: 15, color: '#1B2559', fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 15, color: '#5B3FD4', fontFamily: "'JetBrains Mono', monospace",
                         outline: 'none', transition: 'border-color 0.2s',
                       }}
-                      onFocus={e => e.target.style.borderColor = '#1B2559'}
+                      onFocus={e => e.target.style.borderColor = '#5B3FD4'}
                       onBlur={e => e.target.style.borderColor = '#E2E6F0'}
                     />
                   </div>
@@ -426,19 +426,19 @@ function Calculator() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 28, marginBottom: 36 }}>
               <div>
                 <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8E97B5', marginBottom: 8 }}>
-                  Lead-to-Close Rate <span style={{ color: '#1B2559' }}>*</span>
+                  Lead-to-Close Rate <span style={{ color: '#5B3FD4' }}>*</span>
                 </label>
                 <input type="range" min="1" max="30" value={closeRate} onChange={e => setCloseRate(e.target.value)} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#8E97B5' }}>1%</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: '#1B2559' }}>{closeRate}%</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: '#5B3FD4' }}>{closeRate}%</span>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#8E97B5' }}>30%</span>
                 </div>
                 <p style={{ fontSize: 11, color: '#8E97B5', textAlign: 'center', marginTop: 3 }}>Industry avg ~8%</p>
               </div>
               <div>
                 <label style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8E97B5', marginBottom: 8 }}>
-                  Avg Lead Response Time <span style={{ color: '#1B2559' }}>*</span>
+                  Avg Lead Response Time <span style={{ color: '#5B3FD4' }}>*</span>
                 </label>
                 <input type="range" min="1" max="480" value={responseTime} onChange={e => setResponseTime(e.target.value)} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
@@ -452,10 +452,10 @@ function Calculator() {
 
             <motion.button
               onClick={calculate}
-              whileHover={{ background: '#2D3A7C', y: -1, boxShadow: '0 12px 32px rgba(27,37,89,0.25)' }}
+              whileHover={{ background: '#7B5FEA', y: -1, boxShadow: '0 12px 32px rgba(27,37,89,0.25)' }}
               whileTap={{ scale: 0.98 }}
               style={{
-                width: '100%', background: '#1B2559', color: 'white', border: 'none',
+                width: '100%', background: '#5B3FD4', color: 'white', border: 'none',
                 borderRadius: 10, padding: '16px', fontWeight: 700, fontSize: 16,
                 cursor: 'pointer', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.01em',
               }}
@@ -493,7 +493,7 @@ function Calculator() {
                   {[
                     { label: 'Leads Lost to Response Time', value: results.leadsLost + '/mo', color: '#DC2626' },
                     { label: 'Monthly Commission Lost', value: formatMoney(results.monthlyLost), color: '#D97706' },
-                    { label: 'Graveyard Opportunity', value: formatMoney(results.graveyardRev), color: '#1B2559' },
+                    { label: 'Graveyard Opportunity', value: formatMoney(results.graveyardRev), color: '#5B3FD4' },
                   ].map((card, i) => (
                     <div key={i} style={{ background: '#F8F9FC', border: '1px solid #E2E6F0', borderRadius: 10, padding: '20px', textAlign: 'center' }}>
                       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.1em', color: '#8E97B5', textTransform: 'uppercase', marginBottom: 8 }}>{card.label}</div>
@@ -503,22 +503,22 @@ function Calculator() {
                 </div>
 
                 {/* Insight */}
-                <div style={{ background: '#F8F9FC', border: '1px solid #E2E6F0', borderLeft: '3px solid #1B2559', borderRadius: 10, padding: 24, marginBottom: 24 }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.12em', color: '#1B2559', textTransform: 'uppercase', marginBottom: 10 }}>ORVN Labs Analysis</div>
+                <div style={{ background: '#F8F9FC', border: '1px solid #E2E6F0', borderLeft: '3px solid #5B3FD4', borderRadius: 10, padding: 24, marginBottom: 24 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.12em', color: '#5B3FD4', textTransform: 'uppercase', marginBottom: 10 }}>ORVN Labs Analysis</div>
                   <p style={{ fontSize: 14, lineHeight: 1.8, color: '#5A6480' }} dangerouslySetInnerHTML={{ __html: results.insight }} />
                 </div>
 
                 {/* Lead capture */}
                 <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F0FDF7)', border: '1px solid #C7D2FE', borderRadius: 14, padding: 36, textAlign: 'center' }}>
-                  <h3 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 22, color: '#1B2559', marginBottom: 8 }}>Get Your Full Revenue Recovery Report</h3>
+                  <h3 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 22, color: '#5B3FD4', marginBottom: 8 }}>Get Your Full Revenue Recovery Report</h3>
                   <p style={{ color: '#5A6480', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>We'll send you a personalised breakdown with exact recovery projections for your brokerage.</p>
                   {!submitted ? (
                     <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 10, maxWidth: 440, margin: '0 auto 12px' }}>
                       <input
                         type="email" value={email} onChange={e => setEmail(e.target.value)}
                         placeholder="your@brokerage.com" required
-                        style={{ flex: 1, background: 'white', border: '1px solid #E2E6F0', borderRadius: 8, padding: '13px 16px', fontSize: 14, color: '#1B2559', outline: 'none' }}
-                        onFocus={e => e.target.style.borderColor = '#1B2559'}
+                        style={{ flex: 1, background: 'white', border: '1px solid #E2E6F0', borderRadius: 8, padding: '13px 16px', fontSize: 14, color: '#5B3FD4', outline: 'none' }}
+                        onFocus={e => e.target.style.borderColor = '#5B3FD4'}
                         onBlur={e => e.target.style.borderColor = '#E2E6F0'}
                       />
                       <button type="submit" style={{ background: '#0D9E6E', color: 'white', border: 'none', borderRadius: 8, padding: '13px 20px', fontWeight: 700, fontSize: 14, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -557,7 +557,7 @@ function DemoTeaser() {
       <div style={{ ...INNER, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'clamp(40px, 6vw, 80px)', alignItems: 'center' }}>
         <div className="dt-left">
           <EyeBrow text="Live Demo" />
-          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(28px, 3.5vw, 46px)', fontWeight: 400, color: '#1B2559', lineHeight: 1.1, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(28px, 3.5vw, 46px)', fontWeight: 400, color: '#5B3FD4', lineHeight: 1.1, marginBottom: 16 }}>
             Watch the AI Close a Lead. Right Now.
           </h2>
           <p style={{ color: '#5A6480', fontSize: 16, lineHeight: 1.75, marginBottom: 32, maxWidth: 420 }}>
@@ -574,9 +574,9 @@ function DemoTeaser() {
                 viewport={{ once: true }} transition={{ delay: 0.1 + i * 0.1 }}
                 style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}
               >
-                <div style={{ width: 34, height: 34, borderRadius: 8, background: '#F1F3F9', border: '1px solid #E2E6F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B2559', flexShrink: 0 }}>{item.icon}</div>
+                <div style={{ width: 34, height: 34, borderRadius: 8, background: '#F1F3F9', border: '1px solid #E2E6F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5B3FD4', flexShrink: 0 }}>{item.icon}</div>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: '#1B2559', marginBottom: 2 }}>{item.title}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#5B3FD4', marginBottom: 2 }}>{item.title}</div>
                   <div style={{ fontSize: 13, color: '#8E97B5' }}>{item.sub}</div>
                 </div>
               </motion.div>
@@ -584,9 +584,9 @@ function DemoTeaser() {
           </div>
           <Link to="/demo">
             <motion.button
-              whileHover={{ background: '#2D3A7C', y: -1, boxShadow: '0 10px 28px rgba(27,37,89,0.2)' }}
+              whileHover={{ background: '#7B5FEA', y: -1, boxShadow: '0 10px 28px rgba(27,37,89,0.2)' }}
               whileTap={{ scale: 0.97 }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1B2559', color: 'white', padding: '14px 24px', borderRadius: 10, fontWeight: 600, fontSize: 15, border: 'none', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#5B3FD4', color: 'white', padding: '14px 24px', borderRadius: 10, fontWeight: 600, fontSize: 15, border: 'none', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}
             >
               Run the Full Demo <ArrowRight size={15} />
             </motion.button>
@@ -601,7 +601,7 @@ function DemoTeaser() {
             style={{ background: 'white', border: '1px solid #E2E6F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.07)' }}
           >
             <div style={{ background: '#F8F9FC', borderBottom: '1px solid #E2E6F0', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontWeight: 600, fontSize: 14, color: '#1B2559' }}>ORVN PAS — Live</span>
+              <span style={{ fontWeight: 600, fontSize: 14, color: '#5B3FD4' }}>ORVN PAS — Live</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#F0FDF7', border: '1px solid #BBF7D0', borderRadius: 100, padding: '4px 10px' }}>
                 <span className="animate-blink" style={{ width: 5, height: 5, borderRadius: '50%', background: '#0D9E6E', display: 'block' }} />
                 <span style={{ fontSize: 10, color: '#0D9E6E', fontWeight: 600, letterSpacing: '0.06em', fontFamily: "'JetBrains Mono', monospace" }}>LIVE</span>
@@ -615,14 +615,14 @@ function DemoTeaser() {
                 { role: 'user', text: "Working on it — sorted in a few weeks." },
               ].map((msg, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
-                  {msg.role === 'ai' && <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#1B2559', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>}
-                  <div style={{ maxWidth: '80%', padding: '9px 13px', fontSize: 12.5, lineHeight: 1.55, borderRadius: msg.role === 'ai' ? '12px 12px 12px 4px' : '12px 12px 4px 12px', background: msg.role === 'ai' ? 'white' : '#1B2559', color: msg.role === 'ai' ? '#1B2559' : 'white', boxShadow: msg.role === 'ai' ? '0 1px 3px rgba(0,0,0,0.07)' : 'none', border: msg.role === 'ai' ? '1px solid #F1F3F9' : 'none' }}>
+                  {msg.role === 'ai' && <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>}
+                  <div style={{ maxWidth: '80%', padding: '9px 13px', fontSize: 12.5, lineHeight: 1.55, borderRadius: msg.role === 'ai' ? '12px 12px 12px 4px' : '12px 12px 4px 12px', background: msg.role === 'ai' ? 'white' : '#5B3FD4', color: msg.role === 'ai' ? '#5B3FD4' : 'white', boxShadow: msg.role === 'ai' ? '0 1px 3px rgba(0,0,0,0.07)' : 'none', border: msg.role === 'ai' ? '1px solid #F1F3F9' : 'none' }}>
                     {msg.text}
                   </div>
                 </div>
               ))}
               <div style={{ display: 'flex', gap: 8 }}>
-                <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#1B2559', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
                 <div style={{ display: 'flex', gap: 3, padding: '9px 13px', background: 'white', border: '1px solid #F1F3F9', borderRadius: '12px 12px 12px 4px', boxShadow: '0 1px 3px rgba(0,0,0,0.07)', alignItems: 'center' }}>
                   {[0, 0.18, 0.36].map((d, i) => (
                     <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8CEDF', display: 'block', animation: `typing 1.2s ${d}s infinite` }} />
@@ -635,7 +635,7 @@ function DemoTeaser() {
                 whileHover={{ background: '#F1F3F9' }}
                 style={{ padding: '14px 20px', borderTop: '1px solid #F1F3F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', background: 'white', transition: 'background 0.2s' }}
               >
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#1B2559' }}>Try the full demo — text or voice</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#5B3FD4' }}>Try the full demo — text or voice</span>
                 <ChevronRight size={15} color="#8E97B5" />
               </motion.div>
             </Link>
@@ -649,7 +649,7 @@ function DemoTeaser() {
 // ─── HOME CTA ──────────────────────────────────────────────────────────────────
 function HomeCTA() {
   return (
-    <section style={{ ...SEC, background: '#1B2559', textAlign: 'center' }}>
+    <section style={{ ...SEC, background: '#5B3FD4', textAlign: 'center' }}>
       <div style={{ maxWidth: 680, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 20 }}>
@@ -666,7 +666,7 @@ function HomeCTA() {
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/demo">
               <motion.button
-                whileHover={{ background: 'white', color: '#1B2559', y: -2 }}
+                whileHover={{ background: 'white', color: '#5B3FD4', y: -2 }}
                 whileTap={{ scale: 0.97 }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.15)', color: 'white', padding: '14px 26px', borderRadius: 10, fontWeight: 600, fontSize: 15, border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontFamily: "'Inter', sans-serif", transition: 'all 0.2s' }}
               >

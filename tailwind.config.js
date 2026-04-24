@@ -5,9 +5,9 @@ module.exports = {
     extend: {
       colors: {
         navy: {
-          DEFAULT: "#1B2559",
-          light: "#2D3A7C",
-          dark: "#111840",
+          DEFAULT: "#5B3FD4",
+          light: "#7B5FEA",
+          dark: "#3A2899",
         },
         slate: {
           50: "#F8F9FC",
@@ -19,7 +19,7 @@ module.exports = {
           600: "#3D4560",
         },
         accent: {
-          DEFAULT: "#1B2559",
+          DEFAULT: "#5B3FD4",
           green: "#0D9E6E",
           red: "#DC2626",
           amber: "#D97706",
@@ -33,7 +33,7 @@ module.exports = {
       boxShadow: {
         card: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)",
         "card-hover": "0 4px 6px rgba(0,0,0,0.06), 0 16px 32px rgba(0,0,0,0.1)",
-        "navy-glow": "0 8px 32px rgba(27,37,89,0.2)",
+        "glow": "0 8px 32px rgba(91,63,212,0.25)",
       },
     },
   },
