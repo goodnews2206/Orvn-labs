@@ -1,28 +1,29 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+export default {
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        navy: {
+        ink: "#0F172A",
+        "ink-mid": "#475569",
+        "ink-dim": "#94A3B8",
+        background: "#FFFFFF",
+        surface: "#F7F8FB",
+        line: "#E5E8F0",
+        "line-strong": "#CFD4E2",
+        primary: {
           DEFAULT: "#5B3FD4",
           light: "#7B5FEA",
           dark: "#3A2899",
+          pale: "#EEEAFB",
         },
-        slate: {
-          50: "#F8F9FC",
-          100: "#F1F3F9",
-          200: "#E2E6F0",
-          300: "#C8CEDF",
-          400: "#8E97B5",
-          500: "#5A6480",
-          600: "#3D4560",
-        },
-        accent: {
-          DEFAULT: "#5B3FD4",
-          green: "#0D9E6E",
-          red: "#DC2626",
-          amber: "#D97706",
+        signal: {
+          risk: "#DC2626",
+          "risk-pale": "#FEF2F2",
+          ok: "#0D9E6E",
+          "ok-pale": "#ECFDF5",
+          warn: "#D97706",
+          "warn-pale": "#FFFBEB",
         },
       },
       fontFamily: {
@@ -31,9 +32,13 @@ module.exports = {
         mono: ["'JetBrains Mono'", "monospace"],
       },
       boxShadow: {
-        card: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)",
-        "card-hover": "0 4px 6px rgba(0,0,0,0.06), 0 16px 32px rgba(0,0,0,0.1)",
-        "glow": "0 8px 32px rgba(91,63,212,0.25)",
+        card: "0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.05)",
+        "card-hover": "0 2px 4px rgba(15,23,42,0.06), 0 12px 28px rgba(15,23,42,0.08)",
+        ring: "0 0 0 4px rgba(91,63,212,0.12)",
+      },
+      maxWidth: {
+        page: "1160px",
+        prose: "680px",
       },
     },
   },

@@ -1,49 +1,154 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import Logo from './Logo';
+import { PAS_LINKS } from '../lib/pas';
+
+const COLS = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'PAS — Performative AI Superstaff', to: '/pas' },
+      { label: 'Pricing', to: '/pricing' },
+      { label: 'Test PAS', to: '/demo' },
+      { label: 'PAS Control Room', href: PAS_LINKS.controlRoom, external: true },
+    ],
+  },
+  {
+    title: 'Tools',
+    links: [
+      { label: 'Lead Leakage Scorecard', to: '/calculators/leakage' },
+      { label: 'Revenue Calculator', to: '/calculators/revenue' },
+      { label: 'All Calculators', to: '/calculators' },
+    ],
+  },
+  {
+    title: 'Intelligence',
+    links: [
+      { label: 'First-Contact Intelligence (Blog)', to: '/blog' },
+      { label: 'FAQ', to: '/faq' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Privacy Policy', to: '/legal/privacy' },
+      { label: 'Terms of Use', to: '/legal/terms' },
+      { label: 'AI / Call Recording Disclosure', to: '/legal/ai-disclosure' },
+      { label: 'Data Retention Policy', to: '/legal/data-retention' },
+      { label: 'Acceptable Use Policy', to: '/legal/acceptable-use' },
+      { label: 'Fair Housing Compliance', to: '/legal/fair-housing' },
+    ],
+  },
+];
 
 export default function Footer() {
+  const year = new Date().getFullYear();
   return (
-    <footer style={{
-      background: '#F8F9FC',
-      borderTop: '1px solid #E2E6F0',
-      padding: '40px clamp(20px, 5vw, 64px)',
-    }}>
-      <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <div style={{ width: 28, height: 28, borderRadius: 6, background: ' #5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="14" height="14" viewBox="0 0 100 100" fill="none">
-              <circle cx="50" cy="58" r="35" stroke="white" strokeWidth="12" fill="none"/>
-              <line x1="15" y1="58" x2="85" y2="58" stroke="white" strokeWidth="12" strokeLinecap="round"/>
-              <line x1="50" y1="22" x2="50" y2="30" stroke="white" strokeWidth="10" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <span style={{ fontWeight: 700, fontSize: 15, color: ' #5B3FD4', letterSpacing: '-0.01em' }}>ORVN Labs</span>
-        </Link>
+    <footer
+      style={{
+        background: '#F7F8FB',
+        borderTop: '1px solid #E5E8F0',
+        padding: '64px 0 28px',
+      }}
+    >
+      <div className="container-page">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: 36,
+            marginBottom: 48,
+          }}
+        >
+          <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) repeat(auto-fit, minmax(160px, 1fr))', gap: 36 }}>
+            <div>
+              <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <Logo size={32} />
+                <span style={{ fontWeight: 700, fontSize: 17, color: '#0F172A' }}>
+                  ORVN <span style={{ color: '#5B3FD4' }}>Labs</span>
+                </span>
+              </Link>
+              <p style={{ color: '#475569', fontSize: 13.5, lineHeight: 1.7, maxWidth: 260, margin: 0 }}>
+                Brokerage intelligence infrastructure. PAS controls what happens between inquiry and qualified appointment.
+              </p>
+              <a
+                href="mailto:hello@orvnlabs.com"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginTop: 16,
+                  fontSize: 13,
+                  color: '#475569',
+                  textDecoration: 'none',
+                }}
+              >
+                <Mail size={14} /> hello@orvnlabs.com
+              </a>
+            </div>
 
-        <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
-          {[
-            { label: 'The Problem', to: '/product' },
-            { label: 'How It Works', to: '/product#how' },
-            { label: 'Why ORVN Labs', to: '/why-orvn' },
-            { label: 'Test the AI', to: '/demo' },
-          ].map(l => (
-            <Link key={l.to} to={l.to} style={{ fontSize: 13, color: '#5A6480', textDecoration: 'none', transition: 'color 0.2s' }}
-              onMouseEnter={e => e.target.style.color = ' #5B3FD4'}
-              onMouseLeave={e => e.target.style.color = '#5A6480'}
-            >
-              {l.label}
-            </Link>
-          ))}
-          <a href="mailto:daniel@orvnlabs.com" style={{ fontSize: 13, color: '#5A6480', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}
-            onMouseEnter={e => e.target.style.color = ' #5B3FD4'}
-            onMouseLeave={e => e.target.style.color = '#5A6480'}
-          >
-            Contact <ArrowUpRight size={11} />
-          </a>
+            {COLS.map((col) => (
+              <div key={col.title}>
+                <h4
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 11,
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    color: '#94A3B8',
+                    marginBottom: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  {col.title}
+                </h4>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {col.links.map((link) => (
+                    <li key={link.label}>
+                      {link.to ? (
+                        <Link
+                          to={link.to}
+                          style={{ fontSize: 13.5, color: '#475569', textDecoration: 'none' }}
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.href}
+                          target={link.external ? '_blank' : undefined}
+                          rel={link.external ? 'noopener noreferrer' : undefined}
+                          style={{ fontSize: 13.5, color: '#475569', textDecoration: 'none' }}
+                        >
+                          {link.label}
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <p style={{ fontSize: 12, color: '#8E97B5' }}>© 2026 ORVN Labs. Built for Real Estate.</p>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 12,
+            paddingTop: 24,
+            borderTop: '1px solid #E5E8F0',
+          }}
+        >
+          <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>
+            © {year} ORVN Labs. Built for real estate brokerages. PAS is a product of ORVN Labs.
+          </p>
+          <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>
+            Not affiliated with Fair Housing enforcement agencies. Not a CRM.
+          </p>
+        </div>
       </div>
     </footer>
   );
