@@ -1,22 +1,27 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Phone, Zap, CheckCircle, ArrowRight, Mic } from 'lucide-react';
+import { ArrowRight, CheckCircle2, MessageSquare, Phone, Mic } from 'lucide-react';
+
 import PageWrapper from '../components/PageWrapper';
+import Eyebrow from '../components/ui/Eyebrow';
+import { useDocumentMeta } from '../lib/seo';
+import { PAS_LINKS } from '../lib/pas';
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const buildScript = name => [
-  { role: 'ai', text: `Hey ${name}! Quick one — are you currently looking to buy, or are you also open to selling a property?` },
-  { role: 'user', text: 'Mostly looking to buy in the next couple of months.' },
-  { role: 'ai', text: 'Good timing. Are you pre-approved for financing, or is that still in progress?' },
-  { role: 'user', text: "We're working on it — should be sorted in a few weeks." },
-  { role: 'ai', text: 'That actually gives us a nice window to work with. Rough price range? Ballpark is totally fine.' },
-  { role: 'user', text: 'Somewhere between $400K and $500K.' },
-  { role: 'ai', text: "Got it. Any specific neighbourhoods you're focused on, or are you open on location?" },
-  { role: 'user', text: 'A few in mind — mainly the north side.' },
-  { role: 'ai', text: "I have a couple of listings on the north side that just came in — they tend to move fast. I'd love to get you in front of one of our agents this week. Thursday or Friday — which works better?" },
-  { role: 'user', text: 'Thursday works great.' },
-  { role: 'ai', text: "Locking that in now. You'll get a confirmation shortly with the agent's details. Anything specific you'd like them to know before you meet?" },
+const buildScript = (name) => [
+  { role: 'pas', text: `Hey ${name} — thanks for reaching out about that listing. Are you currently looking to buy, also open to selling, or just gathering information?` },
+  { role: 'lead', text: 'Mostly looking to buy in the next couple of months.' },
+  { role: 'pas', text: 'Got it. Are you already working with another agent, or is this your first conversation?' },
+  { role: 'lead', text: 'First conversation.' },
+  { role: 'pas', text: 'Roughly what price range works, and is financing already in place or still in progress?' },
+  { role: 'lead', text: 'Around $450k. Pre-approval should be done in about two weeks.' },
+  { role: 'pas', text: 'Helpful timing. Any specific neighborhoods, or are you open on location?' },
+  { role: 'lead', text: 'A few in mind — mainly the north side.' },
+  { role: 'pas', text: "I’ve got two listings on the north side that just came up. I can put you on Jordan’s calendar — they cover that area. Thursday 2pm or Friday 10am?" },
+  { role: 'lead', text: 'Thursday works.' },
+  { role: 'pas', text: 'Locking that in. You’ll get a confirmation shortly. Anything specific you’d like Jordan to know in advance?' },
 ];
 
 function TextDemo() {
@@ -24,109 +29,161 @@ function TextDemo() {
   const [name, setName] = useState('');
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
-  const [step, setStep] = useState(0);
   const convoRef = useRef(null);
 
   useEffect(() => {
     if (convoRef.current) convoRef.current.scrollTop = convoRef.current.scrollHeight;
   }, [messages, typing]);
 
-  const runScript = async n => {
+  const run = async (n) => {
     const script = buildScript(n);
-    for (let i = 0; i < script.length; i++) {
-      const s = script[i];
-      if (s.role === 'ai') {
+    for (let i = 0; i < script.length; i += 1) {
+      const turn = script[i];
+      if (turn.role === 'pas') {
         setTyping(true);
-        await sleep(1200 + Math.random() * 600);
+        await sleep(1100 + Math.random() * 600);
         setTyping(false);
-        setMessages(prev => [...prev, s]);
-        setStep(i + 1);
-        await sleep(1800 + Math.random() * 400);
+        setMessages((prev) => [...prev, turn]);
+        await sleep(1500 + Math.random() * 400);
       } else {
-        setMessages(prev => [...prev, s]);
-        setStep(i + 1);
-        await sleep(500);
+        setMessages((prev) => [...prev, turn]);
+        await sleep(450);
       }
     }
     setPhase('done');
   };
 
-  const handleStart = () => {
+  const start = () => {
     if (!name.trim()) return;
     setPhase('running');
     setMessages([]);
-    runScript(name.trim());
+    run(name.trim());
   };
 
-  const phaseIdx = Math.min(Math.floor((step / 11) * 3), 2);
-
   return (
-    <div style={{ background: 'white', border: '1px solid #E2E6F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.04), 0 20px 48px rgba(27,37,89,0.08)', maxWidth: 580, width: '100%' }}>
-      {/* Header */}
-      <div style={{ background: '#F8F9FC', borderBottom: '1px solid #E2E6F0', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div
+      style={{
+        background: '#fff',
+        border: '1px solid #E5E8F0',
+        borderRadius: 16,
+        overflow: 'hidden',
+        maxWidth: 600,
+        width: '100%',
+        boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 12px 28px rgba(15,23,42,0.06)',
+      }}
+    >
+      <div
+        style={{
+          background: '#F7F8FB',
+          borderBottom: '1px solid #E5E8F0',
+          padding: '14px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'white' }}>A</div>
-          <div>
-            <div style={{ fontWeight: 600, fontSize: 14, color: '#5B3FD4' }}>Alex — Premier Realty</div>
-            <div style={{ fontSize: 11, color: '#0D9E6E' }}>● ORVN PAS Active</div>
-          </div>
+          <span className="animate-blink" style={{ width: 8, height: 8, borderRadius: '50%', background: '#0D9E6E' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>
+            PAS · live demo
+          </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#F0FDF7', border: '1px solid #BBF7D0', borderRadius: 100, padding: '4px 10px' }}>
-          <span className="animate-blink" style={{ width: 5, height: 5, borderRadius: '50%', background: '#0D9E6E', display: 'block' }} />
-          <span style={{ fontSize: 10, color: '#0D9E6E', fontWeight: 600, letterSpacing: '0.06em', fontFamily: "'JetBrains Mono', monospace" }}>LIVE</span>
-        </div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#94A3B8' }}>
+          Sample brokerage · scripted
+        </span>
       </div>
 
-      <div style={{ padding: 24 }}>
-        {/* Phase bar */}
-        {phase !== 'form' && (
-          <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-            {['Engage', 'Qualify', 'Book'].map((label, i) => (
-              <div key={i} style={{ flex: 1 }}>
-                <div style={{ height: 3, borderRadius: 2, background: i < phaseIdx ? '#5B3FD4' : i === phaseIdx ? '#2D3A7C' : '#E2E6F0', transition: 'background .4s', marginBottom: 4 }} />
-                <span style={{ fontSize: 10, color: i <= phaseIdx ? '#5B3FD4' : '#8E97B5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em', textTransform: 'uppercase' }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Conversation */}
-        <div ref={convoRef} style={{ background: '#FAFBFD', border: '1px solid #F1F3F9', borderRadius: 12, padding: 16, minHeight: 240, maxHeight: 320, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          {messages.length === 0 && phase === 'form' && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: '#8E97B5', fontSize: 13, textAlign: 'center' }}>
-              Enter your name below to start the live AI simulation
-            </div>
+      <div style={{ padding: 22 }}>
+        <div
+          ref={convoRef}
+          style={{
+            background: '#FAFBFD',
+            border: '1px solid #F1F3F9',
+            borderRadius: 12,
+            padding: 16,
+            minHeight: 280,
+            maxHeight: 380,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            marginBottom: 18,
+          }}
+        >
+          {phase === 'form' && messages.length === 0 && (
+            <p style={{ textAlign: 'center', color: '#94A3B8', fontSize: 13, marginTop: 80 }}>
+              Enter your first name below to start the demo.
+            </p>
           )}
-          {messages.map((msg, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-              style={{ display: 'flex', gap: 8, flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
-              {msg.role === 'ai' && (
-                <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
-              )}
-              <div style={{ maxWidth: '80%', padding: '9px 13px', fontSize: 13, lineHeight: 1.55, borderRadius: msg.role === 'ai' ? '12px 12px 12px 4px' : '12px 12px 4px 12px', background: msg.role === 'ai' ? 'white' : '#5B3FD4', color: msg.role === 'ai' ? '#5B3FD4' : 'white', boxShadow: msg.role === 'ai' ? '0 1px 3px rgba(0,0,0,0.07)' : 'none', border: msg.role === 'ai' ? '1px solid #F1F3F9' : 'none', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-                {msg.text}
+          {messages.map((m, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ display: 'flex', justifyContent: m.role === 'pas' ? 'flex-start' : 'flex-end' }}
+            >
+              <div
+                style={{
+                  maxWidth: '82%',
+                  padding: '10px 14px',
+                  borderRadius: m.role === 'pas' ? '14px 14px 14px 4px' : '14px 14px 4px 14px',
+                  background: m.role === 'pas' ? '#fff' : '#5B3FD4',
+                  color: m.role === 'pas' ? '#0F172A' : '#fff',
+                  border: m.role === 'pas' ? '1px solid #E5E8F0' : 'none',
+                  fontSize: 13.5,
+                  lineHeight: 1.55,
+                }}
+              >
+                {m.text}
               </div>
             </motion.div>
           ))}
           {typing && (
-            <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0, marginTop: 2 }}>AI</div>
-              <div style={{ display: 'flex', gap: 3, padding: '9px 13px', background: 'white', border: '1px solid #F1F3F9', borderRadius: '12px 12px 12px 4px', boxShadow: '0 1px 3px rgba(0,0,0,0.07)', alignItems: 'center' }}>
-                {[0, 0.18, 0.36].map((d, i) => (
-                  <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8CEDF', display: 'block', animation: `typing 1.2s ${d}s infinite` }} />
+            <div style={{ display: 'flex' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 4,
+                  padding: '10px 14px',
+                  background: '#fff',
+                  border: '1px solid #E5E8F0',
+                  borderRadius: '14px 14px 14px 4px',
+                  alignItems: 'center',
+                }}
+              >
+                {[0, 0.2, 0.4].map((d, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: '50%',
+                      background: '#94A3B8',
+                      animation: `typing 1.2s ${d}s infinite`,
+                    }}
+                  />
                 ))}
               </div>
             </div>
           )}
           {phase === 'done' && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-              style={{ display: 'flex', gap: 8 }}>
-              <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#0D9E6E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
-                <CheckCircle size={14} color="white" />
-              </div>
-              <div style={{ maxWidth: '80%', padding: '9px 13px', fontSize: 13, lineHeight: 1.55, borderRadius: '12px 12px 12px 4px', background: '#F0FDF7', border: '1px solid #BBF7D0', color: '#5B3FD4' }}>
-                ✓ Appointment booked for Thursday. Confirmation sent. — That's the ORVN PAS: first contact to booked appointment, fully autonomous, zero humans involved.
-              </div>
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                background: '#ECFDF5',
+                border: '1px solid #A7F3D0',
+                borderRadius: 10,
+                padding: '12px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                marginTop: 6,
+                fontSize: 13.5,
+                color: '#065F46',
+              }}
+            >
+              <CheckCircle2 size={16} /> Appointment booked · Thursday 2pm · agent notified · CRM updated.
             </motion.div>
           )}
         </div>
@@ -134,27 +191,39 @@ function TextDemo() {
         {phase === 'form' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <input
-              value={name} onChange={e => setName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleStart()}
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && start()}
               placeholder="Your first name"
-              style={{ background: '#F8F9FC', border: '1px solid #E2E6F0', borderRadius: 8, padding: '12px 15px', color: '#5B3FD4', fontFamily: "'Inter', sans-serif", fontSize: 14, outline: 'none' }}
-              onFocus={e => e.target.style.borderColor = '#5B3FD4'}
-              onBlur={e => e.target.style.borderColor = '#E2E6F0'}
+              style={{
+                background: '#F7F8FB',
+                border: '1px solid #E5E8F0',
+                borderRadius: 10,
+                padding: '12px 14px',
+                fontSize: 14,
+                color: '#0F172A',
+                outline: 'none',
+              }}
             />
-            <motion.button onClick={handleStart} whileHover={{ background: '#2D3A7C', y: -1 }} whileTap={{ scale: 0.97 }}
-              style={{ width: '100%', background: '#5B3FD4', color: 'white', border: 'none', borderRadius: 8, padding: '14px', fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: "'Inter', sans-serif" }}>
-              <Zap size={15} /> Start the AI Demo
-            </motion.button>
-            <p style={{ textAlign: 'center', fontSize: 11, color: '#8E97B5' }}>No signup required — 90 seconds to see the full flow</p>
+            <button type="button" onClick={start} className="btn-primary">
+              Start demo <ArrowRight size={15} />
+            </button>
+            <p style={{ textAlign: 'center', fontSize: 11.5, color: '#94A3B8', margin: 0 }}>
+              No signup required. ~90 seconds to see the full flow.
+            </p>
           </div>
         )}
+
         {phase === 'done' && (
-          <a href="mailto:daniel@orvnlabs.com?subject=ORVN%20Labs%20%E2%80%94%20Interested" style={{ textDecoration: 'none' }}>
-            <motion.button whileHover={{ background: '#2D3A7C', y: -1, boxShadow: '0 10px 28px rgba(27,37,89,0.2)' }} whileTap={{ scale: 0.97 }}
-              style={{ width: '100%', background: '#5B3FD4', color: 'white', border: 'none', borderRadius: 8, padding: '14px', fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: "'Inter', sans-serif", marginTop: 8 }}>
-              → Implement This in Your Brokerage
-            </motion.button>
-          </a>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <Link to="/calculators/leakage" className="btn-primary" style={{ flex: 1 }}>
+              Run leakage scorecard <ArrowRight size={15} />
+            </Link>
+            <a href={PAS_LINKS.earlyAccess} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ flex: 1 }}>
+              Apply for early access
+            </a>
+          </div>
         )}
       </div>
     </div>
@@ -163,75 +232,142 @@ function TextDemo() {
 
 function VoiceDemo() {
   return (
-    <div style={{ background: 'white', border: '1px solid #E2E6F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.04), 0 20px 48px rgba(27,37,89,0.08)', maxWidth: 580, width: '100%' }}>
-      <div style={{ background: '#F8F9FC', borderBottom: '1px solid #E2E6F0', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontWeight: 600, fontSize: 14, color: '#5B3FD4' }}>ORVN PAS — Voice Call</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 100, padding: '4px 10px' }}>
-          <Mic size={10} color="#2563EB" />
-          <span style={{ fontSize: 10, color: '#2563EB', fontWeight: 600, letterSpacing: '0.06em', fontFamily: "'JetBrains Mono', monospace" }}>VOICE</span>
+    <div
+      style={{
+        background: '#fff',
+        border: '1px solid #E5E8F0',
+        borderRadius: 16,
+        overflow: 'hidden',
+        maxWidth: 600,
+        width: '100%',
+        boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 12px 28px rgba(15,23,42,0.06)',
+      }}
+    >
+      <div
+        style={{
+          background: '#F7F8FB',
+          borderBottom: '1px solid #E5E8F0',
+          padding: '14px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Mic size={14} color="#5B3FD4" />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>
+            PAS · voice
+          </span>
         </div>
       </div>
-      <div style={{ padding: 48, textAlign: 'center' }}>
-        <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#F1F3F9', border: '2px solid #E2E6F0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-          <Phone size={32} color="#5B3FD4" />
+      <div style={{ padding: 'clamp(28px, 5vw, 48px)', textAlign: 'center' }}>
+        <div
+          style={{
+            width: 84,
+            height: 84,
+            borderRadius: '50%',
+            background: '#EEEAFB',
+            border: '1px solid #C7BCF5',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 22px',
+          }}
+        >
+          <Phone size={28} color="#5B3FD4" />
         </div>
-        <h3 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 24, fontWeight: 400, color: '#5B3FD4', marginBottom: 12 }}>Live Voice Demo</h3>
-        <p style={{ color: '#5A6480', fontSize: 15, lineHeight: 1.75, marginBottom: 32, maxWidth: 360, margin: '0 auto 32px' }}>
-          Call the ORVN PAS directly and experience the voice qualification flow in real time. Powered by ORVN
+        <h3 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 26, color: '#0F172A', margin: '0 0 10px' }}>
+          Voice demo
+        </h3>
+        <p style={{ color: '#475569', fontSize: 15, lineHeight: 1.7, margin: '0 auto 24px', maxWidth: 380 }}>
+          The voice number for the public PAS demo will be published when production telephony is
+          finalized.
         </p>
-        <a href="tel:+1-800-ORVN-AI" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#5B3FD4', color: 'white', padding: '14px 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', fontFamily: "'Inter', sans-serif" }}>
-          <Phone size={15} /> Start Voice Demo
+        {/* TODO: replace with the real Twilio / telephony number once the PAS voice demo line is live. */}
+        <a
+          href={PAS_LINKS.earlyAccess}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary"
+        >
+          Apply for early access <ArrowRight size={15} />
         </a>
-        <p style={{ color: '#8E97B5', fontSize: 12, marginTop: 16 }}>Powered by ORVN</p>
       </div>
     </div>
   );
 }
 
 export default function Demo() {
-  const [activeTab, setActiveTab] = useState('text');
+  useDocumentMeta({
+    title: 'Test PAS',
+    description:
+      'Run a live PAS conversation. 90 seconds, no signup, no calendar booking. See first-contact infrastructure work end-to-end.',
+    path: '/demo',
+  });
+
+  const [tab, setTab] = useState('text');
 
   return (
     <PageWrapper>
-      <div style={{ paddingTop: 68, minHeight: '100vh', background: '#F8F9FC' }}>
-        <div style={{ padding: 'clamp(48px, 6vw, 80px) clamp(20px, 5vw, 64px) 0', textAlign: 'center' }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'white', border: '1px solid #E2E6F0', borderRadius: 100, padding: '5px 13px', marginBottom: 24 }}>
-              <span className="animate-blink" style={{ width: 6, height: 6, borderRadius: '50%', background: '#0D9E6E', display: 'block' }} />
-              <span style={{ fontSize: 12, color: '#5B3FD4', fontWeight: 500, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>Live Demo Environment</span>
-            </div>
-            <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 400, color: '#5B3FD4', lineHeight: 1.08, marginBottom: 16 }}>
-              Test the AI.<br /><em style={{ fontStyle: 'italic', color: '#2D3A7C' }}>Live. Right Now.</em>
-            </h1>
-            <p style={{ color: '#5A6480', fontSize: 17, maxWidth: 480, margin: '0 auto 40px', lineHeight: 1.75 }}>
-              No scripts. No demos. A real simulation of the ORVN PAS working a lead from first contact to booked appointment.
-            </p>
-          </motion.div>
-
-          {/* Tab switcher */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            style={{ display: 'inline-flex', gap: 0, background: 'white', border: '1px solid #E2E6F0', borderRadius: 12, padding: 4, marginBottom: 48 }}>
-            {[
-              { id: 'text', label: 'Text Simulation', icon: <MessageSquare size={14} /> },
-              { id: 'voice', label: 'Voice Call', icon: <Phone size={14} /> },
-            ].map(tab => (
-              <motion.button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                style={{ padding: '10px 20px', border: 'none', background: activeTab === tab.id ? '#5B3FD4' : 'transparent', color: activeTab === tab.id ? 'white' : '#5A6480', fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 500, cursor: 'pointer', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}>
-                {tab.icon} {tab.label}
-              </motion.button>
-            ))}
-          </motion.div>
+      <section style={{ padding: 'clamp(48px, 6vw, 80px) 0 clamp(24px, 3vw, 40px)', background: '#fff', textAlign: 'center' }}>
+        <div className="container-page" style={{ maxWidth: 720 }}>
+          <Eyebrow>Test PAS</Eyebrow>
+          <h1 className="h-display" style={{ fontSize: 'clamp(34px, 5vw, 56px)', margin: '14px 0 16px' }}>
+            See PAS run on a real conversation.
+          </h1>
+          <p className="lead">
+            Not a video. A live simulation of PAS — first contact to booked appointment. Text or
+            voice. No signup.
+          </p>
         </div>
 
-        <div style={{ padding: '0 clamp(20px, 5vw, 64px) clamp(72px, 8vw, 112px)', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'inline-flex', gap: 0, background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 12, padding: 4, marginTop: 32 }}>
+          {[
+            { id: 'text', label: 'Text', icon: <MessageSquare size={14} /> },
+            { id: 'voice', label: 'Voice', icon: <Phone size={14} /> },
+          ].map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              style={{
+                padding: '10px 18px',
+                border: 'none',
+                background: tab === t.id ? '#5B3FD4' : 'transparent',
+                color: tab === t.id ? '#fff' : '#475569',
+                fontSize: 14,
+                fontWeight: 500,
+                cursor: 'pointer',
+                borderRadius: 9,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'all 0.2s',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ padding: 'clamp(8px, 2vw, 24px) 0 clamp(56px, 8vw, 96px)', background: '#F7F8FB', borderTop: '1px solid #E5E8F0' }}>
+        <div className="container-page" style={{ display: 'flex', justifyContent: 'center' }}>
           <AnimatePresence mode="wait">
-            <motion.div key={activeTab} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              {activeTab === 'text' && <TextDemo />}
-              {activeTab === 'voice' && <VoiceDemo />}
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+            >
+              {tab === 'text' ? <TextDemo /> : <VoiceDemo />}
             </motion.div>
           </AnimatePresence>
         </div>
-      </div>
+      </section>
     </PageWrapper>
   );
 }
