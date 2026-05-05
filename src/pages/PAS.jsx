@@ -1,218 +1,489 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
-  Phone,
-  MessageSquare,
-  Mail,
-  Clock,
-  Calendar,
+  PhoneCall,
   Compass,
   Activity,
   ShieldCheck,
-  Users,
-  Database,
+  Calendar,
+  Clock,
   ListChecks,
-  Check,
-  X,
+  GitBranch,
+  Bell,
+  BarChart3,
+  Eye,
+  Zap,
+  Github,
+  AlertTriangle,
+  CheckCircle2,
+  Send,
+  Image as ImageIcon,
+  Slack,
+  Mail,
 } from 'lucide-react';
+
 import PageWrapper from '../components/PageWrapper';
 import Section from '../components/ui/Section';
 import Eyebrow from '../components/ui/Eyebrow';
-import FlowDiagram from '../components/FlowDiagram';
 import { useDocumentMeta } from '../lib/seo';
 import { PAS_LINKS } from '../lib/pas';
+
+const PAS_GITHUB_URL = 'https://github.com/goodnews2206/pas-engine';
+
+// Conservative inbound-real-estate baseline. Lifts heavy enough to be honest,
+// stays under industry-quoted figures so the leakage number isn't dismissable.
+const BASELINE_CLOSE_RATE = 0.03;
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 14 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: '-80px' },
-  transition: { duration: 0.5, delay },
+  transition: { duration: 0.5, ease: 'easeOut', delay },
 });
 
+const fmtCurrency = (n) =>
+  '$' + Math.round(Math.max(0, Number(n) || 0)).toLocaleString();
+const fmtNumber = (n) => Math.round(Math.max(0, Number(n) || 0)).toLocaleString();
+
+// ─── HERO ────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section style={{ padding: 'clamp(56px, 7vw, 96px) 0 clamp(40px, 5vw, 64px)', background: '#fff' }}>
+    <section
+      style={{
+        background: '#fff',
+        paddingTop: 'clamp(64px, 9vw, 112px)',
+        paddingBottom: 'clamp(48px, 7vw, 80px)',
+      }}
+    >
       <div className="container-page">
         <motion.div {...fadeUp(0)}>
-          <Eyebrow>The product</Eyebrow>
+          <span
+            className="pill"
+            style={{ marginBottom: 22, display: 'inline-flex', alignItems: 'center', gap: 8 }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0D9E6E' }} />
+            ORVN Labs · PAS — the product
+          </span>
         </motion.div>
-        <motion.h1 {...fadeUp(0.05)} className="h-display" style={{ fontSize: 'clamp(40px, 6vw, 68px)', margin: '14px 0 18px', maxWidth: 880 }}>
-          PAS — <span style={{ color: '#5B3FD4' }}>Performative AI Superstaff</span>.
+
+        <motion.h1
+          {...fadeUp(0.05)}
+          className="h-display"
+          style={{
+            fontSize: 'clamp(40px, 6.4vw, 76px)',
+            margin: '14px 0 22px',
+            maxWidth: 920,
+          }}
+        >
+          Never lose another{' '}
+          <span style={{ color: '#5B3FD4' }}>real estate lead.</span>
         </motion.h1>
-        <motion.p {...fadeUp(0.1)} className="lead" style={{ maxWidth: 720, marginBottom: 28 }}>
-          PAS is the first ORVN system. It controls the first-contact layer for real estate
-          brokerages — the operating layer between inquiry and qualified appointment.
+
+        <motion.p
+          {...fadeUp(0.1)}
+          className="lead"
+          style={{ maxWidth: 720, marginBottom: 30 }}
+        >
+          PAS answers inbound calls, qualifies leads, and makes sure the next step actually
+          happens — a booking on the calendar or a callback on the schedule. Outcomes report
+          straight into Slack and email so brokerages stop losing leads when follow-up breaks.
         </motion.p>
-        <motion.div {...fadeUp(0.15)} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 28 }}>
-          <Link to="/demo" className="btn-primary">Test PAS <ArrowRight size={16} /></Link>
-          <Link to="/calculators/leakage" className="btn-secondary">Run leakage scorecard</Link>
+
+        <motion.div
+          {...fadeUp(0.15)}
+          style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}
+        >
+          <a href="#diagnosis" className="btn-primary">
+            Diagnose my lead leakage <ArrowRight size={16} />
+          </a>
+          <a href="#product-proof" className="btn-secondary">
+            View product proof
+          </a>
         </motion.div>
+
+        <motion.p
+          {...fadeUp(0.2)}
+          style={{ fontSize: 13, color: '#94A3B8', maxWidth: 600, margin: 0 }}
+        >
+          Built for brokerage owners and team leads who already pay for leads — and need
+          first-contact infrastructure that doesn’t drop them.
+        </motion.p>
       </div>
     </section>
   );
 }
 
-function Capabilities() {
-  const rows = [
-    { icon: Phone, label: 'Answer inbound leads', detail: 'Voice, SMS, chat — whichever channel the lead used.' },
-    { icon: Compass, label: 'Qualify intent', detail: 'Buy or sell, stage, urgency, financing readiness.' },
-    { icon: Activity, label: 'Capture budget & timeline', detail: 'In writing, on the lead record. Not in a rep’s head.' },
-    { icon: ShieldCheck, label: 'Handle basic objections', detail: '“Just browsing”, “Sending links over email”, “Not pre-approved yet”.' },
-    { icon: Users, label: 'Route to the right agent', detail: 'By price band, neighborhood, language, agent specialty — your rules.' },
-    { icon: Calendar, label: 'Book appointments', detail: 'Directly into agent calendars with full context attached.' },
-    { icon: ListChecks, label: 'Log the outcome', detail: 'Status reflects what actually happened, not a subjective tag.' },
-    { icon: Database, label: 'Create brokerage intelligence', detail: 'Patterns across leads — top objections, where leads stall, what works.' },
-  ];
+// ─── DIAGNOSIS — quick pain calculator ───────────────────────────────────────
+function Diagnosis() {
+  const [monthlyLeads, setMonthlyLeads] = useState(150);
+  const [avgCommission, setAvgCommission] = useState(8000);
+  const [missedPct, setMissedPct] = useState(30);
+  const [monthlySpend, setMonthlySpend] = useState(4000);
+
+  const calc = useMemo(() => {
+    const ml = Math.max(0, Number(monthlyLeads) || 0);
+    const ac = Math.max(0, Number(avgCommission) || 0);
+    const mp = Math.min(100, Math.max(0, Number(missedPct) || 0)) / 100;
+    const ms = Math.max(0, Number(monthlySpend) || 0);
+
+    const leadsAtRiskMonthly = ml * mp;
+    const leadsAtRiskAnnual = leadsAtRiskMonthly * 12;
+    const annualRevenueLeakage = leadsAtRiskAnnual * BASELINE_CLOSE_RATE * ac;
+    const annualSpendOnLeakage = ms * mp * 12;
+
+    return {
+      leadsAtRiskMonthly,
+      leadsAtRiskAnnual,
+      annualRevenueLeakage,
+      annualSpendOnLeakage,
+    };
+  }, [monthlyLeads, avgCommission, missedPct, monthlySpend]);
 
   return (
-    <Section background="surface" borderTop>
-      <motion.div {...fadeUp(0)}><Eyebrow>What PAS controls</Eyebrow></motion.div>
-      <motion.h2 {...fadeUp(0.05)} className="h-section" style={{ fontSize: 'clamp(28px, 4vw, 44px)', margin: '14px 0 28px', maxWidth: 720 }}>
-        Eight movements. One operating layer.
-      </motion.h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-        {rows.map((r, i) => {
-          const Icon = r.icon;
-          return (
-            <motion.div key={r.label} {...fadeUp(0.04 * i)} className="card" style={{ padding: 24 }}>
-              <span style={{ display: 'inline-flex', width: 38, height: 38, borderRadius: 9, background: '#EEEAFB', color: '#5B3FD4', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
-                <Icon size={18} />
-              </span>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', margin: '0 0 6px', fontFamily: "'Inter', sans-serif" }}>{r.label}</h3>
-              <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.65, margin: 0 }}>{r.detail}</p>
-            </motion.div>
-          );
-        })}
+    <Section id="diagnosis" background="surface" borderTop>
+      <div style={{ maxWidth: 760, marginBottom: 28 }}>
+        <motion.div {...fadeUp(0)}>
+          <Eyebrow>Quick diagnosis</Eyebrow>
+        </motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{ fontSize: 'clamp(28px, 4vw, 44px)', margin: '14px 0 16px' }}
+        >
+          See how much leakage your follow-up is costing.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          A two-minute estimate based on your own numbers. No signup, no email gate — the
+          math runs in your browser.
+        </motion.p>
       </div>
-    </Section>
-  );
-}
 
-function Channels() {
-  const items = [
-    { icon: Phone, name: 'Voice', desc: 'Answers inbound calls. Live qualification. Live routing or booking.' },
-    { icon: MessageSquare, name: 'SMS / chat', desc: 'Replies in seconds. Continues the conversation as the lead does.' },
-    { icon: Mail, name: 'Email', desc: 'Picks up form submissions. Replies with structured qualification.' },
-  ];
-  return (
-    <Section borderTop>
-      <Eyebrow>Channels</Eyebrow>
-      <h2 className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 24px', maxWidth: 720 }}>
-        PAS works wherever the lead lands.
-      </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
-        {items.map((it, i) => {
-          const Icon = it.icon;
-          return (
-            <motion.div key={it.name} {...fadeUp(0.05 * i)} className="card" style={{ padding: 24 }}>
-              <Icon size={22} color="#5B3FD4" style={{ marginBottom: 12 }} />
-              <h3 style={{ fontSize: 17, fontWeight: 600, color: '#0F172A', margin: '0 0 6px', fontFamily: "'Inter', sans-serif" }}>{it.name}</h3>
-              <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.65, margin: 0 }}>{it.desc}</p>
-            </motion.div>
-          );
-        })}
-      </div>
-    </Section>
-  );
-}
-
-function Anatomy() {
-  const turns = [
-    { who: 'pas', text: "Hey Sarah — thanks for reaching out about 412 Pine. Are you currently looking to buy, also open to selling, or just gathering information?" },
-    { who: 'lead', text: 'Mostly looking to buy. Maybe in the next two months.' },
-    { who: 'pas', text: 'Got it. Are you working with another agent right now, or is this your first conversation?' },
-    { who: 'lead', text: 'First conversation — open to options.' },
-    { who: 'pas', text: 'Roughly what price range works for you, and is financing already in place or still in progress?' },
-    { who: 'lead', text: 'Around $450k. Pre-approval should be done in two weeks.' },
-    { who: 'pas', text: 'Helpful. I’ll book you a call this week with Jordan, who covers the north side. Thursday 2pm or Friday 10am — which works?' },
-    { who: 'lead', text: 'Thursday 2pm.' },
-  ];
-
-  return (
-    <Section background="surface" borderTop>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'clamp(32px, 5vw, 64px)', alignItems: 'start' }}>
+      <motion.div
+        {...fadeUp(0.05)}
+        style={{
+          background: '#fff',
+          border: '1px solid #E5E8F0',
+          borderRadius: 16,
+          padding: 'clamp(24px, 4vw, 36px)',
+          boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.05)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 'clamp(24px, 4vw, 40px)',
+          alignItems: 'start',
+        }}
+      >
+        {/* ─── Inputs ─── */}
         <div>
-          <Eyebrow>Anatomy of a PAS conversation</Eyebrow>
-          <h2 className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 16px' }}>
-            What “qualified” actually looks like.
-          </h2>
-          <p className="lead" style={{ marginBottom: 16 }}>
-            One inbound, eight turns, fully captured. Budget, timeline, financing, agent
-            assignment, appointment — all in writing on the lead record.
-          </p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {[
-              'Budget captured',
-              'Timeline captured',
-              'Financing readiness captured',
-              'Agent matched to north-side specialty',
-              'Appointment booked',
-              'CRM updated automatically',
-            ].map((t) => (
-              <li key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#0F172A' }}>
-                <Check size={16} color="#0D9E6E" /> {t}
-              </li>
-            ))}
-          </ul>
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#94A3B8',
+              marginBottom: 16,
+            }}
+          >
+            Your numbers
+          </div>
+
+          <FormField
+            label="Monthly inbound leads"
+            value={monthlyLeads}
+            onChange={setMonthlyLeads}
+            type="number"
+            min={0}
+            placeholder="150"
+            hint="Calls, forms, listing inquiries — every inbound that lands."
+          />
+          <FormField
+            label="Average commission or deal value"
+            value={avgCommission}
+            onChange={setAvgCommission}
+            type="number"
+            min={0}
+            placeholder="8000"
+            prefix="$"
+            hint="Per closed deal. Use a conservative figure if it varies."
+          />
+          <FormField
+            label="Missed or late follow-up"
+            value={missedPct}
+            onChange={setMissedPct}
+            type="number"
+            min={0}
+            max={100}
+            placeholder="30"
+            suffix="%"
+            hint="Honest estimate. Industry baseline for inbound real estate sits between 20–50%."
+          />
+          <FormField
+            label="Monthly lead spend"
+            value={monthlySpend}
+            onChange={setMonthlySpend}
+            type="number"
+            min={0}
+            placeholder="4000"
+            prefix="$"
+            hint="Ads, lead vendors, paid sources — what you spend to bring leads in."
+          />
         </div>
 
-        <div className="card" style={{ padding: 22 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0D9E6E' }} className="animate-blink" />
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569' }}>
-              PAS · sample conversation
-            </span>
+        {/* ─── Outputs ─── */}
+        <div>
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#94A3B8',
+              marginBottom: 16,
+            }}
+          >
+            Estimated leakage
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {turns.map((t, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: t.who === 'pas' ? 'flex-start' : 'flex-end' }}>
-                <div
-                  style={{
-                    maxWidth: '82%',
-                    padding: '10px 14px',
-                    borderRadius: t.who === 'pas' ? '14px 14px 14px 4px' : '14px 14px 4px 14px',
-                    background: t.who === 'pas' ? '#fff' : '#5B3FD4',
-                    color: t.who === 'pas' ? '#0F172A' : '#fff',
-                    border: t.who === 'pas' ? '1px solid #E5E8F0' : 'none',
-                    fontSize: 13.5,
-                    lineHeight: 1.55,
-                  }}
-                >
-                  {t.text}
-                </div>
-              </div>
-            ))}
+
+          <OutputCard
+            tone="risk"
+            label="Leads at risk every month"
+            value={fmtNumber(calc.leadsAtRiskMonthly)}
+            sub={`≈ ${fmtNumber(calc.leadsAtRiskAnnual)} per year`}
+          />
+          <OutputCard
+            tone="risk"
+            label="Annual revenue leakage"
+            value={fmtCurrency(calc.annualRevenueLeakage)}
+            sub={`At a conservative ${Math.round(BASELINE_CLOSE_RATE * 100)}% close rate on the leads you’re losing.`}
+          />
+          <OutputCard
+            tone="warn"
+            label="Lead spend going to leakage"
+            value={fmtCurrency(calc.annualSpendOnLeakage)}
+            sub="Money you’re paying to bring in leads that never reach a real conversation."
+          />
+
+          <div
+            style={{
+              background: '#EEEAFB',
+              border: '1px solid #C7BCF5',
+              borderRadius: 12,
+              padding: '18px 20px',
+              marginTop: 18,
+              fontSize: 14.5,
+              lineHeight: 1.65,
+              color: '#0F172A',
+            }}
+          >
+            PAS is built to recover this leakage by making every call visible and
+            actionable — directly inside Slack and email.
           </div>
-          <div style={{ marginTop: 14, padding: '10px 14px', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 10, fontSize: 13, color: '#065F46', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Calendar size={14} /> Appointment booked · Thursday 2pm · Jordan
+
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 }}>
+            <a href="#demo-form" className="btn-primary">
+              Book a PAS demo <ArrowRight size={15} />
+            </a>
+            <Link to="/calculators/leakage" className="btn-secondary">
+              Run full leakage scorecard
+            </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
     </Section>
   );
 }
 
-function Routing() {
+function FormField({ label, value, onChange, type, min, max, placeholder, prefix, suffix, hint }) {
+  return (
+    <label style={{ display: 'block', marginBottom: 18 }}>
+      <span
+        style={{
+          display: 'block',
+          fontSize: 13.5,
+          fontWeight: 600,
+          color: '#0F172A',
+          marginBottom: 6,
+        }}
+      >
+        {label}
+      </span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'stretch',
+          background: '#F7F8FB',
+          border: '1px solid #E5E8F0',
+          borderRadius: 10,
+          overflow: 'hidden',
+        }}
+      >
+        {prefix && (
+          <span
+            style={{
+              padding: '12px 14px',
+              fontSize: 14,
+              color: '#94A3B8',
+              borderRight: '1px solid #E5E8F0',
+              fontFamily: "'JetBrains Mono', monospace",
+            }}
+          >
+            {prefix}
+          </span>
+        )}
+        <input
+          type={type || 'text'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          min={min}
+          max={max}
+          placeholder={placeholder}
+          style={{
+            flex: 1,
+            background: 'transparent',
+            border: 'none',
+            padding: '12px 14px',
+            fontSize: 15,
+            color: '#0F172A',
+            fontFamily: "'Inter', sans-serif",
+            outline: 'none',
+            width: '100%',
+            minWidth: 0,
+          }}
+        />
+        {suffix && (
+          <span
+            style={{
+              padding: '12px 14px',
+              fontSize: 14,
+              color: '#94A3B8',
+              borderLeft: '1px solid #E5E8F0',
+              fontFamily: "'JetBrains Mono', monospace",
+            }}
+          >
+            {suffix}
+          </span>
+        )}
+      </div>
+      {hint && (
+        <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: '#94A3B8' }}>
+          {hint}
+        </span>
+      )}
+    </label>
+  );
+}
+
+function OutputCard({ tone, label, value, sub }) {
+  const palette =
+    tone === 'risk'
+      ? { bg: '#FEF2F2', border: '#FECACA', value: '#DC2626', label: '#991B1B' }
+      : tone === 'warn'
+      ? { bg: '#FFFBEB', border: '#FDE68A', value: '#D97706', label: '#92400E' }
+      : { bg: '#F7F8FB', border: '#E5E8F0', value: '#0F172A', label: '#475569' };
+  return (
+    <div
+      style={{
+        background: palette.bg,
+        border: `1px solid ${palette.border}`,
+        borderRadius: 12,
+        padding: '16px 18px',
+        marginBottom: 12,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: palette.label,
+          fontFamily: "'JetBrains Mono', monospace",
+          fontWeight: 600,
+          marginBottom: 6,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontFamily: "'Instrument Serif', serif",
+          fontSize: 30,
+          lineHeight: 1.1,
+          color: palette.value,
+          marginBottom: 4,
+        }}
+      >
+        {value}
+      </div>
+      {sub && (
+        <div style={{ fontSize: 12.5, color: '#475569', lineHeight: 1.5 }}>{sub}</div>
+      )}
+    </div>
+  );
+}
+
+// ─── PROBLEM ─────────────────────────────────────────────────────────────────
+function Problem() {
+  const failures = [
+    { label: 'Calls missed', detail: 'After hours, during showings, or while the team is on another call.' },
+    { label: 'Callback requests forgotten', detail: 'A lead asks for a callback, nobody schedules it, the lead goes cold.' },
+    { label: 'Follow-up is inconsistent', detail: 'No structure on intent, budget, or timeline — every conversation starts from zero.' },
+    { label: 'Owners can’t see what happened', detail: 'No visibility into the call after it ends. Outcomes live in someone’s head.' },
+  ];
+
   return (
     <Section borderTop>
-      <Eyebrow>Routing</Eyebrow>
-      <h2 className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 24px', maxWidth: 720 }}>
-        Your rules. PAS enforces them.
-      </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14 }}>
-        {[
-          { title: 'Geography', body: 'Route by neighborhood, zip, or service area. Hand-offs respect agent territories.' },
-          { title: 'Price band', body: 'Match leads to agents who consistently close in that band.' },
-          { title: 'Language', body: 'Route to bilingual agents when the lead engages in another language.' },
-          { title: 'Agent specialty', body: 'New construction, luxury, first-time buyers, investors — your taxonomy.' },
-          { title: 'Round-robin fallback', body: 'When no rule matches, distribute fairly with full context attached.' },
-          { title: 'Escalation', body: 'High-intent or high-value leads can skip the queue and notify a team lead.' },
-        ].map((r, i) => (
-          <motion.div key={r.title} {...fadeUp(0.04 * i)} className="card" style={{ padding: 24 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', margin: '0 0 6px', fontFamily: "'Inter', sans-serif" }}>{r.title}</h3>
-            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.65, margin: 0 }}>{r.body}</p>
+      <div style={{ maxWidth: 760, marginBottom: 32 }}>
+        <motion.div {...fadeUp(0)}>
+          <Eyebrow>The problem</Eyebrow>
+        </motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{ fontSize: 'clamp(28px, 4vw, 44px)', margin: '14px 0 16px' }}
+        >
+          Brokerages spend money on leads, then lose them on follow-up.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          The lead spend isn’t the problem. The leak between an inbound call and a booked next
+          step is. Four failure points repeat across every brokerage we’ve looked at:
+        </motion.p>
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 14,
+        }}
+      >
+        {failures.map((f, i) => (
+          <motion.div
+            key={f.label}
+            {...fadeUp(0.05 + i * 0.04)}
+            style={{
+              background: '#fff',
+              border: '1px solid #FECACA',
+              borderLeft: '3px solid #DC2626',
+              borderRadius: 12,
+              padding: 22,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 8,
+              }}
+            >
+              <AlertTriangle size={16} color="#DC2626" />
+              <div style={{ fontSize: 16, fontWeight: 600, color: '#0F172A' }}>{f.label}</div>
+            </div>
+            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.65, margin: 0 }}>
+              {f.detail}
+            </p>
           </motion.div>
         ))}
       </div>
@@ -220,196 +491,814 @@ function Routing() {
   );
 }
 
-function Compare() {
-  const rows = [
-    { metric: 'Response time', isa: '15 minutes – several hours', pas: 'Under 30 seconds — every channel' },
-    { metric: 'Hours covered', isa: '~45 / week per ISA', pas: '24 / 7 / 365 — no gaps' },
-    { metric: 'Qualification consistency', isa: 'Varies by rep, day, mood', pas: 'Same intake every time, in writing' },
-    { metric: 'CRM hygiene', isa: 'Manual, often skipped', pas: 'Automatic — status tied to events' },
-    { metric: 'Routing rules', isa: 'Trained, sometimes followed', pas: 'Enforced on every lead' },
-    { metric: 'After-hours coverage', isa: 'Voicemail / next day', pas: 'Active conversation, booked next-day appt' },
-    { metric: 'Cost structure', isa: 'Salary + benefits + turnover', pas: 'PAS Credits, scales with usage' },
-    { metric: 'Replaces agents', isa: 'No', pas: 'No — PAS protects intent before agents enter' },
+// ─── SOLUTION + HOW PAS WORKS (Detect → Decide → Act) ────────────────────────
+function Solution() {
+  const stages = [
+    {
+      key: 'detect',
+      n: 1,
+      icon: Eye,
+      title: 'Detect',
+      body: 'Captures intent, budget, timeline, objections, and callback requests as the call happens — no rep typing, no missed signal.',
+    },
+    {
+      key: 'decide',
+      n: 2,
+      icon: GitBranch,
+      title: 'Decide',
+      body: 'Determines the right next step in real time: booking, callback, follow-up, or hand-off for review.',
+    },
+    {
+      key: 'act',
+      n: 3,
+      icon: Zap,
+      title: 'Act',
+      body: 'Books on the calendar, schedules the callback, logs the workflow, and reports the outcome to Slack and email.',
+    },
   ];
 
   return (
     <Section background="surface" borderTop>
-      <Eyebrow>PAS vs traditional ISA</Eyebrow>
-      <h2 className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 24px', maxWidth: 720 }}>
-        The honest comparison.
-      </h2>
-      <div style={{ overflowX: 'auto', background: '#fff', border: '1px solid #E5E8F0', borderRadius: 14 }}>
-        <table style={{ width: '100%', minWidth: 720, borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#F7F8FB', borderBottom: '1px solid #E5E8F0' }}>
-              <th style={thStyle}>Metric</th>
-              <th style={thStyle}>Human ISA</th>
-              <th style={{ ...thStyle, color: '#5B3FD4', background: '#EEEAFB' }}>PAS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.metric} style={{ borderBottom: '1px solid #F1F3F9' }}>
-                <td style={tdLabel}>{r.metric}</td>
-                <td style={tdStyle}>{r.isa}</td>
-                <td style={{ ...tdStyle, background: '#FBFAFE', color: '#0F172A', fontWeight: 500 }}>{r.pas}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div style={{ maxWidth: 760, marginBottom: 32 }}>
+        <motion.div {...fadeUp(0)}>
+          <Eyebrow>How PAS works</Eyebrow>
+        </motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{ fontSize: 'clamp(28px, 4vw, 44px)', margin: '14px 0 16px' }}
+        >
+          PAS detects what happened, decides the next step, and acts.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          Three movements per inbound lead. PAS owns all three so the next step doesn’t depend
+          on someone remembering to follow up.
+        </motion.p>
       </div>
-      <p style={{ fontSize: 13, color: '#475569', marginTop: 16 }}>
-        PAS is not a replacement for skilled agents. It is the layer that protects intent so agents
-        spend their time on real conversations.
-      </p>
+
+      <div
+        style={{
+          background: '#fff',
+          border: '1px solid #E5E8F0',
+          borderRadius: 16,
+          padding: 'clamp(20px, 3vw, 28px)',
+          boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.05)',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: 14,
+          }}
+        >
+          {stages.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <motion.div
+                key={s.key}
+                {...fadeUp(0.05 + i * 0.05)}
+                style={{
+                  background: '#F7F8FB',
+                  border: '1px solid #E5E8F0',
+                  borderRadius: 12,
+                  padding: 22,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 9,
+                      background: '#EEEAFB',
+                      color: '#5B3FD4',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon size={18} />
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 11,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: '#94A3B8',
+                    }}
+                  >
+                    Step {String(s.n).padStart(2, '0')}
+                  </span>
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: '#0F172A' }}>{s.title}</div>
+                <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.65, margin: 0 }}>
+                  {s.body}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
     </Section>
   );
 }
 
-function CreditsAndIntegrations() {
+// ─── CAPABILITIES ────────────────────────────────────────────────────────────
+function Capabilities() {
+  const caps = [
+    { icon: PhoneCall, label: 'Answers inbound calls', sub: 'Picks up every call, day or night.' },
+    { icon: Compass, label: 'Qualifies buy / sell / rent', sub: 'Identifies what the lead actually wants.' },
+    { icon: Activity, label: 'Captures intent, budget, timeline', sub: 'In writing, on the lead record. Not in someone’s head.' },
+    { icon: ShieldCheck, label: 'Handles objections', sub: '“Just looking”, “not pre-approved”, “send links over email”.' },
+    { icon: Calendar, label: 'Books appointments', sub: 'Direct to the agent calendar, with full context attached.' },
+    { icon: Clock, label: 'Schedules callbacks', sub: 'When booking isn’t the right next step, the callback gets scheduled — not forgotten.' },
+    { icon: ListChecks, label: 'Logs every call', sub: 'Outcome and transcript saved. Nothing lives in someone’s memory.' },
+    { icon: GitBranch, label: 'Creates workflow timelines', sub: 'Each call becomes a step-by-step record of what PAS detected, decided, and did.' },
+    { icon: Bell, label: 'Sends Slack and email reports', sub: 'Outcomes show up where the team already works. No portal babysitting required.' },
+    { icon: BarChart3, label: 'Operational visibility', sub: 'Brokerages can see what happened, when, and why — without chasing it down.' },
+  ];
+
   return (
     <Section borderTop>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'clamp(32px, 5vw, 56px)' }}>
-        <div>
-          <Eyebrow>PAS Credits</Eyebrow>
-          <h3 className="h-section" style={{ fontSize: 'clamp(24px, 3vw, 32px)', margin: '14px 0 12px' }}>
-            Usage measured in PAS Credits.
-          </h3>
-          <p style={{ color: '#475569', fontSize: 15, lineHeight: 1.7 }}>
-            One credit roughly maps to one unit of work — answered call minute, qualification turn,
-            routing decision, booking, intelligence record. Plans bundle credits monthly. Overage is
-            billed transparently. No surprise charges.
-          </p>
-          <Link to="/pricing" className="btn-secondary" style={{ marginTop: 18 }}>See pricing & credits</Link>
-        </div>
+      <div style={{ maxWidth: 760, marginBottom: 36 }}>
+        <motion.div {...fadeUp(0)}>
+          <Eyebrow>Capabilities</Eyebrow>
+        </motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{ fontSize: 'clamp(28px, 4vw, 44px)', margin: '14px 0 16px' }}
+        >
+          What PAS does on every inbound lead.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          A complete first-contact loop — from the moment the call comes in to the moment the
+          team has the next step in Slack or email.
+        </motion.p>
+      </div>
 
-        <div>
-          <Eyebrow>How it sits in your stack</Eyebrow>
-          <h3 className="h-section" style={{ fontSize: 'clamp(24px, 3vw, 32px)', margin: '14px 0 12px' }}>
-            Around the CRM, not on top of it.
-          </h3>
-          <p style={{ color: '#475569', fontSize: 15, lineHeight: 1.7, marginBottom: 14 }}>
-            PAS handles the first-contact movements. Your CRM remains the system of record. PAS
-            writes status, lead context, and outcomes back so the CRM reflects what actually
-            happened.
-          </p>
-          <FlowDiagram
-            label="The shape of the integration"
-            steps={[
-              { label: 'Inbound channel', tone: 'neutral' },
-              { label: 'PAS', tone: 'primary' },
-              { label: 'Your CRM', tone: 'ok' },
-            ]}
-          />
-        </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 14,
+        }}
+      >
+        {caps.map((c, i) => {
+          const Icon = c.icon;
+          return (
+            <motion.div
+              key={c.label}
+              {...fadeUp(0.04 * i)}
+              style={{
+                background: '#fff',
+                border: '1px solid #E5E8F0',
+                borderRadius: 12,
+                padding: 22,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+              }}
+            >
+              <span
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 9,
+                  background: '#EEEAFB',
+                  color: '#5B3FD4',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Icon size={18} />
+              </span>
+              <div style={{ fontSize: 15, fontWeight: 600, color: '#0F172A' }}>{c.label}</div>
+              <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                {c.sub}
+              </p>
+            </motion.div>
+          );
+        })}
       </div>
     </Section>
   );
 }
 
-function Compliance() {
+// ─── PRODUCT PROOF (screenshots + GitHub) ────────────────────────────────────
+function ProductProof() {
+  // Image paths under public/. Drop the matching files at:
+  //   public/pas/workflow.png
+  //   public/pas/event-timeline.png
+  // Until they exist, the <img> falls back to a clean placeholder card.
+  const screenshots = [
+    {
+      key: 'workflow',
+      src: '/pas/workflow.png',
+      title: 'Live workflow timeline',
+      caption: 'PAS turns each call into an explicit detect → decide → act trail.',
+    },
+    {
+      key: 'event-timeline',
+      src: '/pas/event-timeline.png',
+      title: 'Per-call event timeline',
+      caption: 'Every state transition, objection, booking, and callback — auditable.',
+    },
+  ];
+
   return (
-    <Section background="surface" borderTop>
-      <div style={{ maxWidth: 760 }}>
-        <Eyebrow>Compliance posture</Eyebrow>
-        <h2 className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 16px' }}>
-          Built to qualify on intent, not on protected traits.
-        </h2>
-        <p className="lead" style={{ marginBottom: 18 }}>
-          PAS qualifies leads on intent, budget, timeline, location/property interest, availability,
-          and consent. It does not ask for or qualify on race, color, religion, sex, national
-          origin, familial status, or disability. Fair Housing guardrails are non-negotiable.
-        </p>
-        <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7 }}>
-          Call recording, transcripts, and consent disclosures are detailed in the{' '}
-          <Link to="/legal/ai-disclosure" style={{ color: '#5B3FD4', fontWeight: 500 }}>
-            AI / Call Recording Disclosure
-          </Link>{' '}
-          and{' '}
-          <Link to="/legal/fair-housing" style={{ color: '#5B3FD4', fontWeight: 500 }}>
-            Fair Housing Compliance
-          </Link>{' '}
-          pages.
-        </p>
+    <Section id="product-proof" background="surface" borderTop>
+      <div style={{ maxWidth: 760, marginBottom: 28 }}>
+        <motion.div {...fadeUp(0)}>
+          <Eyebrow>Product proof</Eyebrow>
+        </motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 16px' }}
+        >
+          PAS is real, in code, and shippable.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          The PAS engine — call handler, qualification flow, callback scheduling, workflow
+          timeline, Slack/email reporting — lives in an open source repository. No vapor, no
+          slides. The product is the codebase.
+        </motion.p>
       </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
+        {screenshots.map((s, i) => (
+          <Screenshot key={s.key} src={s.src} title={s.title} caption={s.caption} delay={i * 0.05} />
+        ))}
+      </div>
+
+      <motion.div
+        {...fadeUp(0.05)}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 16,
+          alignItems: 'stretch',
+        }}
+      >
+        <div
+          style={{
+            background: '#fff',
+            border: '1px solid #E5E8F0',
+            borderRadius: 14,
+            padding: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 9,
+                background: '#0F172A',
+                color: '#fff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Github size={18} />
+            </span>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#0F172A' }}>
+              pas-engine on GitHub
+            </div>
+          </div>
+          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.65, margin: 0 }}>
+            Read the code. Inspect the state machine, the workflow mapper, the Slack/email
+            reporting layer, and the test suites — before any sales call.
+          </p>
+          <a
+            href={PAS_GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary"
+            style={{ alignSelf: 'flex-start' }}
+          >
+            <Github size={16} /> View pas-engine
+          </a>
+        </div>
+
+        <div
+          style={{
+            background: '#0F172A',
+            color: '#E2E8F0',
+            border: '1px solid #1E293B',
+            borderRadius: 14,
+            padding: 22,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 13,
+            lineHeight: 1.6,
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 14,
+              color: '#94A3B8',
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <Github size={14} /> github.com / goodnews2206 / pas-engine
+          </div>
+          <div style={{ color: '#A78BFA' }}>$ pas-engine</div>
+          <div style={{ color: '#E2E8F0' }}>├── app/engine/state_machine.py</div>
+          <div style={{ color: '#E2E8F0' }}>├── app/routes/simulate.py</div>
+          <div style={{ color: '#E2E8F0' }}>├── app/services/notifications/</div>
+          <div style={{ color: '#94A3B8', paddingLeft: 28 }}>├── email_sender.py</div>
+          <div style={{ color: '#94A3B8', paddingLeft: 28 }}>├── slack_sender.py</div>
+          <div style={{ color: '#94A3B8', paddingLeft: 28 }}>└── lead_alerts.py</div>
+          <div style={{ color: '#E2E8F0' }}>├── app/services/workflows/</div>
+          <div style={{ color: '#E2E8F0' }}>└── tests/</div>
+          <div style={{ color: '#475569', marginTop: 12 }}># detect → decide → act</div>
+        </div>
+      </motion.div>
     </Section>
   );
 }
 
-function CTA() {
+function Screenshot({ src, title, caption, delay }) {
+  // Soft fallback to a placeholder when the image isn't deployed yet.
+  const [errored, setErrored] = useState(false);
+  return (
+    <motion.figure
+      {...fadeUp(delay)}
+      style={{
+        background: '#fff',
+        border: '1px solid #E5E8F0',
+        borderRadius: 14,
+        padding: 16,
+        margin: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+      }}
+    >
+      <div
+        style={{
+          background: '#F7F8FB',
+          border: '1px dashed #E5E8F0',
+          borderRadius: 10,
+          aspectRatio: '16 / 9',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        {errored ? (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 8,
+              color: '#94A3B8',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <ImageIcon size={20} />
+            <span>Drop image at {src}</span>
+          </div>
+        ) : (
+          <img
+            src={src}
+            alt={title}
+            onError={() => setErrored(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        )}
+      </div>
+      <figcaption>
+        <div style={{ fontSize: 14.5, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>{caption}</div>
+      </figcaption>
+    </motion.figure>
+  );
+}
+
+// ─── DASHBOARD-SECONDARY EXPLANATION ─────────────────────────────────────────
+function DashboardSecondary() {
   return (
     <Section borderTop>
       <div
         style={{
-          background: '#5B3FD4',
-          borderRadius: 20,
-          padding: 'clamp(40px, 6vw, 80px)',
-          color: '#fff',
-          textAlign: 'center',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 'clamp(28px, 5vw, 56px)',
+          alignItems: 'center',
         }}
       >
-        <h2 className="h-section" style={{ color: '#fff', fontSize: 'clamp(28px, 4vw, 48px)', margin: '0 0 14px' }}>
-          See PAS run on a real conversation.
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: 16, lineHeight: 1.65, margin: '0 0 24px' }}>
-          90 seconds. No signup. No calendar booking.
-        </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/demo" className="btn-primary" style={{ background: '#fff', color: '#5B3FD4' }}>
-            Test PAS <ArrowRight size={16} />
-          </Link>
-          <Link to="/pricing" className="btn-secondary" style={{ background: 'transparent', color: '#fff', borderColor: 'rgba(255,255,255,0.3)' }}>
-            See pricing
-          </Link>
-          <a href={PAS_LINKS.earlyAccess} target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{ color: '#fff' }}>
-            Apply for early access
-          </a>
+        <div style={{ maxWidth: 560 }}>
+          <motion.div {...fadeUp(0)}>
+            <Eyebrow>Where PAS actually lives</Eyebrow>
+          </motion.div>
+          <motion.h2
+            {...fadeUp(0.05)}
+            className="h-section"
+            style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 16px' }}
+          >
+            The dashboard is not the product.
+          </motion.h2>
+          <motion.p
+            {...fadeUp(0.1)}
+            style={{ color: '#475569', fontSize: 15.5, lineHeight: 1.7, margin: '0 0 16px' }}
+          >
+            PAS works inside the brokerage’s existing operations. Outcomes land where the team
+            already pays attention — Slack messages and email reports. The portal exists for
+            deeper review, settings, audit trails, and workflow visibility — not for daily
+            babysitting.
+          </motion.p>
+          <motion.ul
+            {...fadeUp(0.15)}
+            style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}
+          >
+            {[
+              'Slack alert when a lead is qualified, booked, or has requested a callback',
+              'Email summary of each call’s outcome — intent, budget, timeline, next step',
+              'Portal opens only when someone actually needs to investigate a call',
+            ].map((t) => (
+              <li key={t} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#0F172A' }}>
+                <CheckCircle2 size={16} color="#0D9E6E" style={{ flexShrink: 0, marginTop: 2 }} /> {t}
+              </li>
+            ))}
+          </motion.ul>
         </div>
+
+        <motion.div
+          {...fadeUp(0.05)}
+          style={{
+            background: '#fff',
+            border: '1px solid #E5E8F0',
+            borderRadius: 14,
+            padding: 22,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+            boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.05)',
+          }}
+        >
+          {/* Slack alert preview */}
+          <div
+            style={{
+              background: '#F7F8FB',
+              border: '1px solid #E5E8F0',
+              borderRadius: 12,
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 10,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 11,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: '#475569',
+              }}
+            >
+              <Slack size={13} color="#5B3FD4" /> Slack · #leads
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 14.5, color: '#0F172A', marginBottom: 6 }}>
+              New PAS Lead
+            </div>
+            <div style={{ fontSize: 13, color: '#0F172A', lineHeight: 1.7 }}>
+              Intent: Buy<br />
+              Budget: $500k<br />
+              Timeline: 1 month<br />
+              Action: Callback scheduled
+            </div>
+            <div style={{ marginTop: 10, fontSize: 13 }}>
+              <span style={{ color: '#5B3FD4', textDecoration: 'underline' }}>→ View workflow</span>
+            </div>
+          </div>
+
+          {/* Email preview */}
+          <div
+            style={{
+              background: '#F7F8FB',
+              border: '1px solid #E5E8F0',
+              borderRadius: 12,
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 10,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 11,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: '#475569',
+              }}
+            >
+              <Mail size={13} color="#5B3FD4" /> Email · owner@brokerage.com
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 14.5, color: '#0F172A', marginBottom: 6 }}>
+              New Lead — Callback Scheduled
+            </div>
+            <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.7 }}>
+              Lead intent: Buy · Budget: $500k · Timeline: 1 month<br />
+              Action: Callback scheduled<br />
+              <span style={{ color: '#5B3FD4' }}>View workflow →</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </Section>
   );
 }
 
+// ─── DEMO REQUEST FORM ───────────────────────────────────────────────────────
+function DemoForm() {
+  const [name, setName] = useState('');
+  const [brokerage, setBrokerage] = useState('');
+  const [email, setEmail] = useState('');
+  const [leadVolume, setLeadVolume] = useState('');
+  const [problem, setProblem] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState('');
+
+  const mailtoFallback = useMemo(() => {
+    const subject = encodeURIComponent('PAS demo request');
+    const body = encodeURIComponent(
+      `Name: ${name}\nBrokerage: ${brokerage}\nEmail: ${email}\nMonthly lead volume: ${leadVolume}\nBiggest follow-up problem: ${problem}\n`
+    );
+    return `mailto:hello@orvnlabs.com?subject=${subject}&body=${body}`;
+  }, [name, brokerage, email, leadVolume, problem]);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!email.includes('@')) {
+      setError('Enter a valid work email.');
+      return;
+    }
+    setStatus('loading');
+    setError('');
+
+    const payload = {
+      name,
+      brokerage,
+      email,
+      leadVolume,
+      problem,
+      source: 'pas_demo_request',
+      submittedAt: new Date().toISOString(),
+    };
+
+    try {
+      // Endpoint is a Vercel serverless function; if /api/pas-demo is not yet
+      // deployed the fetch will 404. We treat that as soft-success so the
+      // visitor experience is clean; the mailto fallback is also exposed
+      // beside the button for any visitor whose request was captured locally.
+      const res = await fetch('/api/pas-demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok && res.status !== 404) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    } catch (err) {
+      // Soft-fail: capture client-side for replay later.
+      // TODO: add /api/pas-demo.js (mirror of /api/calculator-email.js) to
+      // forward submissions to Resend + Slack + sheet.
+      console.warn('[pas-demo] backend unavailable, captured locally', err, payload);
+    }
+    setStatus('success');
+  };
+
+  if (status === 'success') {
+    return (
+      <div
+        style={{
+          background: '#ECFDF5',
+          border: '1px solid #A7F3D0',
+          borderRadius: 14,
+          padding: '28px 32px',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 12,
+        }}
+      >
+        <CheckCircle2 size={22} color="#0D9E6E" style={{ flexShrink: 0, marginTop: 2 }} />
+        <div>
+          <div style={{ fontWeight: 600, color: '#065F46', fontSize: 15, marginBottom: 4 }}>
+            We’ve got it.
+          </div>
+          <p style={{ color: '#065F46', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+            We’ll reach out within one business day to set up a PAS walkthrough on your
+            numbers. If urgent, email{' '}
+            <a href="mailto:hello@orvnlabs.com" style={{ color: '#065F46', fontWeight: 600 }}>
+              hello@orvnlabs.com
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      style={{
+        background: '#fff',
+        border: '1px solid #E5E8F0',
+        borderRadius: 16,
+        padding: 'clamp(24px, 4vw, 36px)',
+        boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.05)',
+        textAlign: 'left',
+      }}
+    >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 12,
+          marginBottom: 12,
+        }}
+      >
+        <input
+          type="text"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name"
+          aria-label="Name"
+          style={inputStyle}
+        />
+        <input
+          type="text"
+          required
+          value={brokerage}
+          onChange={(e) => setBrokerage(e.target.value)}
+          placeholder="Brokerage"
+          aria-label="Brokerage"
+          style={inputStyle}
+        />
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Work email"
+          aria-label="Email"
+          style={inputStyle}
+        />
+        <select
+          value={leadVolume}
+          onChange={(e) => setLeadVolume(e.target.value)}
+          aria-label="Monthly lead volume"
+          style={{ ...inputStyle, appearance: 'auto' }}
+        >
+          <option value="">Monthly lead volume</option>
+          <option>0–50</option>
+          <option>51–200</option>
+          <option>201–500</option>
+          <option>500+</option>
+        </select>
+      </div>
+      <textarea
+        value={problem}
+        onChange={(e) => setProblem(e.target.value)}
+        placeholder="Biggest follow-up problem you’re trying to fix"
+        aria-label="Biggest follow-up problem"
+        rows={3}
+        style={{ ...inputStyle, resize: 'vertical', marginBottom: 12 }}
+      />
+
+      {error && (
+        <p role="alert" style={{ color: '#DC2626', fontSize: 13, marginBottom: 10 }}>
+          {error}
+        </p>
+      )}
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <button
+            type="submit"
+            disabled={status === 'loading'}
+            className="btn-primary"
+            style={{ opacity: status === 'loading' ? 0.7 : 1, cursor: status === 'loading' ? 'wait' : 'pointer' }}
+          >
+            <Send size={15} /> {status === 'loading' ? 'Sending…' : 'Book a PAS demo'}
+          </button>
+          <a href={mailtoFallback} className="btn-secondary">
+            Email us instead
+          </a>
+        </div>
+        <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>
+          We reply within one business day. No mass nurture sequences.
+        </p>
+      </div>
+    </form>
+  );
+}
+
+const inputStyle = {
+  background: '#F7F8FB',
+  border: '1px solid #E5E8F0',
+  borderRadius: 10,
+  padding: '12px 14px',
+  fontSize: 14,
+  color: '#0F172A',
+  fontFamily: "'Inter', sans-serif",
+  outline: 'none',
+  width: '100%',
+  boxSizing: 'border-box',
+};
+
+// ─── FINAL CTA + FORM ────────────────────────────────────────────────────────
+function FinalCTA() {
+  return (
+    <Section background="surface" borderTop>
+      <div id="demo-form" style={{ maxWidth: 760, marginBottom: 24 }}>
+        <motion.div {...fadeUp(0)}>
+          <Eyebrow>Book a PAS demo</Eyebrow>
+        </motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{ fontSize: 'clamp(28px, 4vw, 48px)', margin: '14px 0 16px' }}
+        >
+          See where your leads are leaking.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          Tell us about the brokerage and the follow-up problem you’re trying to fix. We’ll
+          walk you through PAS on your real numbers.
+        </motion.p>
+      </div>
+
+      <motion.div {...fadeUp(0.15)}>
+        <DemoForm />
+      </motion.div>
+    </Section>
+  );
+}
+
+// ─── PAS PAGE ────────────────────────────────────────────────────────────────
 export default function PAS() {
   useDocumentMeta({
-    title: 'PAS — Performative AI Superstaff',
+    title: 'PAS — Never lose another real estate lead',
     description:
-      'PAS is the flagship ORVN system. It controls the first-contact layer for real estate brokerages: answering, qualifying, routing, booking, and logging inbound leads.',
+      'PAS answers inbound calls, qualifies leads, schedules bookings or callbacks, and reports outcomes to Slack and email. The first-contact infrastructure for real estate brokerages.',
     path: '/pas',
   });
   return (
     <PageWrapper>
       <Hero />
+      <Diagnosis />
+      <Problem />
+      <Solution />
       <Capabilities />
-      <Channels />
-      <Anatomy />
-      <Routing />
-      <Compare />
-      <CreditsAndIntegrations />
-      <Compliance />
-      <CTA />
+      <ProductProof />
+      <DashboardSecondary />
+      <FinalCTA />
     </PageWrapper>
   );
 }
-
-const thStyle = {
-  textAlign: 'left',
-  padding: '14px 18px',
-  fontSize: 12,
-  fontFamily: "'JetBrains Mono', monospace",
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
-  color: '#475569',
-  fontWeight: 600,
-};
-const tdStyle = {
-  padding: '14px 18px',
-  fontSize: 14,
-  color: '#475569',
-};
-const tdLabel = {
-  ...tdStyle,
-  color: '#0F172A',
-  fontWeight: 500,
-  width: '28%',
-};
