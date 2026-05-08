@@ -19,13 +19,14 @@ const COLS = [
     links: [
       { label: 'Lead Leakage Scorecard', to: '/calculators/leakage' },
       { label: 'Revenue Calculator', to: '/calculators/revenue' },
-      { label: 'All Calculators', to: '/calculators' },
+      { label: 'All Calculators', to: '/calculate' },
     ],
   },
   {
-    title: 'Intelligence',
+    title: 'Insights',
     links: [
-      { label: 'First-Contact Intelligence (Blog)', to: '/blog' },
+      { label: 'Thesis & Insights', to: '/thesis' },
+      { label: 'First-Contact Intelligence (Blog)', to: '/thesis' },
       { label: 'FAQ', to: '/faq' },
     ],
   },

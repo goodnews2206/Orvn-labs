@@ -8,11 +8,9 @@ import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
 import PAS from './pages/PAS';
-import Pricing from './pages/Pricing';
-import Calculators from './pages/Calculators';
+import Thesis from './pages/Thesis';
 import RevenueCalculator from './pages/RevenueCalculator';
 import LeakageScorecard from './pages/LeakageScorecard';
-import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import FAQ from './pages/FAQ';
 import Demo from './pages/Demo';
@@ -28,18 +26,38 @@ import FairHousing from './pages/legal/FairHousing';
 
 function AnimatedRoutes() {
   const location = useLocation();
+
+  // Handle anchor navigation
+  React.useEffect(() => {
+    const anchors = {
+      '/calculate': 'calculate',
+      '/pricing': 'pricing',
+    };
+
+    const targetId = anchors[location.pathname];
+    if (targetId) {
+      setTimeout(() => {
+        const el = document.getElementById(targetId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [location]);
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/pas" element={<PAS />} />
-        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/thesis" element={<Thesis />} />
 
-        <Route path="/calculators" element={<Calculators />} />
+        {/* Anchor Navigation Redirects to Home */}
+        <Route path="/calculate" element={<Home />} />
+        <Route path="/pricing" element={<Home />} />
+
         <Route path="/calculators/revenue" element={<RevenueCalculator />} />
         <Route path="/calculators/leakage" element={<LeakageScorecard />} />
 
-        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog" element={<Navigate to="/thesis" replace />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
 
         <Route path="/faq" element={<FAQ />} />
