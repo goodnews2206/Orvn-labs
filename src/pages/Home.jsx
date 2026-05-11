@@ -431,14 +431,33 @@ function FAQTeaser() {
 
 // ─── 6. FINAL CTA ────────────────────────────────────────────────────────────
 function FinalCTA() {
+  const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'home_cta_waitlist' }),
+      });
+      if (!res.ok) throw new Error('Failed to join waitlist');
+      setStatus('success');
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+    }
+  };
+
   if (status === 'success') {
     return (
       <Section borderTop>
         <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 14, padding: 32, textAlign: 'center' }}>
           <CheckCircle2 size={32} color="#0D9E6E" style={{ margin: '0 auto 14px' }} />
           <h3 style={{ color: '#065F46', fontSize: 20, fontWeight: 600 }}>We've got it.</h3>
-          <p style={{ color: '#065F46', fontSize: 15, margin: 0 }}>We'll reach out within one business day.</p>
+          <p style={{ color: '#065F46', fontSize: 15, margin: 0 }}>You're on the waitlist. We'll reach out within one business day.</p>
         </div>
       </Section>
     );
@@ -460,17 +479,43 @@ function FinalCTA() {
             Stop guessing where your leads die.
           </motion.h2>
           <motion.p {...fadeUp(0.05)} style={{ color: 'rgba(255,255,255,0.78)', fontSize: 17, lineHeight: 1.65, margin: '0 0 32px' }}>
-            Book a PAS demo and see where your leads are leaking. We'll walk you through PAS
-            on your real numbers.
+            Early access is limited. Join the waitlist to secure your brokerage's spot in our next cohort.
           </motion.p>
-          <motion.div {...fadeUp(0.1)} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link to="/#calculate" className="btn-primary" style={{ background: '#fff', color: '#5B3FD4' }}>
-              Run leakage score <ArrowRight size={16} />
-            </Link>
-            <Link to="/pas" className="btn-secondary" style={{ background: 'transparent', color: '#fff', borderColor: 'rgba(255,255,255,0.3)' }}>
-              See how PAS works
-            </Link>
-          </motion.div>
+
+          <motion.form
+            {...fadeUp(0.1)}
+            onSubmit={submit}
+            style={{
+              display: 'flex',
+              gap: 12,
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              maxWidth: 500,
+              margin: '0 auto',
+            }}
+          >
+            <input
+              type="email"
+              required
+              placeholder="your@brokerage.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                flex: '1 1 260px',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: 12,
+                padding: '14px 18px',
+                fontSize: 16,
+                color: '#fff',
+                outline: 'none',
+              }}
+            />
+            <button type="submit" disabled={status === 'loading'} className="btn-primary" style={{ background: '#fff', color: '#5B3FD4' }}>
+              {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <ArrowRight size={16} />
+            </button>
+          </motion.form>
+          {status === 'error' && <p style={{ color: '#FF9999', fontSize: 13, marginTop: 12 }}>Something went wrong. Please try again.</p>}
         </div>
       </div>
     </Section>
