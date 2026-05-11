@@ -58,9 +58,34 @@ export default async function handler(req, res) {
     logToSheet(record),
     notifySlack(record),
     sendConfirmationEmail(record),
+    routeToAdmin(record),
   ]);
 
   return res.status(200).json({ ok: true });
+}
+
+async function routeToAdmin(record) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.FROM_EMAIL || 'ORVN Labs <hello@orvnlabs.com>';
+  const to = 'macbeth20006@gmail.com';
+  if (!apiKey) return;
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject: `New Newsletter Signup: ${record.email}`,
+        html: `<p>New newsletter signup from ${record.email}</p><pre>${JSON.stringify(record, null, 2)}</pre>`,
+      }),
+    });
+  } catch (err) {
+    console.warn('[newsletter] admin routing failed', err);
+  }
 }
 
 async function logToSheet(record) {

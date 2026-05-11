@@ -797,6 +797,88 @@ function UseCases() {
   );
 }
 
+// ─── WAITLIST SIGNUP ────────────────────────────────────────────────────────
+function WaitlistSignup() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('idle');
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'product_waitlist' }),
+      });
+      if (!res.ok) throw new Error('Failed to join waitlist');
+      setStatus('success');
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+    }
+  };
+
+  if (status === 'success') {
+    return (
+      <Section background="surface" borderTop>
+        <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 14, padding: 32, textAlign: 'center', maxWidth: 600, margin: '0 auto' }}>
+          <CheckCircle2 size={32} color="#0D9E6E" style={{ margin: '0 auto 14px' }} />
+          <h3 style={{ color: '#065F46', fontSize: 20, fontWeight: 600 }}>You're on the list.</h3>
+          <p style={{ color: '#065F46', fontSize: 15, margin: 0 }}>We'll notify you as soon as a slot opens for your brokerage.</p>
+        </div>
+      </Section>
+    );
+  }
+
+  return (
+    <Section background="surface" borderTop>
+      <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+        <motion.div {...fadeUp(0)}><Eyebrow>Join the waitlist</Eyebrow></motion.div>
+        <motion.h2 {...fadeUp(0.05)} className="h-section" style={{ fontSize: 'clamp(28px, 4vw, 48px)', margin: '14px 0 16px' }}>
+          Early access is limited.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead" style={{ marginBottom: 32 }}>
+          We are currently onboarding brokerages in cohorts to ensure high-touch implementation. Join the waitlist to secure your spot.
+        </motion.p>
+
+        <motion.form
+          {...fadeUp(0.15)}
+          onSubmit={submit}
+          style={{
+            display: 'flex',
+            gap: 10,
+            maxWidth: 500,
+            margin: '0 auto',
+            flexWrap: 'wrap',
+          }}
+        >
+          <input
+            type="email"
+            required
+            placeholder="your@brokerage.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              flex: '1 1 300px',
+              background: '#fff',
+              border: '1px solid #E5E8F0',
+              borderRadius: 10,
+              padding: '14px 18px',
+              fontSize: 15,
+              outline: 'none',
+            }}
+          />
+          <button type="submit" disabled={status === 'loading'} className="btn-primary" style={{ padding: '14px 24px' }}>
+            {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <ArrowRight size={16} />
+          </button>
+        </motion.form>
+        {status === 'error' && <p style={{ color: '#DC2626', fontSize: 13, marginTop: 12 }}>Something went wrong. Please try again or email hello@orvnlabs.com.</p>}
+      </div>
+    </Section>
+  );
+}
+
 export default function PAS() {
   useDocumentMeta({
     title: 'PAS — First-Contact Infrastructure',
@@ -835,6 +917,7 @@ export default function PAS() {
       <ProductProof />
       <ControlRoom />
       <UseCases />
+      <WaitlistSignup />
     </PageWrapper>
   );
 }
