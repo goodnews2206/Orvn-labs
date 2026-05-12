@@ -8,13 +8,13 @@ import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
 import PAS from './pages/PAS';
-import Thesis from './pages/Thesis';
+// import Thesis from './pages/Thesis';
 import RevenueCalculator from './pages/RevenueCalculator';
 import LeakageScorecard from './pages/LeakageScorecard';
-import BlogPost from './pages/BlogPost';
+// import BlogPost from './pages/BlogPost';
 import FAQ from './pages/FAQ';
-import Demo from './pages/Demo';
-import Login from './pages/Login';
+// import Demo from './pages/Demo';
+// import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 
 import Privacy from './pages/legal/Privacy';
@@ -48,7 +48,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/pas" element={<PAS />} />
-        <Route path="/thesis" element={<Thesis />} />
+        {/* <Route path="/thesis" element={<Thesis />} /> */}
 
         {/* Anchor Navigation Redirects to Home */}
         <Route path="/calculate" element={<Home />} />
@@ -57,12 +57,12 @@ function AnimatedRoutes() {
         <Route path="/calculators/revenue" element={<RevenueCalculator />} />
         <Route path="/calculators/leakage" element={<LeakageScorecard />} />
 
-        <Route path="/blog" element={<Navigate to="/thesis" replace />} />
-        <Route path="/blog/:slug" element={<BlogPost />} />
+        {/* <Route path="/blog" element={<Navigate to="/thesis" replace />} /> */}
+        {/* <Route path="/blog/:slug" element={<BlogPost />} /> */}
 
         <Route path="/faq" element={<FAQ />} />
-        <Route path="/demo" element={<Demo />} />
-        <Route path="/login" element={<Login />} />
+        {/* <Route path="/demo" element={<Demo />} /> */}
+        {/* <Route path="/login" element={<Login />} /> */}
 
         <Route path="/legal/privacy" element={<Privacy />} />
         <Route path="/legal/terms" element={<Terms />} />
