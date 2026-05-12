@@ -9,8 +9,8 @@ const COLS = [
     title: 'Product',
     links: [
       { label: 'PAS — Performative AI Superstaff', to: '/pas' },
-      { label: 'Pricing', to: '/pricing' },
-      { label: 'Test PAS', to: '/demo' },
+      // { label: 'Pricing', to: '/pricing' },
+      // { label: 'Test PAS', to: '/demo' },
       { label: 'PAS Control Room', href: PAS_LINKS.controlRoom, external: true },
     ],
   },
@@ -25,8 +25,8 @@ const COLS = [
   {
     title: 'Insights',
     links: [
-      { label: 'Thesis & Insights', to: '/thesis' },
-      { label: 'First-Contact Intelligence (Blog)', to: '/thesis' },
+      // { label: 'Thesis & Insights', to: '/thesis' },
+      // { label: 'First-Contact Intelligence (Blog)', to: '/thesis' },
       { label: 'FAQ', to: '/faq' },
     ],
   },

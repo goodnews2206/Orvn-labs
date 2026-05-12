@@ -8,8 +8,8 @@ import { PAS_LINKS } from '../lib/pas';
 const NAV_LINKS = [
   { label: 'Product', to: '/pas' },
   { label: 'Calculators', to: '/calculate' },
-  { label: 'Pricing', to: '/pricing' },
-  { label: 'Thesis', to: '/thesis' },
+  // { label: 'Pricing', to: '/pricing' },
+  // { label: 'Thesis', to: '/thesis' },
   { label: 'FAQ', to: '/faq' },
 ];
 
@@ -96,7 +96,7 @@ export default function Navbar() {
           </nav>
 
           <div className="nav-desktop" style={{ display: 'none', alignItems: 'center', gap: 10 }}>
-            <a
+            {/* <a
               href={PAS_LINKS.login}
               target="_blank"
               rel="noopener noreferrer"
@@ -104,7 +104,7 @@ export default function Navbar() {
               style={{ padding: '9px 16px', fontSize: 14 }}
             >
               Login
-            </a>
+            </a> */}
             <Link
               to="/calculators/leakage"
               className="btn-primary"
@@ -190,7 +190,7 @@ export default function Navbar() {
                 ))}
               </ul>
               <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-                <a
+                {/* <a
                   href={PAS_LINKS.login}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -198,7 +198,7 @@ export default function Navbar() {
                   style={{ flex: 1 }}
                 >
                   Login
-                </a>
+                </a> */}
                 <Link to="/calculators/leakage" className="btn-primary" style={{ flex: 1 }}>
                   Run leakage score
                 </Link>
