@@ -1,16 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  Eye,
-  EyeOff,
-  BarChart3,
-  Calculator,
-  Gauge,
-  CheckCircle2,
-  Send,
-} from 'lucide-react';
 
 import PageWrapper from '../components/PageWrapper';
 import Section from '../components/ui/Section';
@@ -19,11 +9,29 @@ import FlowDiagram from '../components/FlowDiagram';
 import { useDocumentMeta } from '../lib/seo';
 import { PAS_LINKS } from '../lib/pas';
 
+// Custom Illustrations
+import HeroIllustration from '../components/home/HeroIllustration';
+import ProblemIllustration from '../components/home/ProblemIllustration';
+import PricingIllustration from '../components/home/PricingIllustration';
+
+// Custom SVG Icons
+import {
+  IconGauge,
+  IconCalculator,
+  IconEye,
+  IconEyeOff,
+  IconArrowRight,
+  IconCheck,
+  IconSend,
+  IconSystems,
+  IconBook,
+} from '../components/home/Icons';
+
 const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 14 },
+  initial: { opacity: 0, y: 18 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: '-80px' },
-  transition: { duration: 0.5, ease: 'easeOut', delay },
+  transition: { duration: 0.6, ease: [0.23, 1, 0.32, 1], delay },
 });
 
 const BASELINE_CLOSE_RATE = 0.03;
@@ -36,41 +44,59 @@ const fmtNumber = (n) => Math.round(Math.max(0, Number(n) || 0)).toLocaleString(
 function Hero() {
   return (
     <section
+      className="hero-grid-bg"
       style={{
         background: '#fff',
-        paddingTop: 'clamp(80px, 12vw, 160px)',
-        paddingBottom: 'clamp(60px, 8vw, 100px)',
+        paddingTop: 'clamp(90px, 12vw, 150px)',
+        paddingBottom: 'clamp(70px, 9vw, 110px)',
+        position: 'relative',
         overflow: 'hidden',
       }}
     >
+      {/* Premium accent glows */}
       <div
-        className="container-page"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr)',
+          position: 'absolute',
+          top: '-10%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '70vw',
+          height: '600px',
+          background: 'radial-gradient(circle, rgba(91, 63, 212, 0.06) 0%, transparent 65%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      <div
+        className="container-page grid-responsive-2"
+        style={{
           gap: 'clamp(48px, 6vw, 80px)',
           alignItems: 'center',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <div>
           <motion.div {...fadeUp(0)}>
             <span
-              className="pill"
+              className="pill animate-blink"
               style={{
-                marginBottom: 28,
-                background: '#F8FAFC',
-                border: '1px solid #E2E8F0',
-                padding: '6px 12px',
+                marginBottom: 24,
+                background: '#FFF',
+                border: '1.5px solid rgba(91, 63, 212, 0.12)',
+                padding: '6px 14px',
                 borderRadius: 100,
-                fontSize: 12,
-                fontWeight: 500,
-                color: '#475569',
+                fontSize: 12.5,
+                fontWeight: 600,
+                color: '#5B3FD4',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
+                boxShadow: '0 4px 12px rgba(91, 63, 212, 0.04)',
               }}
             >
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0D9E6E' }} />
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0D9E6E', boxShadow: '0 0 8px #0D9E6E' }} />
               ORVN Labs · real estate brokerage infrastructure
             </span>
           </motion.div>
@@ -79,40 +105,39 @@ function Hero() {
             {...fadeUp(0.05)}
             className="h-display"
             style={{
-              fontSize: 'clamp(44px, 6.2vw, 82px)',
-              lineHeight: 1.05,
-              marginBottom: 28,
-              letterSpacing: '-0.02em',
-              fontWeight: 600,
+              fontSize: 'clamp(44px, 5.8vw, 76px)',
+              lineHeight: 1.1,
+              marginBottom: 24,
+              fontWeight: 800,
             }}
           >
             Control the first-contact layer{' '}
-            <span style={{ color: '#5B3FD4' }}>before delay kills conversion.</span>
+            <span style={{ color: '#5B3FD4', background: 'linear-gradient(120deg, #5B3FD4, #7B5FEA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>before delay kills conversion.</span>
           </motion.h1>
 
           <motion.p
             {...fadeUp(0.1)}
             className="lead"
             style={{
-              maxWidth: 600,
-              marginBottom: 40,
-              fontSize: 'clamp(17px, 1.8vw, 20px)',
-              lineHeight: 1.6,
+              maxWidth: 580,
+              marginBottom: 36,
+              fontSize: 'clamp(17px, 1.8vw, 19px)',
+              lineHeight: 1.65,
               color: '#475569',
             }}
           >
             ORVN Labs builds brokerage intelligence infrastructure.{' '}
-            <strong style={{ color: '#0F172A', fontWeight: 600 }}>PAS</strong>, our flagship system,
+            <strong style={{ color: '#0F172A', fontWeight: 700 }}>PAS</strong>, our flagship system,
             answers, qualifies, routes, books, and logs inbound leads — before human delay turns
             intent cold.
           </motion.p>
 
           <motion.div
             {...fadeUp(0.15)}
-            style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 32 }}
+            style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 28 }}
           >
             <Link to="/#calculate" className="btn-primary" style={{ padding: '14px 28px', fontSize: 15 }}>
-              Run your lead leakage score <ArrowRight size={18} />
+              Run your lead leakage score <IconArrowRight size={18} />
             </Link>
             <Link to="/pas" className="btn-secondary" style={{ padding: '14px 28px', fontSize: 15 }}>
               Explore PAS
@@ -124,26 +149,37 @@ function Hero() {
             style={{
               fontSize: 13,
               color: '#94A3B8',
-              maxWidth: 500,
+              maxWidth: 480,
               lineHeight: 1.5,
-              fontStyle: 'italic',
+              fontWeight: 500,
             }}
           >
-            Built for brokerage owners, team leads, and operators who cannot afford CRM graveyards.
+            ✦ Built for brokerage owners, team leads, and operators who cannot afford CRM graveyards.
           </motion.p>
         </div>
 
         <motion.div
           {...fadeUp(0.25)}
           style={{
-            position: 'relative',
-            background: '#F8FAFC',
-            padding: 'clamp(24px, 4vw, 40px)',
-            borderRadius: 32,
-            border: '1px solid #E2E8F0',
-            boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.05)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+            width: '100%',
           }}
         >
+          <div
+            style={{
+              position: 'relative',
+              background: '#FFFFFF',
+              padding: 'clamp(20px, 3vw, 32px)',
+              borderRadius: 24,
+              border: '1px solid rgba(15,23,42,0.06)',
+              boxShadow: 'var(--shadow-xl)',
+            }}
+          >
+            <HeroIllustration />
+          </div>
+          
           <FlowDiagram label="What PAS controls" />
         </motion.div>
       </div>
@@ -163,16 +199,15 @@ function Problem() {
 
   return (
     <Section background="surface" borderTop>
-      <div style={{ maxWidth: 840, marginBottom: 64 }}>
+      <div style={{ maxWidth: 840, marginBottom: 56 }}>
         <motion.div {...fadeUp(0)}><Eyebrow>The problem</Eyebrow></motion.div>
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
           style={{
-            fontSize: 'clamp(32px, 4.5vw, 52px)',
-            margin: '20px 0 24px',
-            lineHeight: 1.15,
-            letterSpacing: '-0.02em',
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
           }}
         >
           Most brokerages are measuring the wrong failure.
@@ -180,7 +215,7 @@ function Problem() {
         <motion.p
           {...fadeUp(0.1)}
           className="lead"
-          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
+          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569', maxContent: 720 }}
         >
           The gap between inquiry and qualified appointment is usually where money dies — and it
           rarely shows up in the report you’re looking at.
@@ -192,17 +227,17 @@ function Problem() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: 32,
-          marginBottom: 64,
+          marginBottom: 48,
         }}
       >
         <CompareColumn
-          icon={<Eye size={20} />}
+          icon={<IconEye size={22} />}
           tone="neutral"
           title="What gets measured"
           items={['Lead volume', 'Lead spend', 'Closed deals', 'Agent count']}
         />
         <CompareColumn
-          icon={<EyeOff size={20} />}
+          icon={<IconEyeOff size={22} />}
           tone="risk"
           title="What gets ignored"
           items={[
@@ -215,64 +250,87 @@ function Problem() {
         />
       </div>
 
-      <motion.div
-        {...fadeUp(0.1)}
+      <div
+        className="grid-responsive-2"
         style={{
-          background: '#fff',
-          border: '1px solid #E2E8F0',
-          borderRadius: 24,
-          overflow: 'hidden',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+          gap: 32,
+          alignItems: 'center',
         }}
       >
-        <div
+        <motion.div
+          {...fadeUp(0.1)}
           style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            background: '#F8FAFC',
-            borderBottom: '1px solid #E2E8F0',
+            background: '#fff',
+            border: '1px solid #E5E8F0',
+            borderRadius: 24,
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-lg)',
           }}
         >
-          <div style={{ padding: '20px 32px' }}>
-            <span style={mono('#64748B', 0)}>What brokerages blame</span>
-          </div>
-          <div style={{ padding: '20px 32px', borderLeft: '1px solid #E2E8F0' }}>
-            <span style={mono('#5B3FD4', 0)}>What actually killed conversion</span>
-          </div>
-        </div>
-        {blameVsReality.map((row, idx) => (
           <div
-            key={row.blame}
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              borderBottom: idx === blameVsReality.length - 1 ? 'none' : '1px solid #F1F5F9',
+              background: '#F8F9FA',
+              borderBottom: '1px solid #E5E8F0',
             }}
           >
-            <div
-              style={{
-                padding: '18px 32px',
-                color: '#94A3B8',
-                fontSize: 15,
-                textDecoration: 'line-through',
-              }}
-            >
-              {row.blame}
+            <div style={{ padding: '18px 28px' }}>
+              <span style={mono('#64748B', 0)}>What brokerages blame</span>
             </div>
-            <div
-              style={{
-                padding: '18px 32px',
-                color: '#0F172A',
-                fontSize: 15,
-                fontWeight: 500,
-                borderLeft: '1px solid #F1F5F9',
-              }}
-            >
-              {row.reality}
+            <div style={{ padding: '18px 28px', borderLeft: '1px solid #E5E8F0' }}>
+              <span style={mono('#5B3FD4', 0)}>What actually killed conversion</span>
             </div>
           </div>
-        ))}
-      </motion.div>
+          {blameVsReality.map((row, idx) => (
+            <div
+              key={row.blame}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                borderBottom: idx === blameVsReality.length - 1 ? 'none' : '1px solid #F1F5F9',
+              }}
+            >
+              <div
+                style={{
+                  padding: '16px 28px',
+                  color: '#94A3B8',
+                  fontSize: 14.5,
+                  textDecoration: 'line-through',
+                  fontWeight: 500,
+                }}
+              >
+                {row.blame}
+              </div>
+              <div
+                style={{
+                  padding: '16px 28px',
+                  color: '#0F172A',
+                  fontSize: 14.5,
+                  fontWeight: 600,
+                  borderLeft: '1px solid #F1F5F9',
+                }}
+              >
+                {row.reality}
+              </div>
+            </div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          {...fadeUp(0.15)}
+          style={{
+            background: '#ffffff',
+            borderRadius: 24,
+            padding: '24px',
+            border: '1px solid rgba(15,23,42,0.06)',
+            boxShadow: 'var(--shadow-lg)',
+            width: '100%',
+          }}
+        >
+          <ProblemIllustration />
+        </motion.div>
+      </div>
     </Section>
   );
 }
@@ -280,29 +338,28 @@ function Problem() {
 function CompareColumn({ icon, tone, title, items }) {
   const isRisk = tone === 'risk';
   const palette = isRisk
-    ? { border: '#FEE2E2', bg: '#FFF1F1', label: '#DC2626', dot: '#EF4444' }
-    : { border: '#E2E8F0', bg: '#F8FAFC', label: '#475569', dot: '#94A3B8' };
+    ? { border: 'rgba(220, 38, 38, 0.15)', bg: '#FFF5F5', label: '#DC2626', dot: '#DC2626', iconBg: '#FEE2E2' }
+    : { border: '#E5E8F0', bg: '#F8F9FA', label: '#475569', dot: '#94A3B8', iconBg: '#EEF0F3' };
 
   return (
     <motion.div
       {...fadeUp(0.05)}
+      className="card"
       style={{
         background: palette.bg,
-        border: `1px solid ${palette.border}`,
+        border: `1.5px solid ${palette.border}`,
         borderRadius: 24,
         padding: 32,
-        transition: 'all 0.2s ease',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
         <span
           style={{
             color: palette.label,
             display: 'inline-flex',
-            padding: 8,
-            background: '#fff',
-            borderRadius: 12,
-            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+            padding: 10,
+            background: palette.iconBg,
+            borderRadius: 14,
           }}
         >
           {icon}
@@ -328,7 +385,7 @@ function CompareColumn({ icon, tone, title, items }) {
               gap: 12,
               fontSize: 15,
               color: '#1E293B',
-              fontWeight: isRisk ? 500 : 400,
+              fontWeight: isRisk ? 600 : 500,
             }}
           >
             <span
@@ -338,6 +395,7 @@ function CompareColumn({ icon, tone, title, items }) {
                 borderRadius: '50%',
                 background: palette.dot,
                 flexShrink: 0,
+                boxShadow: isRisk ? '0 0 6px rgba(220, 38, 38, 0.4)' : 'none',
               }}
             />
             {it}
@@ -374,10 +432,10 @@ function Diagnosis() {
           {...fadeUp(0.05)}
           className="h-section"
           style={{
-            fontSize: 'clamp(32px, 4.5vw, 52px)',
-            margin: '20px 0 24px',
-            lineHeight: 1.15,
-            letterSpacing: '-0.02em',
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+            letterSpacing: '-0.025em',
           }}
         >
           See where your leads are dying.
@@ -395,56 +453,74 @@ function Diagnosis() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr)',
-          gap: 32,
+          gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
+          gap: 40,
           alignItems: 'start',
         }}
       >
-        {/* Quick Calc Sidebar */}
+        {/* Quick Calc Card */}
         <motion.div
           {...fadeUp(0.05)}
           style={{
-            background: '#F8FAFC',
-            border: '1px solid #E2E8F0',
+            background: '#FFFFFF',
+            border: '1px solid #E5E8F0',
             borderRadius: 24,
             padding: 'clamp(28px, 4vw, 40px)',
-            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+            boxShadow: 'var(--shadow-lg)',
           }}
         >
-          <div style={{ ...mono('#64748B', 24), fontSize: 13 }}>Quick Revenue Estimate</div>
+          <div style={{ ...mono('#64748B', 24), fontSize: 12, fontWeight: 700 }}>Quick Revenue Estimate</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <FormField label="Monthly inbound leads" value={monthlyLeads} onChange={setMonthlyLeads} type="number" />
             <FormField label="Avg. commission" value={avgCommission} onChange={setAvgCommission} type="number" prefix="$" />
-            <FormField label="Estimated leakage" value={missedPct} onChange={setMissedPct} type="number" suffix="%" />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>Estimated leakage</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#DC2626' }}>{missedPct}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={missedPct}
+                onChange={(e) => setMissedPct(Number(e.target.value))}
+              />
+            </div>
           </div>
 
           <div
             style={{
               marginTop: 32,
-              padding: 28,
-              background: '#fff',
-              border: '1px solid #E2E8F0',
-              borderRadius: 20,
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+              padding: 24,
+              background: '#FFF5F5',
+              border: '1.5px solid rgba(220, 38, 38, 0.12)',
+              borderRadius: 18,
+              boxShadow: 'var(--shadow-xs)',
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
-            <div style={mono('#DC2626', 12)}>Est. Revenue Leakage</div>
+            <div style={mono('#DC2626', 8)}>Est. Revenue Leakage</div>
             <div
               style={{
                 fontFamily: "'Instrument Serif', serif",
-                fontSize: 'clamp(36px, 5vw, 48px)',
+                fontSize: 'clamp(36px, 5vw, 46px)',
                 color: '#0F172A',
                 lineHeight: 1,
+                fontWeight: 400,
+                display: 'flex',
+                alignItems: 'baseline',
               }}
             >
               {fmtCurrency(calc.annualRevenueLeakage)}
               <span
                 style={{
-                  fontSize: 16,
+                  fontSize: 15,
                   color: '#94A3B8',
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                   marginLeft: 8,
-                  fontWeight: 400,
+                  fontWeight: 600,
                 }}
               >
                 /yr
@@ -454,16 +530,16 @@ function Diagnosis() {
         </motion.div>
 
         {/* Tools Grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <ToolCard
             title="Lead Leakage Scorecard"
-            icon={Gauge}
+            icon={IconGauge}
             desc="Five-minute diagnostic of your first-contact layer. Sub-scores for response, contact, and booking."
             to="/calculators/leakage"
           />
           <ToolCard
             title="Full Revenue Calculator"
-            icon={Calculator}
+            icon={IconCalculator}
             desc="Conservative estimate of speed-to-lead delay cost. Math shown step-by-step."
             to="/calculators/revenue"
           />
@@ -482,8 +558,10 @@ function ToolCard({ title, icon: Icon, desc, to }) {
         padding: 32,
         borderRadius: 24,
         background: '#fff',
-        border: '1px solid #E2E8F0',
-        transition: 'all 0.3s ease',
+        border: '1px solid #E5E8F0',
+        transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <div
@@ -491,7 +569,7 @@ function ToolCard({ title, icon: Icon, desc, to }) {
           width: 48,
           height: 48,
           borderRadius: 14,
-          background: '#F5F3FF',
+          background: 'rgba(91, 63, 212, 0.06)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -503,27 +581,27 @@ function ToolCard({ title, icon: Icon, desc, to }) {
       <h3
         style={{
           fontSize: 20,
-          fontWeight: 600,
+          fontWeight: 700,
           color: '#0F172A',
-          marginBottom: 12,
-          letterSpacing: '-0.01em',
+          marginBottom: 10,
+          letterSpacing: '-0.02em',
         }}
       >
         {title}
       </h3>
-      <p style={{ fontSize: 15, color: '#475569', lineHeight: 1.6, marginBottom: 24 }}>{desc}</p>
+      <p style={{ fontSize: 14.5, color: '#475569', lineHeight: 1.6, marginBottom: 24 }}>{desc}</p>
       <Link
         to={to}
         className="btn-secondary"
         style={{
           alignSelf: 'flex-start',
           padding: '10px 20px',
-          borderRadius: 10,
-          fontSize: 14,
-          fontWeight: 600,
+          borderRadius: 100,
+          fontSize: 13.5,
+          fontWeight: 700,
         }}
       >
-        Run tool <ArrowRight size={16} />
+        Run tool <IconArrowRight size={16} />
       </Link>
     </motion.div>
   );
@@ -547,21 +625,22 @@ function FormField({ label, value, onChange, type, prefix, suffix }) {
         style={{
           display: 'flex',
           background: '#fff',
-          border: '1px solid #E2E8F0',
+          border: '1.5px solid #E5E8F0',
           borderRadius: 12,
           overflow: 'hidden',
-          transition: 'border-color 0.2s ease',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+          transition: 'all 0.2s',
+          boxShadow: 'var(--shadow-xs)',
         }}
       >
         {prefix && (
           <span
             style={{
               padding: '12px 16px',
-              background: '#F8FAFC',
+              background: '#F8F9FA',
               color: '#94A3B8',
               fontSize: 14,
-              borderRight: '1px solid #E2E8F0',
+              fontWeight: 600,
+              borderRight: '1.5px solid #E5E8F0',
             }}
           >
             {prefix}
@@ -579,17 +658,18 @@ function FormField({ label, value, onChange, type, prefix, suffix }) {
             outline: 'none',
             width: '100%',
             color: '#0F172A',
-            fontWeight: 500,
+            fontWeight: 600,
           }}
         />
         {suffix && (
           <span
             style={{
               padding: '12px 16px',
-              background: '#F8FAFC',
+              background: '#F8F9FA',
               color: '#94A3B8',
               fontSize: 14,
-              borderLeft: '1px solid #E2E8F0',
+              fontWeight: 600,
+              borderLeft: '1.5px solid #E5E8F0',
             }}
           >
             {suffix}
@@ -604,16 +684,16 @@ function FormField({ label, value, onChange, type, prefix, suffix }) {
 function PricingSection() {
   return (
     <Section id="pricing" background="surface" borderTop>
-      <div style={{ maxWidth: 840, marginBottom: 64 }}>
+      <div style={{ maxWidth: 840, marginBottom: 56 }}>
         <motion.div {...fadeUp(0)}><Eyebrow>Pricing — early access</Eyebrow></motion.div>
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
           style={{
-            fontSize: 'clamp(32px, 4.5vw, 52px)',
-            margin: '20px 0 24px',
-            lineHeight: 1.15,
-            letterSpacing: '-0.02em',
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+            letterSpacing: '-0.025em',
           }}
         >
           Priced against what leakage already costs you.
@@ -631,13 +711,16 @@ function PricingSection() {
         {...fadeUp(0.1)}
         style={{
           background: '#fff',
-          border: '1px solid #E2E8F0',
+          border: '1px solid #E5E8F0',
           borderRadius: 32,
-          padding: 'clamp(40px, 8vw, 80px)',
-          textAlign: 'center',
-          boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.04)',
+          padding: 'clamp(32px, 5vw, 64px)',
+          boxShadow: 'var(--shadow-xl)',
           position: 'relative',
           overflow: 'hidden',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 48,
+          alignItems: 'center',
         }}
       >
         <div
@@ -651,42 +734,48 @@ function PricingSection() {
           }}
         />
 
-        <h3
-          style={{
-            fontSize: 'clamp(24px, 3.5vw, 32px)',
-            fontWeight: 600,
-            color: '#0F172A',
-            marginBottom: 20,
-            letterSpacing: '-0.02em',
-          }}
-        >
-          Tailored solutions for every brokerage.
-        </h3>
-        <p
-          style={{
-            color: '#475569',
-            fontSize: 'clamp(15px, 1.6vw, 17px)',
-            lineHeight: 1.7,
-            maxWidth: 640,
-            margin: '0 auto 40px',
-          }}
-        >
-          Deployment and setup fees vary based on lead volume, integrations, routing complexity,
-          and onboarding needs. Contact us for a quote based on your numbers.
-        </p>
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a
-            href={PAS_LINKS.earlyAccess}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary"
-            style={{ padding: '14px 32px' }}
+        <div>
+          <h3
+            style={{
+              fontSize: 'clamp(24px, 3vw, 30px)',
+              fontWeight: 700,
+              color: '#0F172A',
+              marginBottom: 16,
+              letterSpacing: '-0.025em',
+            }}
           >
-            Apply for early access <ArrowRight size={18} />
-          </a>
-          <a href="mailto:hello@orvnlabs.com" className="btn-secondary" style={{ padding: '14px 32px' }}>
-            Contact for quote
-          </a>
+            Tailored solutions for every brokerage.
+          </h3>
+          <p
+            style={{
+              color: '#475569',
+              fontSize: 'clamp(15px, 1.6vw, 16px)',
+              lineHeight: 1.65,
+              maxWidth: 580,
+              margin: '0 0 36px',
+            }}
+          >
+            Deployment and setup fees vary based on lead volume, integrations, routing complexity,
+            and onboarding needs. Contact us for a quote based on your numbers.
+          </p>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <a
+              href={PAS_LINKS.earlyAccess}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+              style={{ padding: '14px 28px' }}
+            >
+              Apply for early access <IconArrowRight size={18} />
+            </a>
+            <a href="mailto:hello@orvnlabs.com" className="btn-secondary" style={{ padding: '14px 28px' }}>
+              Contact for quote
+            </a>
+          </div>
+        </div>
+
+        <div style={{ width: '100%' }}>
+          <PricingIllustration />
         </div>
       </motion.div>
     </Section>
@@ -724,13 +813,13 @@ function FAQTeaser() {
         }}
       >
         <div style={{ maxWidth: 600 }}>
-          <Eyebrow>FAQ</Eyebrow>
+          <motion.div {...fadeUp(0)}><Eyebrow>FAQ</Eyebrow></motion.div>
           <h2
             className="h-section"
             style={{
-              fontSize: 'clamp(32px, 4vw, 48px)',
-              margin: '20px 0 0',
-              letterSpacing: '-0.02em',
+              fontSize: 'clamp(32px, 4vw, 44px)',
+              margin: '18px 0 0',
+              letterSpacing: '-0.025em',
             }}
           >
             Common questions.
@@ -739,9 +828,9 @@ function FAQTeaser() {
         <Link
           to="/faq"
           className="btn-ghost"
-          style={{ fontSize: 15, fontWeight: 600, padding: '10px 0' }}
+          style={{ fontSize: 14.5, fontWeight: 700, padding: '10px 0' }}
         >
-          All FAQ <ArrowRight size={18} />
+          All FAQ <IconArrowRight size={18} />
         </Link>
       </div>
 
@@ -761,7 +850,7 @@ function FAQItem({ question, answer, delay }) {
     <motion.div
       {...fadeUp(delay)}
       style={{
-        borderBottom: '1px solid #F1F5F9',
+        borderBottom: '1px solid #E5E8F0',
         overflow: 'hidden',
       }}
     >
@@ -782,10 +871,11 @@ function FAQItem({ question, answer, delay }) {
       >
         <span
           style={{
-            fontSize: 'clamp(16px, 1.8vw, 18px)',
-            fontWeight: 600,
+            fontSize: 'clamp(16px, 1.8vw, 17.5px)',
+            fontWeight: 700,
             color: '#0F172A',
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            letterSpacing: '-0.01em',
           }}
         >
           {question}
@@ -800,7 +890,7 @@ function FAQItem({ question, answer, delay }) {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
@@ -816,12 +906,12 @@ function FAQItem({ question, answer, delay }) {
       >
         <p
           style={{
-            fontSize: 16,
+            fontSize: 15,
             color: '#475569',
-            lineHeight: 1.7,
+            lineHeight: 1.65,
             paddingBottom: 24,
             margin: 0,
-            maxWidth: 720,
+            maxWidth: 760,
           }}
         >
           {answer}
@@ -859,24 +949,38 @@ function FinalCTA() {
         <div
           style={{
             background: '#ECFDF5',
-            border: '1px solid #A7F3D0',
+            border: '1.5px solid #A7F3D0',
             borderRadius: 24,
-            padding: 48,
+            padding: '48px 24px',
             textAlign: 'center',
+            boxShadow: 'var(--shadow-md)',
           }}
         >
-          <CheckCircle2 size={40} color="#0D9E6E" style={{ margin: '0 auto 20px' }} />
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 100,
+              background: '#D1FAE5',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+            }}
+          >
+            <IconCheck size={28} color="#0D9E6E" />
+          </div>
           <h3
             style={{
               color: '#065F46',
               fontSize: 24,
-              fontWeight: 600,
-              letterSpacing: '-0.01em',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
             }}
           >
             We've got it.
           </h3>
-          <p style={{ color: '#065F46', fontSize: 16, margin: '8px 0 0' }}>
+          <p style={{ color: '#065F46', fontSize: 15.5, margin: '8px 0 0', fontWeight: 500 }}>
             You're on the waitlist. We'll reach out within one business day.
           </p>
         </div>
@@ -888,23 +992,33 @@ function FinalCTA() {
     <Section background="surface" borderTop>
       <div
         style={{
-          background: '#5B3FD4',
-          borderRadius: 40,
-          padding: 'clamp(60px, 10vw, 120px) clamp(24px, 5vw, 48px)',
+          background: 'linear-gradient(135deg, #5B3FD4 0%, #4A30C0 100%)',
+          borderRadius: 32,
+          padding: 'clamp(56px, 9vw, 96px) clamp(24px, 5vw, 48px)',
           color: '#fff',
           textAlign: 'center',
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 30px 60px -12px rgba(91, 63, 212, 0.25)',
+          boxShadow: '0 24px 60px rgba(91, 63, 212, 0.25)',
         }}
       >
-        {/* Subtle decorative elements */}
+        {/* Subtle background decorative grid and glow */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage:
+              'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+            backgroundSize: '36px 36px',
+            pointerEvents: 'none',
+          }}
+        />
         <div
           style={{
             position: 'absolute',
             top: '-20%',
             right: '-10%',
-            width: '40%',
+            width: '45%',
             height: '80%',
             background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
             pointerEvents: 'none',
@@ -917,10 +1031,11 @@ function FinalCTA() {
             className="h-section"
             style={{
               color: '#fff',
-              fontSize: 'clamp(36px, 5.5vw, 64px)',
-              margin: '0 0 24px',
+              fontSize: 'clamp(36px, 5vw, 56px)',
+              margin: '0 0 20px',
               lineHeight: 1.05,
               letterSpacing: '-0.03em',
+              fontWeight: 800,
             }}
           >
             Stop guessing where your leads die.
@@ -929,10 +1044,11 @@ function FinalCTA() {
             {...fadeUp(0.05)}
             style={{
               color: 'rgba(255,255,255,0.85)',
-              fontSize: 'clamp(17px, 2vw, 20px)',
+              fontSize: 'clamp(16px, 1.8vw, 18.5px)',
               lineHeight: 1.6,
-              margin: '0 auto 48px',
-              maxWidth: 640,
+              margin: '0 auto 40px',
+              maxWidth: 620,
+              fontWeight: 500,
             }}
           >
             Early access is limited. Join the waitlist to secure your brokerage's spot in our next
@@ -960,14 +1076,18 @@ function FinalCTA() {
               style={{
                 flex: '1 1 300px',
                 background: 'rgba(255,255,255,0.12)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: 14,
-                padding: '16px 24px',
-                fontSize: 16,
+                border: '1.5px solid rgba(255,255,255,0.2)',
+                borderRadius: 100,
+                padding: '16px 28px',
+                fontSize: 15.5,
                 color: '#fff',
                 outline: 'none',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.25s',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 600,
               }}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.6)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.2)')}
             />
             <button
               type="submit"
@@ -977,15 +1097,17 @@ function FinalCTA() {
                 background: '#fff',
                 color: '#5B3FD4',
                 padding: '16px 32px',
-                fontSize: 16,
-                fontWeight: 600,
+                fontSize: 15.5,
+                fontWeight: 700,
+                borderRadius: 100,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               }}
             >
-              {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <ArrowRight size={18} />
+              {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <IconArrowRight size={18} />
             </button>
           </motion.form>
           {status === 'error' && (
-            <p style={{ color: '#FFB2B2', fontSize: 14, marginTop: 16, fontWeight: 500 }}>
+            <p style={{ color: '#FFB2B2', fontSize: 14, marginTop: 16, fontWeight: 600 }}>
               Something went wrong. Please try again.
             </p>
           )}
@@ -1007,13 +1129,14 @@ export default function Home() {
 
       {/* Tighter "Experience" Grouping via Navigation */}
       <Section borderTop background="surface">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
           <LinkCard
             eyebrow="Systems & Proof"
             title="Explore PAS in detail"
             desc="Workflows, capabilities, and open source proof. See the technical layer behind the staff."
             to="/pas"
             cta="Explore systems"
+            icon={IconSystems}
           />
           <LinkCard
             eyebrow="Thesis & Insights"
@@ -1021,6 +1144,7 @@ export default function Home() {
             desc="The philosophy, the founder's story, and field notes on lead conversion for operators."
             to="/thesis"
             cta="Read thesis"
+            icon={IconBook}
           />
         </div>
       </Section>
@@ -1031,40 +1155,54 @@ export default function Home() {
   );
 }
 
-function LinkCard({ eyebrow, title, desc, to, cta }) {
+function LinkCard({ eyebrow, title, desc, to, cta, icon: Icon }) {
   return (
-    <Link to={to} style={{ textDecoration: 'none', display: 'block' }}>
+    <Link to={to} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
       <motion.div
         {...fadeUp(0.05)}
         className="card"
         style={{
-          padding: 'clamp(32px, 5vw, 48px)',
+          padding: 'clamp(32px, 5vw, 44px)',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: 24,
           background: '#fff',
-          border: '1px solid #E2E8F0',
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          border: '1px solid #E5E8F0',
+          transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
         }}
       >
-        <span style={mono('#5B3FD4', 16)}>{eyebrow}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+          <span style={mono('#5B3FD4', 0)}>{eyebrow}</span>
+          <span
+            style={{
+              color: '#5B3FD4',
+              display: 'inline-flex',
+              padding: 8,
+              background: 'rgba(91, 63, 212, 0.06)',
+              borderRadius: 12,
+            }}
+          >
+            <Icon size={20} color="#5B3FD4" />
+          </span>
+        </div>
+        
         <h3
           style={{
-            fontSize: 'clamp(20px, 2.5vw, 26px)',
-            fontWeight: 600,
+            fontSize: 'clamp(20px, 2.5vw, 24px)',
+            fontWeight: 700,
             color: '#0F172A',
-            marginBottom: 16,
-            letterSpacing: '-0.02em',
+            marginBottom: 14,
+            letterSpacing: '-0.025em',
           }}
         >
           {title}
         </h3>
         <p
           style={{
-            fontSize: 16,
+            fontSize: 15,
             color: '#475569',
-            lineHeight: 1.65,
+            lineHeight: 1.6,
             marginBottom: 28,
             flex: 1,
           }}
@@ -1077,11 +1215,11 @@ function LinkCard({ eyebrow, title, desc, to, cta }) {
             alignItems: 'center',
             gap: 8,
             color: '#5B3FD4',
-            fontWeight: 600,
-            fontSize: 15,
+            fontWeight: 700,
+            fontSize: 14.5,
           }}
         >
-          {cta} <ArrowRight size={18} />
+          {cta} <IconArrowRight size={18} />
         </div>
       </motion.div>
     </Link>
@@ -1091,11 +1229,11 @@ function LinkCard({ eyebrow, title, desc, to, cta }) {
 function mono(color = '#94A3B8', marginBottom = 0) {
   return {
     fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 11,
+    fontSize: 10.5,
     letterSpacing: '0.12em',
     textTransform: 'uppercase',
     color,
-    fontWeight: 600,
+    fontWeight: 700,
     marginBottom,
   };
 }

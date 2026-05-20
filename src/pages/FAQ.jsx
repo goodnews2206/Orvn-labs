@@ -45,7 +45,7 @@ const FAQS = [
       <p>
         PAS Credits measure usage across calls, minutes, qualification, routing, booking, and
         intelligence records. Plans bundle credits monthly. Overage is billed transparently. See{' '}
-        <Link to="/pricing" style={{ color: '#5B3FD4' }}>pricing</Link>.
+        <Link to="/#pricing" style={{ color: '#5B3FD4', fontWeight: 600 }}>pricing</Link>.
       </p>
     ),
   },
@@ -64,8 +64,8 @@ const FAQS = [
       <p>
         PAS may process lead contact information, call transcripts and summaries, booking details,
         routing outcomes, and usage data. Full detail in the{' '}
-        <Link to="/legal/privacy" style={{ color: '#5B3FD4' }}>Privacy Policy</Link> and{' '}
-        <Link to="/legal/data-retention" style={{ color: '#5B3FD4' }}>Data Retention Policy</Link>.
+        <Link to="/legal/privacy" style={{ color: '#5B3FD4', fontWeight: 600 }}>Privacy Policy</Link> and{' '}
+        <Link to="/legal/data-retention" style={{ color: '#5B3FD4', fontWeight: 600 }}>Data Retention Policy</Link>.
       </p>
     ),
   },
@@ -86,9 +86,9 @@ const FAQS = [
       <p>
         PAS is built to qualify on intent, budget, timeline, location/property interest,
         availability, and consent. It does not ask for or qualify on protected traits. See the{' '}
-        <Link to="/legal/fair-housing" style={{ color: '#5B3FD4' }}>Fair Housing Compliance</Link>{' '}
+        <Link to="/legal/fair-housing" style={{ color: '#5B3FD4', fontWeight: 600 }}>Fair Housing Compliance</Link>{' '}
         and{' '}
-        <Link to="/legal/ai-disclosure" style={{ color: '#5B3FD4' }}>AI / Call Recording Disclosure</Link>{' '}
+        <Link to="/legal/ai-disclosure" style={{ color: '#5B3FD4', fontWeight: 600 }}>AI / Call Recording Disclosure</Link>{' '}
         pages.
       </p>
     ),
@@ -101,24 +101,42 @@ const FAQS = [
     q: 'Can I see PAS run on a real conversation before paying?',
     a: (
       <p>
-        Yes — <Link to="/demo" style={{ color: '#5B3FD4' }}>test PAS</Link>. 90 seconds, no signup,
+        Yes — <Link to="/pas" style={{ color: '#5B3FD4', fontWeight: 600 }}>test PAS</Link>. 90 seconds, no signup,
         no calendar booking.
       </p>
     ),
   },
 ];
 
-function Item({ q, a, defaultOpen }) {
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 15 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+  transition: { duration: 0.5, ease: [0.23, 1, 0.32, 1], delay },
+});
+
+function Item({ q, a, defaultOpen, delay }) {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
-    <div style={{ background: '#fff', border: '1px solid #E5E8F0', borderRadius: 12, marginBottom: 10, overflow: 'hidden' }}>
+    <motion.div
+      {...fadeUp(delay)}
+      style={{
+        background: '#fff',
+        border: '1.5px solid #E5E8F0',
+        borderRadius: 20,
+        marginBottom: 16,
+        overflow: 'hidden',
+        boxShadow: open ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+      }}
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         style={{
           width: '100%',
-          padding: '18px 22px',
+          padding: '24px 28px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -129,9 +147,19 @@ function Item({ q, a, defaultOpen }) {
           textAlign: 'left',
         }}
       >
-        <span style={{ fontSize: 16, fontWeight: 600, color: '#0F172A' }}>{q}</span>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown size={18} color="#475569" />
+        <span
+          style={{
+            fontSize: 'clamp(15.5px, 1.8vw, 17.5px)',
+            fontWeight: 700,
+            color: '#0F172A',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {q}
+        </span>
+        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25, ease: 'easeOut' }}>
+          <ChevronDown size={18} color="#5B3FD4" style={{ opacity: 0.8 }} />
         </motion.span>
       </button>
       <AnimatePresence initial={false}>
@@ -140,15 +168,16 @@ function Item({ q, a, defaultOpen }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22 }}
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
             style={{ overflow: 'hidden' }}
           >
             <div
               style={{
-                padding: '0 22px 22px',
-                fontSize: 14.5,
+                padding: '0 28px 24px',
+                fontSize: 15,
                 color: '#475569',
-                lineHeight: 1.75,
+                lineHeight: 1.7,
+                fontWeight: 500,
               }}
             >
               {a}
@@ -156,7 +185,7 @@ function Item({ q, a, defaultOpen }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 
@@ -170,32 +199,79 @@ export default function FAQ() {
 
   return (
     <PageWrapper>
-      <section style={{ padding: 'clamp(48px, 6vw, 80px) 0 clamp(24px, 3vw, 40px)', background: '#fff' }}>
-        <div className="container-page" style={{ maxWidth: 760 }}>
-          <Eyebrow>FAQ</Eyebrow>
-          <h1 className="h-display" style={{ fontSize: 'clamp(36px, 5.5vw, 56px)', margin: '14px 0 16px' }}>
+      <section
+        style={{
+          padding: 'clamp(100px, 12vw, 150px) 0 clamp(40px, 6vw, 64px)',
+          background: '#fff',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Glow background */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-15%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '80vw',
+            height: '400px',
+            background: 'radial-gradient(circle, rgba(91, 63, 212, 0.04) 0%, transparent 65%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        <div className="container-page" style={{ maxWidth: 800, position: 'relative', zIndex: 1 }}>
+          <motion.div {...fadeUp(0)}><Eyebrow>FAQ</Eyebrow></motion.div>
+          <motion.h1
+            {...fadeUp(0.05)}
+            className="h-display"
+            style={{
+              fontSize: 'clamp(38px, 6vw, 64px)',
+              margin: '18px 0 20px',
+              letterSpacing: '-0.03em',
+              fontWeight: 800,
+              lineHeight: 1.05,
+            }}
+          >
             Common questions.
-          </h1>
-          <p className="lead">
+          </motion.h1>
+          <motion.p
+            {...fadeUp(0.1)}
+            className="lead"
+            style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569', lineHeight: 1.6 }}
+          >
             Practical answers about PAS, ORVN, pricing, data, and integrations. Email{' '}
-            <a href="mailto:hello@orvnlabs.com" style={{ color: '#5B3FD4' }}>hello@orvnlabs.com</a>{' '}
+            <a
+              href="mailto:hello@orvnlabs.com"
+              style={{ color: '#5B3FD4', textDecoration: 'none', fontWeight: 700 }}
+              onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+              onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+            >
+              hello@orvnlabs.com
+            </a>{' '}
             for anything not covered here.
-          </p>
+          </motion.p>
         </div>
       </section>
 
       <Section borderTop background="surface">
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        <div style={{ maxWidth: 840, margin: '0 auto' }}>
           {FAQS.map((f, i) => (
-            <Item key={f.q} {...f} defaultOpen={i === 0} />
+            <Item key={f.q} {...f} defaultOpen={i === 0} delay={i * 0.04} />
           ))}
         </div>
 
-        <div style={{ marginTop: 40, textAlign: 'center' }}>
-          <Link to="/calculators/leakage" className="btn-primary">
-            Run lead leakage score <ArrowRight size={15} />
+        <motion.div {...fadeUp(0.2)} style={{ marginTop: 48, textAlign: 'center' }}>
+          <Link
+            to="/calculators/leakage"
+            className="btn-primary"
+            style={{ padding: '14px 28px', borderRadius: 100, display: 'inline-flex', alignItems: 'center', gap: 10 }}
+          >
+            Run lead leakage score <ArrowRight size={16} />
           </Link>
-        </div>
+        </motion.div>
       </Section>
     </PageWrapper>
   );

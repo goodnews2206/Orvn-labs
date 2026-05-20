@@ -15,11 +15,15 @@ const NAV_LINKS = [
 
 const linkStyle = ({ isActive }) => ({
   fontSize: 14,
-  fontWeight: 500,
+  fontWeight: 600,
   color: isActive ? '#5B3FD4' : '#475569',
   textDecoration: 'none',
-  padding: '8px 0',
-  transition: 'color 0.2s',
+  padding: '8px 14px',
+  borderRadius: 100,
+  transition: 'all 0.25s cubic-bezier(0.23, 1, 0.32, 1)',
+  background: isActive ? 'rgba(91, 63, 212, 0.06)' : 'transparent',
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
+  letterSpacing: '-0.01em',
 });
 
 export default function Navbar() {
@@ -58,10 +62,12 @@ export default function Navbar() {
           height: 72,
           display: 'flex',
           alignItems: 'center',
-          background: scrolled ? 'rgba(255,255,255,0.95)' : '#fff',
-          backdropFilter: scrolled ? 'saturate(180%) blur(12px)' : 'none',
-          borderBottom: scrolled ? '1px solid #E5E8F0' : '1px solid transparent',
-          transition: 'background 0.2s, border-color 0.2s',
+          background: scrolled ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.98)',
+          backdropFilter: scrolled ? 'saturate(180%) blur(16px)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'saturate(180%) blur(16px)' : 'none',
+          borderBottom: scrolled ? '1px solid rgba(229,232,240,0.7)' : '1px solid transparent',
+          transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+          boxShadow: scrolled ? '0 1px 12px rgba(15,23,42,0.04)' : 'none',
         }}
       >
         <div
@@ -72,10 +78,10 @@ export default function Navbar() {
             <Logo size={34} />
             <span
               style={{
-                fontFamily: "'Inter', sans-serif",
-                fontWeight: 700,
-                fontSize: 18,
-                letterSpacing: '-0.01em',
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 800,
+                fontSize: 19,
+                letterSpacing: '-0.02em',
                 color: '#0F172A',
               }}
             >
@@ -85,7 +91,7 @@ export default function Navbar() {
 
           <nav
             aria-label="Primary"
-            style={{ display: 'none', alignItems: 'center', gap: 28 }}
+            style={{ display: 'none', alignItems: 'center', gap: 4 }}
             className="nav-desktop"
           >
             {NAV_LINKS.map((link) => (
@@ -108,7 +114,7 @@ export default function Navbar() {
             <Link
               to="/calculators/leakage"
               className="btn-primary"
-              style={{ padding: '9px 16px', fontSize: 14 }}
+              style={{ padding: '10px 22px', fontSize: 14, borderRadius: 100 }}
             >
               Run leakage score
             </Link>
@@ -124,13 +130,14 @@ export default function Navbar() {
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 40,
-              height: 40,
-              border: '1px solid #E5E8F0',
-              borderRadius: 10,
+              width: 42,
+              height: 42,
+              border: '1.5px solid #E5E8F0',
+              borderRadius: 14,
               background: '#fff',
               cursor: 'pointer',
               color: '#0F172A',
+              transition: 'all 0.2s',
             }}
           >
             {open ? <X size={20} /> : <Menu size={20} />}
@@ -149,24 +156,28 @@ export default function Navbar() {
               style={{
                 position: 'fixed',
                 inset: 0,
-                background: 'rgba(15,23,42,0.35)',
+                background: 'rgba(15,23,42,0.25)',
+                backdropFilter: 'blur(4px)',
                 zIndex: 88,
               }}
             />
             <motion.div
-              initial={{ y: -10, opacity: 0 }}
+              initial={{ y: -16, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -10, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              exit={{ y: -16, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               style={{
                 position: 'fixed',
                 top: 72,
                 left: 0,
                 right: 0,
                 zIndex: 89,
-                background: '#fff',
+                background: 'rgba(255,255,255,0.96)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 borderBottom: '1px solid #E5E8F0',
                 padding: '20px clamp(20px, 5vw, 64px) 28px',
+                boxShadow: '0 16px 40px rgba(15,23,42,0.08)',
               }}
             >
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' }}>
@@ -176,12 +187,13 @@ export default function Navbar() {
                       to={link.to}
                       style={({ isActive }) => ({
                         display: 'block',
-                        padding: '14px 0',
-                        fontSize: 16,
-                        fontWeight: 500,
+                        padding: '16px 0',
+                        fontSize: 17,
+                        fontWeight: 600,
                         color: isActive ? '#5B3FD4' : '#0F172A',
                         textDecoration: 'none',
-                        borderBottom: '1px solid #F1F3F9',
+                        borderBottom: '1px solid #F1F5F9',
+                        letterSpacing: '-0.01em',
                       })}
                     >
                       {link.label}
@@ -189,7 +201,7 @@ export default function Navbar() {
                   </li>
                 ))}
               </ul>
-              <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+              <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
                 {/* <a
                   href={PAS_LINKS.login}
                   target="_blank"

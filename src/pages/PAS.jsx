@@ -34,179 +34,185 @@ import Eyebrow from '../components/ui/Eyebrow';
 import { useDocumentMeta } from '../lib/seo';
 import { PAS_LINKS } from '../lib/pas';
 
+// Custom illustrations
+import PasHeroIllustration from '../components/home/PasHeroIllustration';
+import NocDashboardIllustration from '../components/home/NocDashboardIllustration';
+import EngineArchitectureIllustration from '../components/home/EngineArchitectureIllustration';
+
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: '-100px' },
-  transition: { duration: 0.7, ease: [0.21, 0.45, 0.32, 0.9], delay },
+  transition: { duration: 0.7, ease: [0.23, 1, 0.32, 1], delay },
 });
-
-const PAS_GITHUB_URL = 'https://github.com/goodnews2206/pas-engine';
 
 function mono(color = '#94A3B8', marginBottom = 0) {
   return {
     fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 11,
+    fontSize: 10.5,
     letterSpacing: '0.12em',
     textTransform: 'uppercase',
     color,
-    fontWeight: 600,
+    fontWeight: 700,
     marginBottom,
   };
-}
-
-// ─── NEW: OPERATIONAL BACKGROUND ───────────────────────────────────────────
-function OpBackground() {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        zIndex: 0,
-        pointerEvents: 'none',
-        overflow: 'hidden',
-        opacity: 0.4,
-      }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: 'radial-gradient(#E2E8F0 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: '20%',
-          left: '10%',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(91, 63, 212, 0.03) 0%, transparent 70%)',
-        }}
-      />
-    </div>
-  );
 }
 
 // ─── HERO ──────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <Section style={{ paddingTop: 'clamp(80px, 12vw, 160px)', position: 'relative' }}>
-      <OpBackground />
+    <section
+      style={{
+        paddingTop: 'clamp(100px, 12vw, 160px)',
+        paddingBottom: 'clamp(60px, 8vw, 100px)',
+        position: 'relative',
+        background: '#fff',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Decorative glows */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-15%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80vw',
+          height: '600px',
+          background: 'radial-gradient(circle, rgba(91, 63, 212, 0.05) 0%, transparent 65%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
       <div className="container-page" style={{ position: 'relative', zIndex: 1 }}>
-        <motion.div {...fadeUp(0)}>
-          <span
-            className="pill"
-            style={{
-              marginBottom: 28,
-              background: '#fff',
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: '#5B3FD4',
-                animation: 'pulse 2s infinite',
-              }}
-            />
-            PAS — Performative AI Superstaff
-          </span>
-        </motion.div>
-
-        <motion.h1
-          {...fadeUp(0.05)}
-          className="h-display"
-          style={{
-            fontSize: 'clamp(44px, 7vw, 92px)',
-            marginBottom: 28,
-            lineHeight: 0.95,
-            letterSpacing: '-0.04em',
-            fontWeight: 600,
-          }}
-        >
-          The technical layer for <br />
-          <span style={{ color: '#5B3FD4' }}>brokerage intelligence.</span>
-        </motion.h1>
-
-        <motion.p
-          {...fadeUp(0.1)}
-          className="lead"
-          style={{
-            maxWidth: 720,
-            fontSize: 'clamp(18px, 2.2vw, 22px)',
-            lineHeight: 1.6,
-            color: '#475569',
-            marginBottom: 48,
-          }}
-        >
-          PAS is not a chatbot or a simple IVR. It is the operating layer that controls the gap
-          between inquiry and qualified appointment.
-        </motion.p>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 20,
-            marginTop: 40,
-          }}
-        >
-          <motion.div
-            {...fadeUp(0.15)}
-            style={{
-              padding: 32,
-              background: '#fff',
-              border: '1px solid #E2E8F0',
-              borderRadius: 24,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-            }}
-          >
-            <div style={mono('#5B3FD4', 16)}>Core function</div>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#0F172A', lineHeight: 1.3 }}>
-              Eliminating the delay between intent and response.
-            </div>
-          </motion.div>
-          <motion.div
-            {...fadeUp(0.2)}
-            style={{
-              padding: 32,
-              background: '#0F172A',
-              border: '1px solid #1E293B',
-              borderRadius: 24,
-              color: '#fff',
-            }}
-          >
-            <div style={mono('#94A3B8', 16)}>System status</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: '50%',
-                  background: '#10B981',
-                  boxShadow: '0 0 12px #10B981',
-                }}
-              />
+        <div className="grid-responsive-2" style={{ gap: '48px', alignItems: 'center' }}>
+          <div>
+            <motion.div {...fadeUp(0)}>
               <span
+                className="pill animate-blink"
                 style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 16,
-                  fontWeight: 500,
+                  marginBottom: 24,
+                  background: '#fff',
+                  border: '1.5px solid rgba(91, 63, 212, 0.12)',
+                  padding: '6px 14px',
+                  borderRadius: 100,
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  color: '#5B3FD4',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                Production Ready
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#5B3FD4', boxShadow: '0 0 8px #5B3FD4' }} />
+                PAS — Performative AI Superstaff
               </span>
+            </motion.div>
+
+            <motion.h1
+              {...fadeUp(0.05)}
+              className="h-display"
+              style={{
+                fontSize: 'clamp(44px, 5.8vw, 76px)',
+                lineHeight: 1.1,
+                marginBottom: 24,
+                fontWeight: 800,
+              }}
+            >
+              The technical layer for <br />
+              <span style={{ color: '#5B3FD4', background: 'linear-gradient(120deg, #5B3FD4, #7B5FEA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>brokerage intelligence.</span>
+            </motion.h1>
+
+            <motion.p
+              {...fadeUp(0.1)}
+              className="lead"
+              style={{
+                maxWidth: 620,
+                marginBottom: 36,
+                fontSize: 'clamp(17px, 1.8vw, 19px)',
+                lineHeight: 1.65,
+                color: '#475569',
+              }}
+            >
+              PAS is not a chatbot or a simple IVR. It is the operating layer that controls the gap
+              between inquiry and qualified appointment.
+            </motion.p>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: 20,
+                marginTop: 20,
+              }}
+            >
+              <motion.div
+                {...fadeUp(0.15)}
+                style={{
+                  padding: 24,
+                  background: '#FFF5F5',
+                  border: '1.5px solid rgba(220, 38, 38, 0.1)',
+                  borderRadius: 20,
+                  boxShadow: 'var(--shadow-sm)',
+                }}
+              >
+                <div style={mono('#DC2626', 10)}>Core function</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: '#991B1B', lineHeight: 1.35 }}>
+                  Eliminating the delay between intent and response.
+                </div>
+              </motion.div>
+              <motion.div
+                {...fadeUp(0.2)}
+                style={{
+                  padding: 24,
+                  background: '#F0EEFF',
+                  border: '1.5px solid rgba(91, 63, 212, 0.1)',
+                  borderRadius: 20,
+                  boxShadow: 'var(--shadow-sm)',
+                }}
+              >
+                <div style={mono('#5B3FD4', 10)}>System status</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: '#0D9E6E',
+                      boxShadow: '0 0 8px #0D9E6E',
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 14.5,
+                      fontWeight: 700,
+                      color: '#3A2899',
+                    }}
+                  >
+                    Production Ready
+                  </span>
+                </div>
+              </motion.div>
             </div>
+          </div>
+
+          <motion.div
+            {...fadeUp(0.22)}
+            style={{
+              background: '#ffffff',
+              borderRadius: 24,
+              padding: '24px',
+              border: '1px solid rgba(15,23,42,0.06)',
+              boxShadow: 'var(--shadow-xl)',
+            }}
+          >
+            <PasHeroIllustration />
           </motion.div>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }
 
@@ -235,12 +241,13 @@ function BrandHierarchy() {
       tone: 'ok',
     },
   ];
+
   const map = (t) =>
     t === 'primary'
-      ? { bg: '#5B3FD4', border: '#5B3FD4', icon: '#fff', label: '#fff', sub: '#C7BCF5' }
+      ? { bg: 'linear-gradient(135deg, #5B3FD4 0%, #4A30C0 100%)', border: '#5B3FD4', iconColor: '#5B3FD4', iconBg: '#FFF', label: '#fff', sub: 'rgba(255, 255, 255, 0.75)', descColor: '#fff', shadow: '0 20px 40px rgba(91, 63, 212, 0.15)' }
       : t === 'ok'
-      ? { bg: '#F8FAFC', border: '#E2E8F0', icon: '#5B3FD4', label: '#0F172A', sub: '#64748B' }
-      : { bg: '#F1F5F9', border: '#E2E8F0', icon: '#475569', label: '#0F172A', sub: '#64748B' };
+      ? { bg: '#FFF', border: '#E5E8F0', iconColor: '#0D9E6E', iconBg: '#ECFDF5', label: '#0F172A', sub: '#0D9E6E', descColor: '#475569', shadow: 'var(--shadow-md)' }
+      : { bg: '#FFF', border: '#E5E8F0', iconColor: '#475569', iconBg: '#F8F9FA', label: '#0F172A', sub: '#94A3B8', descColor: '#475569', shadow: 'var(--shadow-md)' };
 
   return (
     <Section borderTop background="surface">
@@ -249,104 +256,92 @@ function BrandHierarchy() {
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
-          style={{ fontSize: 'clamp(32px, 4.5vw, 56px)', margin: '20px 0 0' }}
+          style={{
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+          }}
         >
           One company. One flagship system. One category.
         </motion.h2>
       </div>
 
-      <div style={{ position: 'relative' }}>
-        {/* Connection Line */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '5%',
-            right: '5%',
-            height: 1,
-            background: '#E2E8F0',
-            zIndex: 0,
-            display: 'none',
-          }}
-        />
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 24,
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          {tiers.map((t, i) => {
-            const c = map(t.tone);
-            const Icon = t.icon;
-            return (
-              <motion.div
-                key={t.label}
-                {...fadeUp(0.05 + i * 0.1)}
-                style={{
-                  background: c.bg,
-                  border: `1px solid ${c.border}`,
-                  borderRadius: 32,
-                  padding: 'clamp(32px, 5vw, 40px)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 24,
-                  boxShadow: t.tone === 'primary' ? '0 20px 40px -10px rgba(91, 63, 212, 0.2)' : 'none',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <span
-                    style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 16,
-                      background: t.tone === 'primary' ? 'rgba(255,255,255,0.1)' : '#fff',
-                      border: t.tone === 'primary' ? '1px solid rgba(255,255,255,0.2)' : '1px solid #E2E8F0',
-                      color: c.icon,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon size={24} />
-                  </span>
-                  <span style={mono(t.tone === 'primary' ? '#C7BCF5' : '#94A3B8')}>
-                    0{i + 1}
-                  </span>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 32,
+        }}
+      >
+        {tiers.map((t, i) => {
+          const c = map(t.tone);
+          const Icon = t.icon;
+          return (
+            <motion.div
+              key={t.label}
+              {...fadeUp(0.05 + i * 0.1)}
+              style={{
+                background: c.bg,
+                border: `1.5px solid ${c.border}`,
+                borderRadius: 24,
+                padding: 'clamp(28px, 4vw, 36px)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 24,
+                boxShadow: c.shadow,
+                transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <span
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 12,
+                    background: c.iconBg,
+                    color: c.iconColor,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: 'var(--shadow-xs)',
+                  }}
+                >
+                  <Icon size={22} />
+                </span>
+                <span style={mono(t.tone === 'primary' ? 'rgba(255,255,255,0.6)' : '#94A3B8')}>
+                  0{i + 1}
+                </span>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    color: c.label,
+                    marginBottom: 6,
+                    fontFamily: "'Syne', sans-serif",
+                  }}
+                >
+                  {t.label}
                 </div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: 24,
-                      fontWeight: 600,
-                      color: c.label,
-                      marginBottom: 8,
-                      letterSpacing: '-0.02em',
-                    }}
-                  >
-                    {t.label}
-                  </div>
-                  <div style={{ fontSize: 14, color: c.sub, marginBottom: 16, fontWeight: 500 }}>
-                    {t.role}
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 16,
-                      color: t.tone === 'primary' ? 'rgba(255,255,255,0.85)' : '#1E293B',
-                      lineHeight: 1.6,
-                      margin: 0,
-                    }}
-                  >
-                    {t.desc}
-                  </p>
+                <div style={{ fontSize: 13.5, color: c.sub, marginBottom: 16, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" }}>
+                  {t.role}
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                <p
+                  style={{
+                    fontSize: 15,
+                    color: c.descColor,
+                    lineHeight: 1.6,
+                    margin: 0,
+                    fontWeight: 500,
+                  }}
+                >
+                  {t.desc}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </Section>
   );
@@ -362,6 +357,7 @@ function WhatPASControls() {
     { n: 5, label: 'Book', body: 'Appointment on the agent’s calendar, full context attached.' },
     { n: 6, label: 'Log', body: 'Status reflects what actually happened. CRM stays clean.' },
   ];
+
   return (
     <Section borderTop>
       <div style={{ maxWidth: 840, marginBottom: 64 }}>
@@ -369,32 +365,38 @@ function WhatPASControls() {
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
-          style={{ fontSize: 'clamp(32px, 4.5vw, 64px)', margin: '20px 0 24px' }}
+          style={{
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+          }}
         >
           Six movements. One operating layer.
         </motion.h2>
         <motion.p
           {...fadeUp(0.1)}
           className="lead"
-          style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', color: '#475569' }}
+          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
         >
           Every inbound lead moves through the same six steps. PAS controls all of them — so the
           first conversation starts with structure, not guesswork.
         </motion.p>
       </div>
 
-      <div style={{ position: 'relative', padding: '0 20px' }}>
-        {/* The Pipeline Spine */}
+      <div style={{ position: 'relative' }}>
+        {/* The Pipeline Spine - Premium interactive dashed bar */}
         <div
+          className="nav-desktop"
           style={{
             position: 'absolute',
-            left: 20,
-            right: 20,
+            left: 40,
+            right: 40,
             top: 48,
             height: 2,
-            background: 'linear-gradient(90deg, #E2E8F0 0%, #5B3FD4 50%, #E2E8F0 100%)',
+            background: 'linear-gradient(90deg, transparent, #5B3FD4, transparent)',
             zIndex: 0,
-            opacity: 0.3,
+            opacity: 0.15,
+            display: 'none',
           }}
         />
 
@@ -402,7 +404,7 @@ function WhatPASControls() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 40,
+            gap: 32,
             position: 'relative',
             zIndex: 1,
           }}
@@ -415,6 +417,12 @@ function WhatPASControls() {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 20,
+                background: '#fff',
+                border: '1px solid #E5E8F0',
+                borderRadius: 20,
+                padding: '24px',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
               }}
             >
               <div
@@ -422,16 +430,16 @@ function WhatPASControls() {
                   width: 48,
                   height: 48,
                   borderRadius: '50%',
-                  background: '#fff',
-                  border: '2px solid #5B3FD4',
+                  background: '#F0EEFF',
+                  border: '1.5px solid rgba(91, 63, 212, 0.15)',
                   color: '#5B3FD4',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: 18,
-                  fontWeight: 700,
-                  boxShadow: '0 0 20px rgba(91, 63, 212, 0.15)',
+                  fontWeight: 800,
+                  boxShadow: '0 4px 12px rgba(91, 63, 212, 0.08)',
                 }}
               >
                 {s.n}
@@ -439,16 +447,15 @@ function WhatPASControls() {
               <div>
                 <div
                   style={{
-                    fontSize: 20,
-                    fontWeight: 600,
+                    fontSize: 18,
+                    fontWeight: 700,
                     color: '#0F172A',
-                    marginBottom: 10,
-                    letterSpacing: '-0.01em',
+                    marginBottom: 8,
                   }}
                 >
                   {s.label}
                 </div>
-                <p style={{ fontSize: 15, color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: 14.5, color: '#475569', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
                   {s.body}
                 </p>
               </div>
@@ -495,14 +502,18 @@ function HowPASWorks() {
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
-          style={{ fontSize: 'clamp(32px, 4.5vw, 56px)', margin: '20px 0 24px' }}
+          style={{
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+          }}
         >
           PAS detects what happened, decides the next step, and acts.
         </motion.h2>
         <motion.p
           {...fadeUp(0.1)}
           className="lead"
-          style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', color: '#475569' }}
+          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
         >
           Three movements per inbound lead. PAS owns all three so the next step doesn’t depend on
           someone remembering to follow up.
@@ -512,13 +523,8 @@ function HowPASWorks() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: 1,
-          background: '#E2E8F0',
-          borderRadius: 32,
-          overflow: 'hidden',
-          border: '1px solid #E2E8F0',
-          boxShadow: '0 20px 50px -12px rgba(15, 23, 42, 0.08)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 32,
         }}
       >
         {stages.map((s, i) => {
@@ -529,42 +535,47 @@ function HowPASWorks() {
               {...fadeUp(0.1 * i)}
               style={{
                 background: '#fff',
-                padding: 'clamp(32px, 6vw, 48px)',
+                padding: 'clamp(28px, 5vw, 40px)',
+                borderRadius: 24,
+                border: '1.5px solid #E5E8F0',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 24,
+                boxShadow: 'var(--shadow-md)',
+                transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyStyle: 'space-between', alignItems: 'center' }}>
                 <div
                   style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 16,
-                    background: '#F5F3FF',
+                    width: 52,
+                    height: 52,
+                    borderRadius: 14,
+                    background: 'rgba(91, 63, 212, 0.06)',
                     color: '#5B3FD4',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    boxShadow: 'var(--shadow-xs)',
                   }}
                 >
-                  <Icon size={28} />
+                  <Icon size={24} />
                 </div>
                 <span style={mono('#94A3B8')}>Stage 0{s.n}</span>
               </div>
               <div>
                 <div
                   style={{
-                    fontSize: 26,
-                    fontWeight: 600,
+                    fontSize: 22,
+                    fontWeight: 700,
                     color: '#0F172A',
-                    marginBottom: 12,
-                    letterSpacing: '-0.02em',
+                    marginBottom: 10,
+                    fontFamily: "'Syne', sans-serif",
                   }}
                 >
                   {s.title}
                 </div>
-                <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.65, margin: 0 }}>
+                <p style={{ fontSize: 15, color: '#475569', lineHeight: 1.65, margin: 0, fontWeight: 500 }}>
                   {s.body}
                 </p>
               </div>
@@ -606,21 +617,25 @@ function Capabilities() {
           <motion.h2
             {...fadeUp(0.05)}
             className="h-section"
-            style={{ fontSize: 'clamp(32px, 4vw, 52px)', margin: '20px 0 24px' }}
+            style={{
+              fontSize: 'clamp(32px, 4vw, 48px)',
+              margin: '18px 0 20px',
+              lineHeight: 1.1,
+            }}
           >
             What PAS does on every inbound lead.
           </motion.h2>
           <motion.p
             {...fadeUp(0.1)}
             className="lead"
-            style={{ fontSize: 18, color: '#475569', lineHeight: 1.6 }}
+            style={{ fontSize: 16.5, color: '#475569', lineHeight: 1.6 }}
           >
             A complete first-contact loop — from the moment the call comes in to the moment the
             team has the next step in Slack or email.
           </motion.p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {caps.map((c, i) => {
             const Icon = c.icon;
             return (
@@ -629,7 +644,7 @@ function Capabilities() {
                 {...fadeUp(0.05 * i)}
                 style={{
                   background: '#F8FAFC',
-                  border: '1px solid #E2E8F0',
+                  border: '1.5px solid #E5E8F0',
                   borderRadius: 20,
                   padding: 24,
                   display: 'flex',
@@ -641,23 +656,24 @@ function Capabilities() {
                   style={{
                     width: 44,
                     height: 44,
-                    borderRadius: 12,
+                    borderRadius: 10,
                     background: '#fff',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #E5E8F0',
                     color: '#5B3FD4',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
+                    boxShadow: 'var(--shadow-xs)',
                   }}
                 >
                   <Icon size={20} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>
                     {c.label}
                   </div>
-                  <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                  <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
                     {c.sub}
                   </p>
                 </div>
@@ -670,7 +686,7 @@ function Capabilities() {
   );
 }
 
-// ─── PRODUCT PROOF (THE TERMINAL) ─────────────────────────────────────────
+// ─── PRODUCT PROOF (REPLACED GITHUB AND TERMINAL WITH EXPANDIVE VISUAL WORKFLOW) ──
 function ProductProof() {
   const screenshots = [
     {
@@ -696,25 +712,28 @@ function ProductProof() {
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
-          style={{ fontSize: 'clamp(32px, 4.5vw, 56px)', margin: '20px 0 24px' }}
+          style={{
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+          }}
         >
           PAS is real, in code, and shippable.
         </motion.h2>
         <motion.p
           {...fadeUp(0.1)}
           className="lead"
-          style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', color: '#475569' }}
+          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
         >
-          The PAS engine lives in an open source repository. No vapor, no slides. The product is
-          the codebase.
+          No vapor, no slides. The product is the codebase, featuring deterministic state transition layers and quality assurance checks.
         </motion.p>
       </div>
 
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: 24,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 32,
           marginBottom: 40,
         }}
       >
@@ -724,116 +743,25 @@ function ProductProof() {
       </div>
 
       <motion.div
-        {...fadeUp(0.2)}
+        {...fadeUp(0.15)}
         style={{
-          background: '#0F172A',
-          borderRadius: 32,
-          overflow: 'hidden',
-          border: '1px solid #1E293B',
-          boxShadow: '0 30px 60px -15px rgba(0,0,0,0.4)',
+          background: '#fff',
+          borderRadius: 24,
+          padding: 'clamp(24px, 5vw, 40px)',
+          border: '1.5px solid #E5E8F0',
+          boxShadow: 'var(--shadow-xl)',
         }}
       >
-        {/* Terminal Header */}
-        <div
-          style={{
-            background: '#1E293B',
-            padding: '12px 24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
-          <div style={{ display: 'flex', gap: 6 }}>
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#EF4444' }} />
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#F59E0B' }} />
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#10B981' }} />
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ color: '#0F172A', fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", marginBottom: 8 }}>
+            Engine Architecture Core
           </div>
-          <div
-            style={{
-              marginLeft: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              color: '#94A3B8',
-              fontSize: 12,
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          >
-            <Terminal size={14} />
-            pas-engine — bash
-          </div>
+          <p style={{ color: '#475569', fontSize: 15.5, lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+            Inspect the high-fidelity state tracking sequence built into the PAS operating layer.
+          </p>
         </div>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            padding: 'clamp(24px, 4vw, 48px)',
-            gap: 40,
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <Github size={24} color="#fff" />
-              <div style={{ color: '#fff', fontSize: 20, fontWeight: 600 }}>pas-engine</div>
-            </div>
-            <p
-              style={{
-                color: '#94A3B8',
-                fontSize: 16,
-                lineHeight: 1.6,
-                marginBottom: 32,
-                maxWidth: 440,
-              }}
-            >
-              Read the code. Inspect the state machine, the workflow mapper, the reporting layer,
-              and the test suites.
-            </p>
-            <a
-              href={PAS_GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-              style={{ background: '#5B3FD4', borderColor: '#5B3FD4', padding: '14px 28px' }}
-            >
-              <Github size={18} /> View repository
-            </a>
-          </div>
-
-          <div
-            style={{
-              background: 'rgba(0,0,0,0.3)',
-              borderRadius: 16,
-              padding: 24,
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 14,
-              lineHeight: 1.8,
-              color: '#E2E8F0',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}
-          >
-            <div style={{ color: '#A78BFA', marginBottom: 12 }}>$ tree pas-engine/</div>
-            <div style={{ color: '#94A3B8' }}>├── app/engine/state_machine.py</div>
-            <div style={{ color: '#94A3B8' }}>├── app/routes/simulate.py</div>
-            <div style={{ color: '#94A3B8' }}>├── app/services/notifications/</div>
-            <div style={{ color: '#94A3B8' }}>├── app/services/workflows/</div>
-            <div style={{ color: '#94A3B8' }}>└── tests/</div>
-            <div style={{ color: '#475569', marginTop: 12 }}># detect → decide → act</div>
-            <div
-              style={{
-                marginTop: 20,
-                padding: '12px 16px',
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.2)',
-                borderRadius: 8,
-                color: '#10B981',
-                fontSize: 12,
-              }}
-            >
-              ✓ 142 tests passed in 0.4s
-            </div>
-          </div>
+        <div style={{ width: '100%' }}>
+          <EngineArchitectureIllustration />
         </div>
       </motion.div>
     </Section>
@@ -847,14 +775,14 @@ function Screenshot({ src, title, caption, delay }) {
       {...fadeUp(delay)}
       style={{
         background: '#fff',
-        border: '1px solid #E2E8F0',
+        border: '1.5px solid #E5E8F0',
         borderRadius: 24,
         padding: 12,
         margin: 0,
         display: 'flex',
         flexDirection: 'column',
         gap: 16,
-        boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+        boxShadow: 'var(--shadow-md)',
       }}
     >
       <div
@@ -893,10 +821,10 @@ function Screenshot({ src, title, caption, delay }) {
         )}
       </div>
       <figcaption style={{ padding: '0 12px 12px' }}>
-        <div style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
+        <div style={{ fontSize: 16.5, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>
           {title}
         </div>
-        <div style={{ fontSize: 14, color: '#475569', lineHeight: 1.5 }}>{caption}</div>
+        <div style={{ fontSize: 14, color: '#475569', lineHeight: 1.5, fontWeight: 500 }}>{caption}</div>
       </figcaption>
     </motion.figure>
   );
@@ -919,33 +847,51 @@ function ControlRoom() {
 
   return (
     <Section borderTop background="surface">
-      <div style={{ maxWidth: 840, marginBottom: 56 }}>
-        <motion.div {...fadeUp(0)}><Eyebrow>PAS Control Room</Eyebrow></motion.div>
-        <motion.h2
-          {...fadeUp(0.05)}
-          className="h-section"
-          style={{ fontSize: 'clamp(32px, 4vw, 56px)', margin: '20px 0 24px' }}
+      <div className="grid-responsive-2" style={{ gap: '48px', alignItems: 'center', marginBottom: 56 }}>
+        <div>
+          <motion.div {...fadeUp(0)}><Eyebrow>PAS Control Room</Eyebrow></motion.div>
+          <motion.h2
+            {...fadeUp(0.05)}
+            className="h-section"
+            style={{
+              fontSize: 'clamp(32px, 4vw, 48px)',
+              margin: '18px 0 20px',
+              lineHeight: 1.1,
+            }}
+          >
+            The dashboard is the control room — not another daily workload.
+          </motion.h2>
+          <motion.p
+            {...fadeUp(0.1)}
+            className="lead"
+            style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
+          >
+            The dashboard is not the product. It shows what the infrastructure already controlled —
+            where leads moved, where they stalled, where they died.
+          </motion.p>
+        </div>
+
+        <motion.div
+          {...fadeUp(0.12)}
+          style={{
+            background: '#1E293B',
+            borderRadius: 24,
+            padding: 16,
+            boxShadow: 'var(--shadow-xl)',
+          }}
         >
-          The dashboard is the control room — not another daily workload.
-        </motion.h2>
-        <motion.p
-          {...fadeUp(0.1)}
-          className="lead"
-          style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', color: '#475569' }}
-        >
-          The dashboard is not the product. It shows what the infrastructure already controlled —
-          where leads moved, where they stalled, where they died.
-        </motion.p>
+          <NocDashboardIllustration />
+        </motion.div>
       </div>
 
       <motion.div
         {...fadeUp(0.15)}
         style={{
           background: '#0F172A',
-          borderRadius: 32,
+          borderRadius: 24,
           overflow: 'hidden',
           border: '1px solid #1E293B',
-          boxShadow: '0 40px 80px -20px rgba(0,0,0,0.5)',
+          boxShadow: '0 40px 80px -20px rgba(15, 23, 42, 0.4)',
         }}
       >
         <div
@@ -969,6 +915,7 @@ function ControlRoom() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 11,
               color: '#475569',
+              fontWeight: 600,
             }}
           >
             Live view · Real-time
@@ -988,8 +935,9 @@ function ControlRoom() {
               <div style={mono('#475569', 12)}>{c.label}</div>
               <div
                 style={{
-                  fontFamily: "'Instrument Serif', serif",
-                  fontSize: 48,
+                  fontFamily: "'Syne', serif",
+                  fontSize: 40,
+                  fontWeight: 800,
                   lineHeight: 1,
                   color:
                     c.tone === 'ok'
@@ -999,12 +947,12 @@ function ControlRoom() {
                       : c.tone === 'primary'
                       ? '#A78BFA'
                       : '#fff',
-                  margin: '8px 0 12px',
+                  margin: '12px 0 12px',
                 }}
               >
                 {c.value}
               </div>
-              <div style={{ fontSize: 13, color: '#64748B' }}>{c.sub}</div>
+              <div style={{ fontSize: 13, color: '#64748B', fontWeight: 500 }}>{c.sub}</div>
             </div>
           ))}
         </div>
@@ -1025,6 +973,7 @@ function ControlRoom() {
                   fontSize: 12,
                   color: '#94A3B8',
                   fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 600,
                 }}
               >
                 {it}
@@ -1055,7 +1004,11 @@ function UseCases() {
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
-          style={{ fontSize: 'clamp(32px, 4vw, 52px)', margin: '20px 0 0' }}
+          style={{
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+          }}
         >
           What PAS controls, in operator terms.
         </motion.h2>
@@ -1064,8 +1017,8 @@ function UseCases() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: 20,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 24,
         }}
       >
         {cases.map((c, i) => {
@@ -1076,13 +1029,14 @@ function UseCases() {
               {...fadeUp(0.05 * i)}
               style={{
                 background: '#fff',
-                border: '1px solid #E2E8F0',
+                border: '1.5px solid #E5E8F0',
                 borderRadius: 24,
                 padding: 32,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 16,
-                transition: 'all 0.2s ease',
+                gap: 20,
+                transition: 'all 0.3s ease',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               <div
@@ -1090,11 +1044,12 @@ function UseCases() {
                   width: 44,
                   height: 44,
                   borderRadius: 12,
-                  background: '#F5F3FF',
+                  background: 'rgba(91, 63, 212, 0.06)',
                   color: '#5B3FD4',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  boxShadow: 'var(--shadow-xs)',
                 }}
               >
                 <Icon size={20} />
@@ -1103,15 +1058,14 @@ function UseCases() {
                 <h3
                   style={{
                     fontSize: 20,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     color: '#0F172A',
-                    margin: '0 0 8px',
-                    letterSpacing: '-0.01em',
+                    margin: '0 0 10px',
                   }}
                 >
                   {c.title}
                 </h3>
-                <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: 15, color: '#475569', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
                   {c.body}
                 </p>
               </div>
@@ -1121,7 +1075,7 @@ function UseCases() {
       </div>
 
       <motion.div {...fadeUp(0.1)} style={{ marginTop: 64, textAlign: 'center' }}>
-        <Link to="/#pricing" className="btn-primary" style={{ padding: '16px 32px' }}>
+        <Link to="/#pricing" className="btn-primary" style={{ padding: '16px 32px', borderRadius: 100 }}>
           View tailored pricing <ArrowRight size={20} />
         </Link>
       </motion.div>
@@ -1157,26 +1111,39 @@ function WaitlistSignup() {
         <div
           style={{
             background: '#ECFDF5',
-            border: '1px solid #A7F3D0',
-            borderRadius: 32,
-            padding: 'clamp(40px, 8vw, 64px)',
+            border: '1.5px solid #A7F3D0',
+            borderRadius: 24,
+            padding: '48px 24px',
             textAlign: 'center',
             maxWidth: 800,
             margin: '0 auto',
+            boxShadow: 'var(--shadow-md)',
           }}
         >
-          <CheckCircle2 size={48} color="#0D9E6E" style={{ margin: '0 auto 24px' }} />
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 100,
+              background: '#D1FAE5',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+            }}
+          >
+            <CheckCircle2 size={28} color="#0D9E6E" />
+          </div>
           <h3
             style={{
               color: '#065F46',
-              fontSize: 28,
-              fontWeight: 600,
-              letterSpacing: '-0.02em',
+              fontSize: 24,
+              fontWeight: 700,
             }}
           >
             You're on the list.
           </h3>
-          <p style={{ color: '#065F46', fontSize: 17, margin: '12px 0 0' }}>
+          <p style={{ color: '#065F46', fontSize: 16, margin: '8px 0 0', fontWeight: 500 }}>
             We'll notify you as soon as a slot opens for your brokerage.
           </p>
         </div>
@@ -1192,24 +1159,29 @@ function WaitlistSignup() {
           margin: '0 auto',
           textAlign: 'center',
           background: '#fff',
-          padding: 'clamp(48px, 10vw, 96px) clamp(24px, 5vw, 48px)',
-          borderRadius: 48,
-          border: '1px solid #E2E8F0',
-          boxShadow: '0 40px 80px -20px rgba(15, 23, 42, 0.05)',
+          padding: 'clamp(48px, 10vw, 80px) clamp(24px, 5vw, 48px)',
+          borderRadius: 32,
+          border: '1.5px solid #E5E8F0',
+          boxShadow: 'var(--shadow-xl)',
         }}
       >
         <motion.div {...fadeUp(0)}><Eyebrow>Join the waitlist</Eyebrow></motion.div>
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
-          style={{ fontSize: 'clamp(32px, 5vw, 64px)', margin: '20px 0 24px' }}
+          style={{
+            fontSize: 'clamp(32px, 5vw, 56px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.05,
+            fontWeight: 800,
+          }}
         >
           Early access is limited.
         </motion.h2>
         <motion.p
           {...fadeUp(0.1)}
           className="lead"
-          style={{ marginBottom: 48, maxWidth: 640, margin: '0 auto 48px' }}
+          style={{ marginBottom: 40, maxWidth: 640, margin: '0 auto 40px' }}
         >
           We are currently onboarding brokerages in cohorts to ensure high-touch implementation.
           Join the waitlist to secure your spot.
@@ -1224,6 +1196,7 @@ function WaitlistSignup() {
             maxWidth: 540,
             margin: '0 auto',
             flexWrap: 'wrap',
+            justifyContent: 'center',
           }}
         >
           <input
@@ -1234,26 +1207,29 @@ function WaitlistSignup() {
             onChange={(e) => setEmail(e.target.value)}
             style={{
               flex: '1 1 300px',
-              background: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-              borderRadius: 16,
-              padding: '18px 24px',
-              fontSize: 16,
+              background: '#F8F9FA',
+              border: '1.5px solid #E5E8F0',
+              borderRadius: 100,
+              padding: '16px 28px',
+              fontSize: 15.5,
+              color: '#0F172A',
               outline: 'none',
               transition: 'all 0.2s ease',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 600,
             }}
           />
           <button
             type="submit"
             disabled={status === 'loading'}
             className="btn-primary"
-            style={{ padding: '18px 32px', fontSize: 16 }}
+            style={{ padding: '16px 32px', fontSize: 15.5, borderRadius: 100 }}
           >
-            {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <ArrowRight size={20} />
+            {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <ArrowRight size={18} />
           </button>
         </motion.form>
         {status === 'error' && (
-          <p style={{ color: '#DC2626', fontSize: 14, marginTop: 16, fontWeight: 500 }}>
+          <p style={{ color: '#DC2626', fontSize: 14, marginTop: 16, fontWeight: 600 }}>
             Something went wrong. Please try again or email hello@orvnlabs.com.
           </p>
         )}
