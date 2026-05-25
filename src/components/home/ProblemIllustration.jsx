@@ -59,7 +59,7 @@ export default function ProblemIllustration() {
           <rect width="110" height="70" rx="12" fill="#FFF1F1" stroke="#FCA5A5" strokeWidth="1.5"/>
           <text x="55" y="25" textAnchor="middle" fontSize="10" fontWeight="700" fill="#991B1B" fontFamily="'Plus Jakarta Sans',sans-serif">CRM Graveyard</text>
           <text x="55" y="42" textAnchor="middle" fontSize="8" fill="#DC2626" fontFamily="'JetBrains Mono',monospace">leads turn cold</text>
-          <text x="55" y="55" textAnchor="middle" fontSize="11" fontWeight="800" fill="#991B1B" fontFamily="'Syne',sans-serif">80%+ Loss</text>
+          <text x="55" y="55" textAnchor="middle" fontSize="11" fontWeight="800" fill="#991B1B" fontFamily="'Plus Jakarta Sans',sans-serif">80%+ Loss</text>
           <circle cx="12" cy="12" r="3" fill="#DC2626">
             <animate attributeName="opacity" values="1;0.2;1" dur="1.5s" repeatCount="indefinite"/>
           </circle>

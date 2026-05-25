@@ -98,7 +98,7 @@ export default function BlogPost() {
               <Link to="/calculators/leakage" className="btn-primary">
                 Run scorecard <ArrowRight size={15} />
               </Link>
-              <Link to="/demo" className="btn-secondary">Test PAS</Link>
+              <Link to="/pas" className="btn-secondary">Explore PAS</Link>
             </div>
           </div>
         </div>

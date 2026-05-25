@@ -45,10 +45,10 @@ export default function Login() {
           </div>
           <h1
             style={{
-              fontFamily: "'Instrument Serif', serif",
               fontSize: 30,
               color: '#0F172A',
               margin: '0 0 10px',
+              fontWeight: 800,
             }}
           >
             PAS Control Room
@@ -69,8 +69,6 @@ export default function Login() {
           </a>
           <a
             href={PAS_LINKS.earlyAccess}
-            target="_blank"
-            rel="noopener noreferrer"
             className="btn-secondary"
             style={{ width: '100%' }}
           >

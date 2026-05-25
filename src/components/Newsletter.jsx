@@ -68,7 +68,8 @@ export default function Newsletter({ variant = 'card', source = 'website' }) {
             You’re in.
           </div>
           <p style={{ color: '#065F46', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
-            First-Contact Intelligence will hit your inbox soon. No spam — one weekly brief.
+            First-Contact Intelligence will hit your inbox soon. No spam — one weekly brief.<br/>
+            <span style={{ opacity: 0.8, fontSize: 12 }}>Check your spam folder if you don't see it in 5 minutes.</span>
           </p>
         </div>
       </div>

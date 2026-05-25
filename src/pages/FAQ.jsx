@@ -101,8 +101,7 @@ const FAQS = [
     q: 'Can I see PAS run on a real conversation before paying?',
     a: (
       <p>
-        Yes — <Link to="/pas" style={{ color: '#5B3FD4', fontWeight: 600 }}>test PAS</Link>. 90 seconds, no signup,
-        no calendar booking.
+        Yes — you can see our product workflows and capabilities on the <Link to="/pas" style={{ color: '#5B3FD4', fontWeight: 600 }}>PAS page</Link>.
       </p>
     ),
   },

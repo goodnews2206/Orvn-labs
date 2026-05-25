@@ -6,7 +6,6 @@
 //
 // All posts should have a clear conversion arc — every body ends with a CTA pointing to one of:
 //   - /calculators/leakage   (run leakage score)
-//   - /demo                   (test PAS)
 //   - /blog (newsletter signup is handled by the post page itself)
 
 export const CATEGORIES = [

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, AlertTriangle, CheckCircle2, Gauge } from 'lucide-react';
+import { ArrowRight, AlertTriangle, CheckCircle2, Gauge, Download } from 'lucide-react';
 
 import PageWrapper from '../components/PageWrapper';
 import Eyebrow from '../components/ui/Eyebrow';
@@ -13,7 +13,7 @@ const RED = '#DC2626';
 const AMBER = '#D97706';
 const GREEN = '#0D9E6E';
 const MONO = "'JetBrains Mono', monospace";
-const SERIF = "'Instrument Serif', serif";
+const DISPLAY = "'Plus Jakarta Sans', sans-serif";
 
 const FIRST_CONTACT_OWNERS = [
   'Lead agent or team lead',
@@ -224,6 +224,10 @@ export default function LeakageScorecard() {
   const [leadCost, setLeadCost] = useState('');
   const [result, setResult] = useState(null);
 
+  const handleDownloadPdf = () => {
+    window.print();
+  };
+
   const run = () => {
     const r = score({
       leads: parseFloat(leads) || 0,
@@ -241,7 +245,21 @@ export default function LeakageScorecard() {
 
   return (
     <PageWrapper>
-      <section style={{ padding: 'clamp(48px, 6vw, 80px) 0 clamp(20px, 3vw, 32px)', background: '#fff' }}>
+      <style>{`
+        @media print {
+          body { background: #fff !important; }
+          nav, footer, .no-print, header, .btn-primary, .btn-secondary, button { display: none !important; }
+          .container-page { width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+          #scorecard-result { display: block !important; border: none !important; padding: 0 !important; margin-top: 0 !important; }
+          .section-y { padding: 0 !important; }
+          .print-header { display: block !important; margin-bottom: 32px; border-bottom: 2px solid #5B3FD4; padding-bottom: 16px; }
+          .card { box-shadow: none !important; border: 1px solid #E5E8F0 !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+        .print-header { display: none; }
+      `}</style>
+
+      <section className="no-print" style={{ padding: 'clamp(48px, 6vw, 80px) 0 clamp(20px, 3vw, 32px)', background: '#fff' }}>
         <div className="container-page" style={{ maxWidth: 760 }}>
           <Eyebrow>Lead leakage scorecard</Eyebrow>
           <h1 className="h-display" style={{ fontSize: 'clamp(34px, 5vw, 56px)', margin: '14px 0 16px' }}>
@@ -265,7 +283,7 @@ export default function LeakageScorecard() {
               boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 12px 28px rgba(15,23,42,0.06)',
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18 }}>
+            <div className="grid-cols-responsive" style={{ gap: 18 }}>
               <NumberInput label="Monthly inbound leads" value={leads} set={setLeads} hint="All channels combined" />
               <NumberInput label="Avg response time" value={responseMin} set={setResponseMin} suffix="min" hint="Inquiry to first substantive reply" />
               <NumberInput label="Contact rate" value={contactRate} set={setContactRate} suffix="%" hint="Of leads ever reached at all" />
@@ -335,24 +353,45 @@ export default function LeakageScorecard() {
                     marginBottom: 16,
                   }}
                 >
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, alignItems: 'center', marginBottom: 24 }}>
+                  {/* Visible only when printing */}
+                  <div className="print-header">
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>ORVN LABS</div>
+                    <div style={{ fontSize: 14, color: '#5B3FD4', fontWeight: 600 }}>Official Lead Leakage Scorecard</div>
+                    <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 12 }}>
+                      Generated on: {new Date().toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="grid-cols-responsive" style={{ gap: 24, alignItems: 'center', marginBottom: 24 }}>
                     <div>
                       <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#94A3B8', marginBottom: 8 }}>
                         Leakage score
                       </div>
                       <div
                         style={{
-                          fontFamily: SERIF,
+                          fontFamily: DISPLAY,
                           fontSize: 'clamp(56px, 9vw, 96px)',
                           color: result.leakage <= 20 ? GREEN : result.leakage <= 40 ? AMBER : RED,
                           lineHeight: 1,
                           marginBottom: 8,
+                          fontWeight: 800,
+                          letterSpacing: '-0.04em',
                         }}
                       >
                         {result.leakage}
                         <span style={{ fontSize: 24, color: '#94A3B8' }}> / 100</span>
                       </div>
                       <RiskBadge risk={result.risk} />
+
+                      {/* Download Button */}
+                      <div className="no-print" style={{ marginTop: 24 }}>
+                        <button
+                          onClick={handleDownloadPdf}
+                          className="btn-secondary"
+                          style={{ background: '#fff', fontSize: 13, padding: '10px 20px' }}
+                        >
+                          <Download size={14} /> Download PDF Report
+                        </button>
+                      </div>
                     </div>
 
                     <div>
@@ -384,6 +423,7 @@ export default function LeakageScorecard() {
                     </div>
                   </div>
 
+                  {/* Bottleneck fix */}
                   <div
                     style={{
                       background: '#FEF2F2',
@@ -404,13 +444,13 @@ export default function LeakageScorecard() {
                   </div>
 
                   {(result.missedRevenue > 0 || result.missedSpend > 0) && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                    <div className="grid-cols-responsive" style={{ gap: 12 }}>
                       {result.missedRevenue > 0 && (
                         <div style={{ background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 10, padding: 18 }}>
                           <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#94A3B8', marginBottom: 6 }}>
                             Estimated missed revenue / month
                           </div>
-                          <div style={{ fontFamily: SERIF, fontSize: 28, color: RED, lineHeight: 1 }}>
+                          <div style={{ fontFamily: DISPLAY, fontSize: 28, color: RED, lineHeight: 1 }}>
                             ${Math.round(result.missedRevenue).toLocaleString()}
                           </div>
                           <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
@@ -423,7 +463,7 @@ export default function LeakageScorecard() {
                           <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#94A3B8', marginBottom: 6 }}>
                             Wasted lead spend / month
                           </div>
-                          <div style={{ fontFamily: SERIF, fontSize: 28, color: AMBER, lineHeight: 1 }}>
+                          <div style={{ fontFamily: DISPLAY, fontSize: 28, color: AMBER, lineHeight: 1 }}>
                             ${Math.round(result.missedSpend).toLocaleString()}
                           </div>
                           <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
@@ -444,19 +484,16 @@ export default function LeakageScorecard() {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ fontFamily: SERIF, fontSize: 'clamp(24px, 3vw, 32px)', color: '#fff', margin: '0 0 12px' }}>
+                  <h3 style={{ fontFamily: DISPLAY, fontSize: 'clamp(24px, 3vw, 32px)', color: '#fff', margin: '0 0 12px' }}>
                     {result.risk === 'Low'
                       ? 'Your first-contact layer is in solid shape.'
                       : `${result.bottleneck.name} is the highest-leverage fix.`}
                   </h3>
                   <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, lineHeight: 1.7, margin: '0 0 22px', maxWidth: 620 }}>
-                    Test PAS on a real conversation, or run the Revenue Calculator to see what the
+                    Run the Revenue Calculator to see what the
                     leakage costs in dollars per year.
                   </p>
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    <Link to="/demo" className="btn-primary" style={{ background: '#fff', color: '#5B3FD4' }}>
-                      Test PAS <ArrowRight size={16} />
-                    </Link>
                     <Link to="/calculators/revenue" className="btn-secondary" style={{ background: 'transparent', color: '#fff', borderColor: 'rgba(255,255,255,0.3)' }}>
                       Run Revenue Calculator
                     </Link>

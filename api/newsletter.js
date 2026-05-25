@@ -66,8 +66,8 @@ export default async function handler(req, res) {
 
 async function routeToAdmin(record) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.FROM_EMAIL || 'ORVN Labs <hello@orvnlabs.com>';
-  const to = 'macbeth20006@gmail.com';
+  const from = 'ORVN Labs <hello@orvnlabs.com>';
+  const to = 'hello@orvnlabs.com';
   if (!apiKey) return;
   try {
     await fetch('https://api.resend.com/emails', {
@@ -120,7 +120,7 @@ async function notifySlack(record) {
 
 async function sendConfirmationEmail(record) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.FROM_EMAIL || 'ORVN Labs <hello@orvnlabs.com>';
+  const from = 'ORVN Labs <hello@orvnlabs.com>';
   if (!apiKey) return;
   try {
     await fetch('https://api.resend.com/emails', {

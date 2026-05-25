@@ -215,7 +215,7 @@ function Problem() {
         <motion.p
           {...fadeUp(0.1)}
           className="lead"
-          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569', maxContent: 720 }}
+          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
         >
           The gap between inquiry and qualified appointment is usually where money dies — and it
           rarely shows up in the report you’re looking at.
@@ -223,9 +223,8 @@ function Problem() {
       </div>
 
       <div
+        className="grid-cols-responsive"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: 32,
           marginBottom: 48,
         }}
@@ -251,9 +250,8 @@ function Problem() {
       </div>
 
       <div
-        className="grid-responsive-2"
+        className="grid-cols-2-responsive"
         style={{
-          gap: 32,
           alignItems: 'center',
         }}
       >
@@ -268,27 +266,27 @@ function Problem() {
           }}
         >
           <div
+            className="grid-cols-responsive"
             style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
               background: '#F8F9FA',
               borderBottom: '1px solid #E5E8F0',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             }}
           >
             <div style={{ padding: '18px 28px' }}>
               <span style={mono('#64748B', 0)}>What brokerages blame</span>
             </div>
-            <div style={{ padding: '18px 28px', borderLeft: '1px solid #E5E8F0' }}>
+            <div style={{ padding: '18px 28px', borderLeft: '1px solid #E5E8F0' }} className="no-border-mobile">
               <span style={mono('#5B3FD4', 0)}>What actually killed conversion</span>
             </div>
           </div>
           {blameVsReality.map((row, idx) => (
             <div
               key={row.blame}
+              className="grid-cols-responsive"
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
                 borderBottom: idx === blameVsReality.length - 1 ? 'none' : '1px solid #F1F5F9',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               }}
             >
               <div
@@ -310,6 +308,7 @@ function Problem() {
                   fontWeight: 600,
                   borderLeft: '1px solid #F1F5F9',
                 }}
+                className="no-border-mobile"
               >
                 {row.reality}
               </div>
@@ -451,10 +450,8 @@ function Diagnosis() {
       </div>
 
       <div
+        className="grid-cols-2-responsive"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
-          gap: 40,
           alignItems: 'start',
         }}
       >
@@ -504,13 +501,13 @@ function Diagnosis() {
             <div style={mono('#DC2626', 8)}>Est. Revenue Leakage</div>
             <div
               style={{
-                fontFamily: "'Instrument Serif', serif",
                 fontSize: 'clamp(36px, 5vw, 46px)',
                 color: '#0F172A',
                 lineHeight: 1,
-                fontWeight: 400,
+                fontWeight: 800,
                 display: 'flex',
                 alignItems: 'baseline',
+                letterSpacing: '-0.03em',
               }}
             >
               {fmtCurrency(calc.annualRevenueLeakage)}
@@ -518,7 +515,6 @@ function Diagnosis() {
                 style={{
                   fontSize: 15,
                   color: '#94A3B8',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                   marginLeft: 8,
                   fontWeight: 600,
                 }}
@@ -709,6 +705,7 @@ function PricingSection() {
 
       <motion.div
         {...fadeUp(0.1)}
+        className="grid-cols-2-responsive"
         style={{
           background: '#fff',
           border: '1px solid #E5E8F0',
@@ -717,9 +714,6 @@ function PricingSection() {
           boxShadow: 'var(--shadow-xl)',
           position: 'relative',
           overflow: 'hidden',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: 48,
           alignItems: 'center',
         }}
       >
@@ -761,8 +755,6 @@ function PricingSection() {
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <a
               href={PAS_LINKS.earlyAccess}
-              target="_blank"
-              rel="noopener noreferrer"
               className="btn-primary"
               style={{ padding: '14px 28px' }}
             >
@@ -981,7 +973,8 @@ function FinalCTA() {
             We've got it.
           </h3>
           <p style={{ color: '#065F46', fontSize: 15.5, margin: '8px 0 0', fontWeight: 500 }}>
-            You're on the waitlist. We'll reach out within one business day.
+            You're on the waitlist. We'll reach out within one business day.<br/>
+            <span style={{ opacity: 0.8, fontSize: 13 }}>Check your spam folder if you don't see our welcome email in 5 minutes.</span>
           </p>
         </div>
       </Section>
@@ -1111,6 +1104,9 @@ function FinalCTA() {
               Something went wrong. Please try again.
             </p>
           )}
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 24, fontWeight: 500 }}>
+            Check your spam folder if you don't see our welcome email in 5 minutes.
+          </p>
         </div>
       </div>
     </Section>
@@ -1129,7 +1125,7 @@ export default function Home() {
 
       {/* Tighter "Experience" Grouping via Navigation */}
       <Section borderTop background="surface">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+        <div className="grid-cols-responsive" style={{ gap: 24 }}>
           <LinkCard
             eyebrow="Systems & Proof"
             title="Explore PAS in detail"
