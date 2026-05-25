@@ -64,11 +64,11 @@ export default function Footer() {
             marginBottom: 64,
           }}
         >
-          <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'minmax(260px, 1.2fr) repeat(auto-fit, minmax(160px, 1fr))', gap: 40 }}>
-            <div>
+          <div style={{ gridColumn: '1 / -1' }} className="grid-cols-responsive">
+            <div style={{ marginBottom: 40 }}>
               <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
                 <Logo size={32} />
-                <span style={{ fontWeight: 800, fontSize: 18, color: '#0F172A', fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em' }}>
+                <span style={{ fontWeight: 800, fontSize: 18, color: '#0F172A', letterSpacing: '-0.02em' }}>
                   ORVN <span style={{ color: '#5B3FD4' }}>Labs</span>
                 </span>
               </Link>

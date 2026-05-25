@@ -132,11 +132,11 @@ function FounderThesis() {
         >
           <p
             style={{
-              fontFamily: "'Instrument Serif', serif",
               fontSize: 22,
               lineHeight: 1.5,
               color: '#0F172A',
               margin: 0,
+              fontWeight: 600,
             }}
           >
             Lead generation without first-contact infrastructure creates a bigger graveyard.

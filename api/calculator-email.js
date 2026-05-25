@@ -59,8 +59,8 @@ export default async function handler(req, res) {
 
 async function routeToAdmin(record) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.FROM_EMAIL || 'ORVN Labs <hello@orvnlabs.com>';
-  const to = 'macbeth20006@gmail.com';
+  const from = 'ORVN Labs <hello@orvnlabs.com>';
+  const to = 'hello@orvnlabs.com';
   if (!apiKey) return;
   try {
     await fetch('https://api.resend.com/emails', {
@@ -115,7 +115,7 @@ async function notifySlack(record) {
 
 async function sendReportEmail(record) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.FROM_EMAIL || 'ORVN Labs <hello@orvnlabs.com>';
+  const from = 'ORVN Labs <hello@orvnlabs.com>';
   if (!apiKey) return;
 
   const o = record.outputs || {};
@@ -132,7 +132,7 @@ async function sendReportEmail(record) {
         from,
         to: [record.email],
         subject: `Your ORVN revenue audit — ${fmt(o.totalOpportunity)} annual opportunity`,
-        html: buildEmailHtml({ inputs: i, outputs: o }),
+        html: buildEmailHtml({ inputs: i, outputs: o, email: record.email }),
       }),
     });
   } catch (err) {
@@ -140,55 +140,70 @@ async function sendReportEmail(record) {
   }
 }
 
-function buildEmailHtml({ inputs, outputs }) {
-  const inputRow = (k, v) =>
-    `<tr><td style="padding:8px 0;color:#475569;font-size:14px;">${k}</td><td style="padding:8px 0;color:#0F172A;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:13px;text-align:right;">${v}</td></tr>`;
+function buildEmailHtml({ inputs, outputs, email }) {
+  const row = (k, v, color = '#0F172A', bold = false) =>
+    `<tr>
+      <td style="padding:10px 0;color:#475569;font-size:14px;border-bottom:1px solid #F1F3F9;">${k}</td>
+      <td style="padding:10px 0;color:${color};font-weight:${bold ? '700' : '600'};font-family:monospace;font-size:14px;text-align:right;border-bottom:1px solid #F1F3F9;">${v}</td>
+    </tr>`;
+
+  const sectionHeader = (title) =>
+    `<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#94A3B8;font-family:monospace;margin:24px 0 12px;font-weight:700;">${title}</div>`;
+
   return `
 <!DOCTYPE html>
-<html><body style="margin:0;background:#F7F8FB;font-family:Inter,Arial,sans-serif;">
-  <div style="max-width:600px;margin:24px auto;background:#fff;border:1px solid #E5E8F0;border-radius:14px;overflow:hidden;">
-    <div style="background:#5B3FD4;padding:28px;text-align:center;color:#fff;">
-      <div style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;opacity:0.7;font-family:monospace;margin-bottom:6px;">ORVN — Revenue audit</div>
-      <div style="font-size:14px;opacity:0.85;margin-bottom:6px;">Conservative annual opportunity</div>
-      <div style="font-size:48px;font-family:Georgia,serif;line-height:1;">${fmt(outputs.totalOpportunity)}</div>
+<html><body style="margin:0;padding:0;background:#F7F8FB;font-family:Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:600px;margin:24px auto;background:#fff;border:1px solid #E5E8F0;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.04);">
+    <div style="background:#5B3FD4;padding:40px 32px;text-align:center;color:#fff;">
+      <div style="font-size:12px;letter-spacing:0.2em;text-transform:uppercase;opacity:0.8;font-family:monospace;margin-bottom:8px;font-weight:700;">ORVN LABS — REVENUE AUDIT</div>
+      <div style="font-size:15px;opacity:0.9;margin-bottom:12px;">Conservative Annual Opportunity</div>
+      <div style="font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.02em;">${fmt(outputs.totalOpportunity)}</div>
     </div>
-    <div style="padding:28px;">
-      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 22px;">
-        The numbers below are based on the inputs you entered. Every assumption tilts conservative, so the real cost is usually higher.
-      </p>
-      <div style="background:#F7F8FB;border:1px solid #E5E8F0;border-radius:10px;padding:18px;margin-bottom:18px;">
-        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94A3B8;font-family:monospace;margin-bottom:10px;">Your inputs</div>
-        <table style="width:100%;border-collapse:collapse;">
-          ${inputRow('Monthly leads', inputs.monthlyLeads)}
-          ${inputRow('Avg commission', fmt(inputs.avgCommission))}
-          ${inputRow('Close rate', pct(inputs.closeRate))}
-          ${inputRow('Response time', inputs.responseTimeMin + ' min')}
-          ${inputs.crmDatabaseSize ? inputRow('CRM database', inputs.crmDatabaseSize.toLocaleString() + ' leads') : ''}
-          ${inputs.annualIsaCost ? inputRow('Annual ISA cost', fmt(inputs.annualIsaCost)) : ''}
-        </table>
-      </div>
 
-      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:18px;text-align:center;margin-bottom:10px;">
-        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#DC2626;font-family:monospace;margin-bottom:6px;">Annual speed-to-lead loss</div>
-        <div style="font-size:32px;color:#DC2626;font-family:Georgia,serif;line-height:1;">${fmt(outputs.annualRevenueLost)}</div>
-        <div style="font-size:12px;color:#475569;margin-top:4px;">${pct(outputs.penaltyFactor)} of conversion potential lost before first contact</div>
+    <div style="padding:32px;">
+      <p style="color:#475569;font-size:16px;line-height:1.7;margin:0 0 28px;">
+        The numbers below are based on the inputs you provided. Every assumption tilts conservative to provide a realistic floor for your brokerage's revenue potential.
+      </p>
+
+      ${sectionHeader('Audit Inputs')}
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        ${row('Monthly leads', inputs.monthlyLeads)}
+        ${row('Avg commission', fmt(inputs.avgCommission))}
+        ${row('Close rate', pct(inputs.closeRate))}
+        ${row('Avg response time', inputs.responseTimeMin + ' min')}
+        ${inputs.crmDatabaseSize ? row('CRM database size', inputs.crmDatabaseSize.toLocaleString() + ' leads') : ''}
+      </table>
+
+      ${sectionHeader('Analysis 01: Speed-to-Lead')}
+      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#DC2626;font-family:monospace;margin-bottom:8px;font-weight:700;">Annual speed-to-lead loss</div>
+        <div style="font-size:36px;color:#DC2626;font-weight:800;line-height:1;margin-bottom:8px;">${fmt(outputs.annualRevenueLost)}</div>
+        <div style="font-size:13px;color:#7F1D1D;line-height:1.5;">${pct(outputs.penaltyFactor)} of conversion potential is lost before an agent speaks to the lead.</div>
       </div>
 
       ${outputs.graveyardValue > 0 ? `
-      <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;padding:18px;text-align:center;margin-bottom:18px;">
-        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#0D9E6E;font-family:monospace;margin-bottom:6px;">Recoverable graveyard value</div>
-        <div style="font-size:32px;color:#0D9E6E;font-family:Georgia,serif;line-height:1;">${fmt(outputs.graveyardValue)}</div>
-      </div>
+        ${sectionHeader('Analysis 02: CRM Graveyard')}
+        <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;">
+          <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0D9E6E;font-family:monospace;margin-bottom:8px;font-weight:700;">Recoverable Graveyard Value</div>
+          <div style="font-size:36px;color:#0D9E6E;font-weight:800;line-height:1;margin-bottom:8px;">${fmt(outputs.graveyardValue)}</div>
+          <div style="font-size:13px;color:#064E3B;line-height:1.5;">Estimated revenue sitting dormant in your existing database.</div>
+        </div>
       ` : ''}
 
-      <div style="text-align:center;background:#EEEAFB;border:1px solid #C7BCF5;border-radius:12px;padding:22px;">
-        <div style="font-size:18px;color:#0F172A;font-weight:600;margin-bottom:8px;">Run the leakage scorecard while it’s fresh</div>
-        <p style="color:#475569;font-size:14px;line-height:1.65;margin:0 0 18px;">Five-minute diagnostic of where the leakage is concentrated, with the most direct fix.</p>
-        <a href="https://orvnlabs.com/calculators/leakage" style="display:inline-block;background:#5B3FD4;color:#fff;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px;text-decoration:none;">Run scorecard →</a>
+      ${sectionHeader('Summary')}
+      <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+        ${row('Total Annual Opportunity', fmt(outputs.totalOpportunity), '#0F172A', true)}
+      </table>
+
+      <div style="margin-top:40px;text-align:center;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:32px;">
+        <div style="font-size:20px;color:#0F172A;font-weight:700;margin-bottom:12px;letter-spacing:-0.01em;">Download your official PDF</div>
+        <p style="color:#475569;font-size:15px;line-height:1.65;margin:0 0 24px;">Get a professionally formatted version of this audit to share with your team or file for review.</p>
+        <a href="https://orvnlabs.com/calculators/revenue?email=${email}" style="display:inline-block;background:#5B3FD4;color:#fff;padding:14px 28px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 8px 16px rgba(91,63,212,0.2);">Download PDF Report →</a>
       </div>
     </div>
-    <div style="padding:18px 28px;border-top:1px solid #F1F3F9;text-align:center;color:#94A3B8;font-size:12px;">
-      ORVN Labs · hello@orvnlabs.com
+
+    <div style="padding:24px 32px;border-top:1px solid #F1F3F9;text-align:center;color:#94A3B8;font-size:13px;font-weight:500;">
+      ORVN Labs · <a href="mailto:hello@orvnlabs.com" style="color:#5B3FD4;text-decoration:none;">hello@orvnlabs.com</a>
     </div>
   </div>
 </body></html>

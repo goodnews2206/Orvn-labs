@@ -19,7 +19,6 @@ export const pasUrl = (path = '') => {
 export const PAS_LINKS = {
   login: pasUrl('/login'),
   controlRoom: pasUrl('/control-room'),
-  testPas: pasUrl('/demo'),
-  earlyAccess: pasUrl('/early-access'),
+  earlyAccess: 'mailto:hello@orvnlabs.com',
   signup: pasUrl('/signup'),
 };

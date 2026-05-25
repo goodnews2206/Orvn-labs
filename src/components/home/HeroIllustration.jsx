@@ -51,11 +51,11 @@ export default function HeroIllustration() {
         <rect x="195" y="95" width="130" height="110" rx="18" stroke="#D4CBF9" strokeWidth="1.5"/>
         <rect x="195" y="95" width="130" height="4" rx="2" fill="#5B3FD4"/>
         <circle cx="260" cy="135" r="20" fill="#F0EEFF"/>
-        <text x="260" y="139" textAnchor="middle" fontSize="16" fill="#5B3FD4" fontWeight="700" fontFamily="'Syne',sans-serif">⚡</text>
+        <text x="260" y="139" textAnchor="middle" fontSize="16" fill="#5B3FD4" fontWeight="700" fontFamily="'Plus Jakarta Sans',sans-serif">⚡</text>
         <circle cx="260" cy="135" r="24" stroke="#5B3FD4" strokeOpacity="0.1" fill="none" strokeWidth="1" strokeDasharray="4 3">
           <animateTransform attributeName="transform" type="rotate" from="0 260 135" to="360 260 135" dur="12s" repeatCount="indefinite"/>
         </circle>
-        <text x="260" y="172" textAnchor="middle" fontSize="11" fontWeight="800" fill="#3A2899" fontFamily="'Syne',sans-serif">PAS ENGINE</text>
+        <text x="260" y="172" textAnchor="middle" fontSize="11" fontWeight="800" fill="#3A2899" fontFamily="'Plus Jakarta Sans',sans-serif">PAS ENGINE</text>
         <text x="260" y="186" textAnchor="middle" fontSize="8" fill="#7B5FEA" fontFamily="'JetBrains Mono',monospace">QUALIFY · ROUTE · BOOK</text>
       </g>
 
@@ -89,17 +89,17 @@ export default function HeroIllustration() {
         <rect x="60" y="290" width="400" height="70" rx="16" fill="#fff"/>
         <rect x="60" y="290" width="400" height="70" rx="16" stroke="#E5E8F0" strokeWidth="1"/>
         {/* Metric 1 */}
-        <text x="130" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0F172A" fontFamily="'Syne',sans-serif">94%</text>
+        <text x="130" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0F172A" fontFamily="'Plus Jakarta Sans',sans-serif">94%</text>
         <text x="130" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">CONTACT RATE</text>
         {/* Divider */}
         <line x1="200" y1="300" x2="200" y2="350" stroke="#F1F5F9" strokeWidth="1"/>
         {/* Metric 2 */}
-        <text x="260" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#5B3FD4" fontFamily="'Syne',sans-serif">24/7</text>
+        <text x="260" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#5B3FD4" fontFamily="'Plus Jakarta Sans',sans-serif">24/7</text>
         <text x="260" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">AVAILABILITY</text>
         {/* Divider */}
         <line x1="320" y1="300" x2="320" y2="350" stroke="#F1F5F9" strokeWidth="1"/>
         {/* Metric 3 */}
-        <text x="390" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0D9E6E" fontFamily="'Syne',sans-serif">0</text>
+        <text x="390" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0D9E6E" fontFamily="'Plus Jakarta Sans',sans-serif">0</text>
         <text x="390" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">LEADS MISSED</text>
       </g>
 

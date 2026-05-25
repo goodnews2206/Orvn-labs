@@ -1,4 +1,4 @@
-// Vercel serverless function: receives waitlist/signup submissions and routes them to macbeth20006@gmail.com.
+// Vercel serverless function: receives waitlist/signup submissions and routes them to hello@orvnlabs.com.
 //
 // Env vars:
 //   - RESEND_API_KEY (required to send email)
@@ -32,8 +32,8 @@ export default async function handler(req, res) {
 
 async function routeToAdmin(record) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.FROM_EMAIL || 'ORVN Labs <hello@orvnlabs.com>';
-  const to = 'macbeth20006@gmail.com';
+  const from = 'ORVN Labs <hello@orvnlabs.com>';
+  const to = 'hello@orvnlabs.com';
 
   if (!apiKey) {
     console.warn('[waitlist] RESEND_API_KEY not set, logging record:', record);

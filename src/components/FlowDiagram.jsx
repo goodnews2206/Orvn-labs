@@ -114,8 +114,12 @@ export default function FlowDiagram({ steps = DEFAULT_STEPS, label = 'How a lead
           display: 'flex',
           alignItems: 'stretch',
           gap: 4,
-          flexWrap: 'wrap',
+          overflowX: 'auto',
+          paddingBottom: 8,
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
         }}
+        className="hide-scrollbar"
       >
         {steps.map((s, i) => {
           const t = toneColors(s.tone);

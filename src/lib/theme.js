@@ -20,7 +20,7 @@ export const COLORS = {
 };
 
 export const FONTS = {
-  serif: "'Instrument Serif', Georgia, serif",
+  serif: "'Inter', system-ui, sans-serif",
   sans: "'Inter', system-ui, sans-serif",
   mono: "'JetBrains Mono', monospace",
 };

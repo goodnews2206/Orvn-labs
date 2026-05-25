@@ -78,7 +78,6 @@ export default function Navbar() {
             <Logo size={34} />
             <span
               style={{
-                fontFamily: "'Syne', sans-serif",
                 fontWeight: 800,
                 fontSize: 19,
                 letterSpacing: '-0.02em',

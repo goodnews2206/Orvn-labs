@@ -31,9 +31,9 @@
     --shadow-glow: 0 0 40px rgba(91, 63, 212, 0.12);
 
     /* Typography */
-    --font-display: 'Syne', sans-serif;
+    --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
     --font-body: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-    --font-serif: 'Instrument Serif', Georgia, serif;
+    --font-serif: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
     /* Radii */

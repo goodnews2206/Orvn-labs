@@ -13,7 +13,6 @@ import RevenueCalculator from './pages/RevenueCalculator';
 import LeakageScorecard from './pages/LeakageScorecard';
 // import BlogPost from './pages/BlogPost';
 import FAQ from './pages/FAQ';
-// import Demo from './pages/Demo';
 // import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 
@@ -61,7 +60,6 @@ function AnimatedRoutes() {
         {/* <Route path="/blog/:slug" element={<BlogPost />} /> */}
 
         <Route path="/faq" element={<FAQ />} />
-        {/* <Route path="/demo" element={<Demo />} /> */}
         {/* <Route path="/login" element={<Login />} /> */}
 
         <Route path="/legal/privacy" element={<Privacy />} />
@@ -76,8 +74,8 @@ function AnimatedRoutes() {
             sitemap and SEO meta still point at /calculators/leakage, /demo, /legal/*. */}
         <Route path="/scorecard" element={<Navigate to="/calculators/leakage" replace />} />
         <Route path="/lead-leakage-scorecard" element={<Navigate to="/calculators/leakage" replace />} />
-        <Route path="/test" element={<Navigate to="/demo" replace />} />
-        <Route path="/test-pas" element={<Navigate to="/demo" replace />} />
+        <Route path="/test" element={<Navigate to="/pas" replace />} />
+        <Route path="/test-pas" element={<Navigate to="/pas" replace />} />
         <Route path="/newsletter" element={<Navigate to="/blog" replace />} />
         <Route path="/privacy" element={<Navigate to="/legal/privacy" replace />} />
         <Route path="/terms" element={<Navigate to="/legal/terms" replace />} />

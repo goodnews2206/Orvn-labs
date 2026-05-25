@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronUp, ArrowRight, Download, Printer } from 'lucide-react';
 
 import PageWrapper from '../components/PageWrapper';
 import Section from '../components/ui/Section';
@@ -13,8 +13,8 @@ const AMBER = '#D97706';
 const GREEN = '#0D9E6E';
 const PURPLE = '#5B3FD4';
 const MONO = "'JetBrains Mono', monospace";
-const SERIF = "'Instrument Serif', serif";
 const SANS = "'Inter', sans-serif";
+const DISPLAY = "'Plus Jakarta Sans', sans-serif";
 
 const STARTER_PRICE = 500;
 
@@ -143,11 +143,13 @@ const TblRow = ({ cols, header }) => (
   <div
     style={{
       display: 'grid',
-      gridTemplateColumns: '2fr 1fr 1fr 1fr',
+      gridTemplateColumns: 'minmax(140px, 2fr) repeat(3, minmax(80px, 1fr))',
       gap: 8,
       padding: '8px 12px',
       background: header ? '#F7F8FB' : '#fff',
       borderBottom: '1px solid #F1F3F9',
+      width: '100%',
+      minWidth: 'fit-content',
     }}
   >
     {cols.map((c, i) => (
@@ -176,6 +178,7 @@ export default function RevenueCalculator() {
     path: '/calculators/revenue',
   });
 
+  const [searchParams] = useSearchParams();
   const [leads, setLeads] = useState(150);
   const [commission, setCommission] = useState(12000);
   const [closeRate, setCloseRate] = useState(8);
@@ -187,7 +190,7 @@ export default function RevenueCalculator() {
   const [email, setEmail] = useState('');
   const [submitState, setSubmitState] = useState('idle');
 
-  const calculate = () => {
+  const calculate = (scroll = true) => {
     const rt = parseInt(responseTime, 10);
     const cr = parseFloat(closeRate) / 100;
     const L = parseFloat(leads) || 0;
@@ -241,9 +244,29 @@ export default function RevenueCalculator() {
     });
     setShowAudit(false);
 
-    setTimeout(() => {
-      document.getElementById('calc-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+    if (scroll) {
+      setTimeout(() => {
+        document.getElementById('calc-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+    }
+  };
+
+  // Handle email link redirect
+  useEffect(() => {
+    const e = searchParams.get('email');
+    if (e) {
+      setEmail(e);
+      // If we have an email, we can assume the user wants to see their results
+      // (Inputs would be saved in local storage or db in a real app, but here we
+      // just ensure the UI is ready for them to click calculate or show default)
+      calculate(false);
+    }
+  }, [searchParams]);
+
+  const handleDownloadPdf = () => {
+    // We use window.print() which is the most reliable way to generate a
+    // high-quality PDF of a specific DOM element across all browsers.
+    window.print();
   };
 
   const handleEmailSubmit = async (e) => {
@@ -291,7 +314,21 @@ export default function RevenueCalculator() {
 
   return (
     <PageWrapper>
-      <section style={{ padding: 'clamp(48px, 6vw, 80px) 0 clamp(20px, 3vw, 32px)', background: '#fff' }}>
+      <style>{`
+        @media print {
+          body { background: #fff !important; }
+          nav, footer, .no-print, header, .btn-primary, .btn-secondary, button { display: none !important; }
+          .container-page { width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+          #calc-results { display: block !important; border: none !important; padding: 0 !important; }
+          .section-y { padding: 0 !important; }
+          .print-header { display: block !important; margin-bottom: 32px; border-bottom: 2px solid #5B3FD4; padding-bottom: 16px; }
+          .card { box-shadow: none !important; border: 1px solid #E5E8F0 !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+        .print-header { display: none; }
+      `}</style>
+
+      <section className="no-print" style={{ padding: 'clamp(48px, 6vw, 80px) 0 clamp(20px, 3vw, 32px)', background: '#fff' }}>
         <div className="container-page" style={{ maxWidth: 760 }}>
           <Eyebrow>Revenue calculator</Eyebrow>
           <h1 className="h-display" style={{ fontSize: 'clamp(34px, 5vw, 56px)', margin: '14px 0 16px' }}>
@@ -486,6 +523,15 @@ export default function RevenueCalculator() {
                 transition={{ duration: 0.4 }}
                 style={{ borderTop: '2px solid #F1F3F9', padding: 'clamp(24px, 4vw, 36px)' }}
               >
+                {/* Visible only when printing */}
+                <div className="print-header">
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>ORVN LABS</div>
+                  <div style={{ fontSize: 14, color: '#5B3FD4', fontWeight: 600 }}>Official Revenue Audit Report</div>
+                  <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 12 }}>
+                    Generated for: {email || 'Anonymous Operator'} · {new Date().toLocaleDateString()}
+                  </div>
+                </div>
+
                 <div
                   style={{
                     background: '#FEF2F2',
@@ -510,7 +556,7 @@ export default function RevenueCalculator() {
                   </div>
                   <div
                     style={{
-                      fontFamily: SERIF,
+                      fontFamily: DISPLAY,
                       fontSize: 'clamp(48px, 8vw, 78px)',
                       color: RED,
                       lineHeight: 1,
@@ -522,6 +568,17 @@ export default function RevenueCalculator() {
                   <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>
                     Conservative estimate · math shown below
                   </p>
+
+                  {/* Download Button */}
+                  <div className="no-print" style={{ marginTop: 24, display: 'flex', justifyContent: 'center', gap: 12 }}>
+                    <button
+                      onClick={handleDownloadPdf}
+                      className="btn-secondary"
+                      style={{ background: '#fff', fontSize: 13, padding: '10px 20px' }}
+                    >
+                      <Download size={14} /> Download PDF Report
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
@@ -534,7 +591,7 @@ export default function RevenueCalculator() {
                       <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.1em', color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8 }}>
                         {c.label}
                       </div>
-                      <div style={{ fontFamily: SERIF, fontSize: 28, color: c.color, lineHeight: 1, marginBottom: 4 }}>
+                      <div style={{ fontFamily: DISPLAY, fontSize: 28, color: c.color, lineHeight: 1, marginBottom: 4 }}>
                         <AnimCounter target={c.value} prefix={c.prefix || ''} />
                       </div>
                       <div style={{ fontSize: 11, color: '#94A3B8' }}>{c.sub}</div>
@@ -607,7 +664,7 @@ export default function RevenueCalculator() {
                         <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: PURPLE, marginBottom: 8 }}>
                           ORVN — Full revenue audit
                         </div>
-                        <div style={{ fontFamily: SERIF, fontSize: 22, color: '#0F172A', marginBottom: 4 }}>Revenue Audit Report</div>
+                        <div style={{ fontFamily: DISPLAY, fontSize: 22, color: '#0F172A', marginBottom: 4 }}>Revenue Audit Report</div>
                         <div style={{ fontSize: 12, color: '#475569', marginBottom: 12 }}>
                           Prepared {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </div>
@@ -632,14 +689,16 @@ export default function RevenueCalculator() {
                           <strong>Finding:</strong> Your response time of <strong>{formatResp(R.rt)}</strong> places your brokerage in the <strong>{pctLabel(R.P)}</strong> of US brokerages for speed-to-lead.
                         </div>
                         <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
-                          <TblRow header cols={[{ text: 'Metric' }, { text: 'Your number' }, { text: 'Benchmark' }, { text: 'Gap' }]} />
-                          <TblRow cols={[{ text: 'Avg response time' }, { text: formatResp(R.rt), color: RED }, { text: '< 5 min (top 10%)' }, { text: `−${Math.max(0, R.rt - 5)} min from optimal`, color: RED }]} />
-                          <TblRow cols={[{ text: 'Penalty factor (P)' }, { text: pct(R.P), color: RED }, { text: 'P = 0% at optimal' }, { text: `−${pct(R.P)} conversion loss`, color: RED }]} />
-                          <TblRow cols={[{ text: 'Ideal deals/month' }, { text: R.idealDeals.toFixed(1) }, { text: 'Your ceiling' }, { text: '—' }]} />
-                          <TblRow cols={[{ text: 'Actual deals/month' }, { text: R.actualDeals.toFixed(1), color: RED }, { text: `${R.idealDeals.toFixed(1)} at optimal` }, { text: `−${R.dealsLost.toFixed(1)} deals/mo`, color: RED }]} />
+                          <div style={{ overflowX: 'auto' }}>
+                            <TblRow header cols={[{ text: 'Metric' }, { text: 'Your number' }, { text: 'Benchmark' }, { text: 'Gap' }]} />
+                            <TblRow cols={[{ text: 'Avg response time' }, { text: formatResp(R.rt), color: RED }, { text: '< 5 min (top 10%)' }, { text: `−${Math.max(0, R.rt - 5)} min from optimal`, color: RED }]} />
+                            <TblRow cols={[{ text: 'Penalty factor (P)' }, { text: pct(R.P), color: RED }, { text: 'P = 0% at optimal' }, { text: `−${pct(R.P)} conversion loss`, color: RED }]} />
+                            <TblRow cols={[{ text: 'Ideal deals/month' }, { text: R.idealDeals.toFixed(1) }, { text: 'Your ceiling' }, { text: '—' }]} />
+                            <TblRow cols={[{ text: 'Actual deals/month' }, { text: R.actualDeals.toFixed(1), color: RED }, { text: `${R.idealDeals.toFixed(1)} at optimal` }, { text: `−${R.dealsLost.toFixed(1)} deals/mo`, color: RED }]} />
+                          </div>
                         </div>
                         <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-                          <div style={{ fontFamily: SERIF, fontSize: 40, color: RED, lineHeight: 1, marginBottom: 6 }}>{fm(R.annualLost)}</div>
+                          <div style={{ fontFamily: DISPLAY, fontSize: 40, color: RED, lineHeight: 1, marginBottom: 6 }}>{fm(R.annualLost)}</div>
                           <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: '#94A3B8', textTransform: 'uppercase' }}>
                             Annual speed-to-lead revenue loss
                           </div>
@@ -652,15 +711,17 @@ export default function RevenueCalculator() {
                             <strong>Finding:</strong> Your database of <strong>{R.CRM.toLocaleString()} leads</strong> contains recoverable revenue. Roughly 12% of abandoned leads transact within 12 months with systematic follow-up.
                           </div>
                           <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
-                            <TblRow header cols={[{ text: 'Component' }, { text: 'Value' }, { text: 'Formula' }, { text: 'Source' }]} />
-                            <TblRow cols={[{ text: 'CRM database' }, { text: `${R.CRM.toLocaleString()} leads` }, { text: 'Your input' }, { text: '—' }]} />
-                            <TblRow cols={[{ text: 'Re-engagement rate' }, { text: '12%' }, { text: 'CRM × 0.12' }, { text: 'Industry research' }]} />
-                            <TblRow cols={[{ text: 'Reactivatable leads' }, { text: `${Math.round(R.reactivatable)} leads`, color: GREEN }, { text: '' }, { text: '' }]} />
-                            <TblRow cols={[{ text: 'Adjusted close rate' }, { text: pct(R.adjustedClose) }, { text: `${pct(R.cr)} × 40% discount` }, { text: 'Conservative' }]} />
-                            <TblRow cols={[{ text: 'Recoverable deals' }, { text: `${R.recoverableDeals.toFixed(1)} deals`, color: GREEN }, { text: '' }, { text: '' }]} />
+                            <div style={{ overflowX: 'auto' }}>
+                              <TblRow header cols={[{ text: 'Component' }, { text: 'Value' }, { text: 'Formula' }, { text: 'Source' }]} />
+                              <TblRow cols={[{ text: 'CRM database' }, { text: `${R.CRM.toLocaleString()} leads` }, { text: 'Your input' }, { text: '—' }]} />
+                              <TblRow cols={[{ text: 'Re-engagement rate' }, { text: '12%' }, { text: 'CRM × 0.12' }, { text: 'Industry research' }]} />
+                              <TblRow cols={[{ text: 'Reactivatable leads' }, { text: `${Math.round(R.reactivatable)} leads`, color: GREEN }, { text: '' }, { text: '' }]} />
+                              <TblRow cols={[{ text: 'Adjusted close rate' }, { text: pct(R.adjustedClose) }, { text: `${pct(R.cr)} × 40% discount` }, { text: 'Conservative' }]} />
+                              <TblRow cols={[{ text: 'Recoverable deals' }, { text: `${R.recoverableDeals.toFixed(1)} deals`, color: GREEN }, { text: '' }, { text: '' }]} />
+                            </div>
                           </div>
                           <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-                            <div style={{ fontFamily: SERIF, fontSize: 40, color: GREEN, lineHeight: 1, marginBottom: 6 }}>{fm(R.graveyardValue)}</div>
+                            <div style={{ fontFamily: DISPLAY, fontSize: 40, color: GREEN, lineHeight: 1, marginBottom: 6 }}>{fm(R.graveyardValue)}</div>
                             <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: '#94A3B8', textTransform: 'uppercase' }}>
                               Recoverable graveyard CRM value
                             </div>
@@ -671,11 +732,13 @@ export default function RevenueCalculator() {
                       {R.ISA > 0 && (
                         <AuditPanel number={R.CRM > 0 ? '3' : '2'} title="ISA cost vs PAS">
                           <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden' }}>
-                            <TblRow header cols={[{ text: 'Component' }, { text: 'Human ISA' }, { text: 'PAS Starter ($500)' }, { text: 'Difference' }]} />
-                            <TblRow cols={[{ text: 'Monthly cost' }, { text: `${fm(R.isaMonthly)}/mo`, color: RED }, { text: `$${STARTER_PRICE}/mo` }, { text: `${fm(R.isaSaving)}/mo`, color: GREEN, bold: true }]} />
-                            <TblRow cols={[{ text: 'Response time' }, { text: '15–90 min avg', color: RED }, { text: 'Under 30 sec', color: GREEN }, { text: 'Structural' }]} />
-                            <TblRow cols={[{ text: 'Coverage' }, { text: '~45 hrs/wk' }, { text: '24 / 7 / 365', color: GREEN }, { text: '+8,580 hrs/yr' }]} />
-                            <TblRow cols={[{ text: 'Turnover risk' }, { text: 'Avg 14 months', color: RED }, { text: 'Infrastructure', color: GREEN }, { text: 'No re-hire cost' }]} />
+                            <div style={{ overflowX: 'auto' }}>
+                              <TblRow header cols={[{ text: 'Component' }, { text: 'Human ISA' }, { text: 'PAS Starter ($500)' }, { text: 'Difference' }]} />
+                              <TblRow cols={[{ text: 'Monthly cost' }, { text: `${fm(R.isaMonthly)}/mo`, color: RED }, { text: `$${STARTER_PRICE}/mo` }, { text: `${fm(R.isaSaving)}/mo`, color: GREEN, bold: true }]} />
+                              <TblRow cols={[{ text: 'Response time' }, { text: '15–90 min avg', color: RED }, { text: 'Under 30 sec', color: GREEN }, { text: 'Structural' }]} />
+                              <TblRow cols={[{ text: 'Coverage' }, { text: '~45 hrs/wk' }, { text: '24 / 7 / 365', color: GREEN }, { text: '+8,580 hrs/yr' }]} />
+                              <TblRow cols={[{ text: 'Turnover risk' }, { text: 'Avg 14 months', color: RED }, { text: 'Infrastructure', color: GREEN }, { text: 'No re-hire cost' }]} />
+                            </div>
                           </div>
                         </AuditPanel>
                       )}
@@ -696,12 +759,14 @@ export default function RevenueCalculator() {
 
                       <AuditPanel number={[R.CRM > 0, R.ISA > 0, !!R.breakEvenAppts].filter(Boolean).length + 2} title="Summary — total annual opportunity">
                         <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden' }}>
-                          <TblRow header cols={[{ text: 'Revenue opportunity' }, { text: 'Annual value' }, { text: 'Confidence' }, { text: '' }]} />
-                          <TblRow cols={[{ text: 'Speed-to-lead loss (recoverable)' }, { text: fm(R.annualLost), color: RED, bold: true }, { text: 'High — research-backed' }, { text: '' }]} />
-                          {R.CRM > 0 && <TblRow cols={[{ text: 'Graveyard CRM value (recoverable)' }, { text: fm(R.graveyardValue), color: GREEN, bold: true }, { text: 'Medium — conservative' }, { text: '' }]} />}
-                          {R.ISA > 0 && <TblRow cols={[{ text: 'ISA cost reduction' }, { text: `${fm(R.isaSaving)}/mo`, color: GREEN, bold: true }, { text: 'High — direct comparison' }, { text: '' }]} />}
-                          <div style={{ background: '#FEF2F2', borderTop: '2px solid #FECACA' }}>
-                            <TblRow cols={[{ text: 'TOTAL ANNUAL OPPORTUNITY', bold: true }, { text: fm(R.total), color: RED, bold: true }, { text: 'Conservative combined' }, { text: '' }]} />
+                          <div style={{ overflowX: 'auto' }}>
+                            <TblRow header cols={[{ text: 'Revenue opportunity' }, { text: 'Annual value' }, { text: 'Confidence' }, { text: '' }]} />
+                            <TblRow cols={[{ text: 'Speed-to-lead loss (recoverable)' }, { text: fm(R.annualLost), color: RED, bold: true }, { text: 'High — research-backed' }, { text: '' }]} />
+                            {R.CRM > 0 && <TblRow cols={[{ text: 'Graveyard CRM value (recoverable)' }, { text: fm(R.graveyardValue), color: GREEN, bold: true }, { text: 'Medium — conservative' }, { text: '' }]} />}
+                            {R.ISA > 0 && <TblRow cols={[{ text: 'ISA cost reduction' }, { text: `${fm(R.isaSaving)}/mo`, color: GREEN, bold: true }, { text: 'High — direct comparison' }, { text: '' }]} />}
+                            <div style={{ background: '#FEF2F2', borderTop: '2px solid #FECACA' }}>
+                              <TblRow cols={[{ text: 'TOTAL ANNUAL OPPORTUNITY', bold: true }, { text: fm(R.total), color: RED, bold: true }, { text: 'Conservative combined' }, { text: '' }]} />
+                            </div>
                           </div>
                         </div>
 
@@ -722,7 +787,6 @@ export default function RevenueCalculator() {
 
                         <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                           <Link to="/calculators/leakage" className="btn-secondary">Run Lead Leakage Scorecard</Link>
-                          <Link to="/demo" className="btn-primary">Test PAS</Link>
                         </div>
                       </AuditPanel>
                     </motion.div>
@@ -740,7 +804,7 @@ export default function RevenueCalculator() {
                 >
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, alignItems: 'center' }}>
                     <div>
-                      <h3 style={{ fontSize: 20, fontFamily: SERIF, color: '#0F172A', margin: '0 0 6px' }}>
+                      <h3 style={{ fontSize: 20, fontFamily: DISPLAY, color: '#0F172A', margin: '0 0 6px' }}>
                         Email me the full audit report.
                       </h3>
                       <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.6 }}>
@@ -762,7 +826,7 @@ export default function RevenueCalculator() {
                           fontSize: 14,
                         }}
                       >
-                        <CheckCircle2 size={18} /> On its way — check your inbox.
+                        <CheckCircle2 size={18} /> Full audit sent. Download your PDF above or check your inbox.
                       </div>
                     ) : (
                       <form
@@ -797,6 +861,9 @@ export default function RevenueCalculator() {
                       </form>
                     )}
                   </div>
+                  <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 12, width: '100%', textAlign: 'center' }}>
+                    Check your spam folder if you don't see the report in 5 minutes.
+                  </p>
                 </div>
               </motion.div>
             )}

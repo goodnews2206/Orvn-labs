@@ -267,9 +267,8 @@ function BrandHierarchy() {
       </div>
 
       <div
+        className="grid-cols-responsive"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: 32,
         }}
       >
@@ -319,7 +318,6 @@ function BrandHierarchy() {
                     fontWeight: 800,
                     color: c.label,
                     marginBottom: 6,
-                    fontFamily: "'Syne', sans-serif",
                   }}
                 >
                   {t.label}
@@ -400,15 +398,14 @@ function WhatPASControls() {
           }}
         />
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 32,
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
+      <div
+        className="grid-cols-responsive"
+        style={{
+          gap: 32,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
           {steps.map((s, i) => (
             <motion.div
               key={s.n}
@@ -521,9 +518,8 @@ function HowPASWorks() {
       </div>
 
       <div
+        className="grid-cols-responsive"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: 32,
         }}
       >
@@ -570,7 +566,6 @@ function HowPASWorks() {
                     fontWeight: 700,
                     color: '#0F172A',
                     marginBottom: 10,
-                    fontFamily: "'Syne', sans-serif",
                   }}
                 >
                   {s.title}
@@ -605,14 +600,12 @@ function Capabilities() {
   return (
     <Section borderTop>
       <div
+        className="grid-cols-2-responsive"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 0.8fr) minmax(0, 1.2fr)',
-          gap: 'clamp(40px, 8vw, 80px)',
           alignItems: 'start',
         }}
       >
-        <div style={{ position: 'sticky', top: 120 }}>
+        <div style={{ position: 'sticky', top: 120, zIndex: 10 }} className="no-sticky-mobile mb-mobile-32">
           <motion.div {...fadeUp(0)}><Eyebrow>Capabilities</Eyebrow></motion.div>
           <motion.h2
             {...fadeUp(0.05)}
@@ -730,9 +723,8 @@ function ProductProof() {
       </div>
 
       <div
+        className="grid-cols-responsive"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: 32,
           marginBottom: 40,
         }}
@@ -753,7 +745,7 @@ function ProductProof() {
         }}
       >
         <div style={{ marginBottom: 24 }}>
-          <div style={{ color: '#0F172A', fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", marginBottom: 8 }}>
+          <div style={{ color: '#0F172A', fontSize: 22, fontWeight: 800, marginBottom: 8 }}>
             Engine Architecture Core
           </div>
           <p style={{ color: '#475569', fontSize: 15.5, lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
@@ -847,7 +839,7 @@ function ControlRoom() {
 
   return (
     <Section borderTop background="surface">
-      <div className="grid-responsive-2" style={{ gap: '48px', alignItems: 'center', marginBottom: 56 }}>
+      <div className="grid-cols-2-responsive" style={{ alignItems: 'center', marginBottom: 56 }}>
         <div>
           <motion.div {...fadeUp(0)}><Eyebrow>PAS Control Room</Eyebrow></motion.div>
           <motion.h2
@@ -923,9 +915,8 @@ function ControlRoom() {
         </div>
 
         <div
+          className="grid-cols-responsive"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             background: '#1E293B',
             gap: 1,
           }}
@@ -935,7 +926,6 @@ function ControlRoom() {
               <div style={mono('#475569', 12)}>{c.label}</div>
               <div
                 style={{
-                  fontFamily: "'Syne', serif",
                   fontSize: 40,
                   fontWeight: 800,
                   lineHeight: 1,
@@ -1015,9 +1005,8 @@ function UseCases() {
       </div>
 
       <div
+        className="grid-cols-responsive"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: 24,
         }}
       >
@@ -1144,7 +1133,8 @@ function WaitlistSignup() {
             You're on the list.
           </h3>
           <p style={{ color: '#065F46', fontSize: 16, margin: '8px 0 0', fontWeight: 500 }}>
-            We'll notify you as soon as a slot opens for your brokerage.
+            We'll notify you as soon as a slot opens for your brokerage.<br/>
+            <span style={{ opacity: 0.8, fontSize: 13 }}>Check your spam folder if you don't see our welcome email in 5 minutes.</span>
           </p>
         </div>
       </Section>
@@ -1233,6 +1223,9 @@ function WaitlistSignup() {
             Something went wrong. Please try again or email hello@orvnlabs.com.
           </p>
         )}
+        <p style={{ color: '#94A3B8', fontSize: 13, marginTop: 24, fontWeight: 500 }}>
+          Check your spam folder if you don't see our welcome email in 5 minutes.
+        </p>
       </div>
     </Section>
   );
