@@ -264,9 +264,21 @@ export default function RevenueCalculator() {
   }, [searchParams]);
 
   const handleDownloadPdf = () => {
-    // We use window.print() which is the most reliable way to generate a
-    // high-quality PDF of a specific DOM element across all browsers.
-    window.print();
+    const element = document.getElementById('calc-results');
+    if (!element || !window.html2pdf) {
+      window.print();
+      return;
+    }
+
+    const opt = {
+      margin: 10,
+      filename: `ORVN-Revenue-Audit-${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    window.html2pdf().set(opt).from(element).save();
   };
 
   const handleEmailSubmit = async (e) => {
@@ -521,27 +533,47 @@ export default function RevenueCalculator() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                style={{ borderTop: '2px solid #F1F3F9', padding: 'clamp(24px, 4vw, 36px)' }}
+                style={{ borderTop: '2px solid #F1F3F9', padding: 'clamp(24px, 4vw, 36px)', position: 'relative', overflow: 'hidden' }}
               >
-                {/* Visible only when printing */}
-                <div className="print-header">
-                  <div style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>ORVN LABS</div>
-                  <div style={{ fontSize: 14, color: '#5B3FD4', fontWeight: 600 }}>Official Revenue Audit Report</div>
-                  <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 12 }}>
-                    Generated for: {email || 'Anonymous Operator'} · {new Date().toLocaleDateString()}
-                  </div>
-                </div>
-
+                {/* Watermark Logo (Subtle Background) */}
                 <div
                   style={{
-                    background: '#FEF2F2',
-                    border: '1px solid #FECACA',
-                    borderRadius: 14,
-                    padding: 32,
-                    textAlign: 'center',
-                    marginBottom: 20,
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) rotate(-30deg)',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    opacity: 0.03,
+                    pointerEvents: 'none',
+                    zIndex: 0
                   }}
                 >
+                  <img src="/logo.png" style={{ width: '400px', height: 'auto' }} alt="" />
+                </div>
+
+                {/* Content Wrapper */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  {/* Visible only when printing */}
+                  <div className="print-header">
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>ORVN LABS</div>
+                    <div style={{ fontSize: 14, color: '#5B3FD4', fontWeight: 600 }}>Official Revenue Audit Report</div>
+                    <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 12 }}>
+                      Generated for: {email || 'Anonymous Operator'} · {new Date().toLocaleDateString()}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      background: '#FEF2F2',
+                      border: '1px solid #FECACA',
+                      borderRadius: 14,
+                      padding: 32,
+                      textAlign: 'center',
+                      marginBottom: 20,
+                    }}
+                  >
                   <div
                     style={{
                       fontFamily: MONO,
@@ -865,7 +897,8 @@ export default function RevenueCalculator() {
                     Check your spam folder if you don't see the report in 5 minutes.
                   </p>
                 </div>
-              </motion.div>
+              </div>
+            </motion.div>
             )}
           </AnimatePresence>
         </div>
