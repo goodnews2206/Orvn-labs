@@ -150,6 +150,17 @@ function buildEmailHtml({ inputs, outputs, email }) {
   const sectionHeader = (title) =>
     `<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#94A3B8;font-family:monospace;margin:24px 0 12px;font-weight:700;">${title}</div>`;
 
+  const isaComparison = inputs.annualIsaCost ? `
+    ${sectionHeader('Analysis 03: ISA vs PAS')}
+    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:20px;margin-bottom:16px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><td style="padding:6px 0;font-size:13px;color:#64748B;">Monthly ISA Cost</td><td style="padding:6px 0;font-size:13px;text-align:right;color:#DC2626;">${fmt(inputs.annualIsaCost / 12)}</td></tr>
+        <tr><td style="padding:6px 0;font-size:13px;color:#64748B;">PAS Starter</td><td style="padding:6px 0;font-size:13px;text-align:right;color:#0D9E6E;">$500</td></tr>
+        <tr style="border-top:1px solid #E2E8F0;"><td style="padding:8px 0;font-size:13px;font-weight:700;color:#0F172A;">Monthly Savings</td><td style="padding:8px 0;font-size:13px;text-align:right;font-weight:700;color:#0D9E6E;">${fmt((inputs.annualIsaCost / 12) - 500)}</td></tr>
+      </table>
+    </div>
+  ` : '';
+
   return `
 <!DOCTYPE html>
 <html><body style="margin:0;padding:0;background:#F7F8FB;font-family:Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
@@ -189,6 +200,18 @@ function buildEmailHtml({ inputs, outputs, email }) {
           <div style="font-size:13px;color:#064E3B;line-height:1.5;">Estimated revenue sitting dormant in your existing database.</div>
         </div>
       ` : ''}
+
+      ${isaComparison}
+
+      ${sectionHeader('Next Steps')}
+      <div style="margin-bottom:24px;">
+        <div style="background:#F1F5F9;border-radius:8px;padding:12px;margin-bottom:8px;font-size:14px;color:#1E293B;">
+          <strong>01.</strong> Stand up a sub-5-minute response mechanism on every channel.
+        </div>
+        <div style="background:#F1F5F9;border-radius:8px;padding:12px;margin-bottom:8px;font-size:14px;color:#1E293B;">
+          <strong>02.</strong> Run a graveyard scan on your CRM to identify dormant intent.
+        </div>
+      </div>
 
       ${sectionHeader('Summary')}
       <table style="width:100%;border-collapse:collapse;margin-top:8px;">

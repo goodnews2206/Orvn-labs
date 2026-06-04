@@ -225,7 +225,21 @@ export default function LeakageScorecard() {
   const [result, setResult] = useState(null);
 
   const handleDownloadPdf = () => {
-    window.print();
+    const element = document.getElementById('scorecard-result');
+    if (!element || !window.html2pdf) {
+      window.print();
+      return;
+    }
+
+    const opt = {
+      margin: 10,
+      filename: `ORVN-Leakage-Scorecard-${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    window.html2pdf().set(opt).from(element).save();
   };
 
   const run = () => {
@@ -342,17 +356,37 @@ export default function LeakageScorecard() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                style={{ marginTop: 24 }}
+                style={{ marginTop: 24, position: 'relative', overflow: 'hidden' }}
               >
+                {/* Watermark Logo (Subtle Background) */}
                 <div
                   style={{
-                    background: '#fff',
-                    border: '1px solid #E5E8F0',
-                    borderRadius: 16,
-                    padding: 'clamp(24px, 4vw, 36px)',
-                    marginBottom: 16,
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) rotate(-30deg)',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    opacity: 0.03,
+                    pointerEvents: 'none',
+                    zIndex: 0
                   }}
                 >
+                  <img src="/logo.png" style={{ width: '400px', height: 'auto' }} alt="" />
+                </div>
+
+                {/* Content Wrapper */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div
+                    style={{
+                      background: '#fff',
+                      border: '1px solid #E5E8F0',
+                      borderRadius: 16,
+                      padding: 'clamp(24px, 4vw, 36px)',
+                      marginBottom: 16,
+                    }}
+                  >
                   {/* Visible only when printing */}
                   <div className="print-header">
                     <div style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>ORVN LABS</div>
@@ -500,8 +534,9 @@ export default function LeakageScorecard() {
                   </div>
                 </div>
 
-                <div style={{ background: '#fff', border: '1px solid #E5E8F0', borderRadius: 16, padding: 'clamp(24px, 4vw, 36px)' }}>
-                  <Newsletter source="leakage_scorecard" />
+                  <div style={{ background: '#fff', border: '1px solid #E5E8F0', borderRadius: 16, padding: 'clamp(24px, 4vw, 36px)' }}>
+                    <Newsletter source="leakage_scorecard" />
+                  </div>
                 </div>
               </motion.div>
             )}
