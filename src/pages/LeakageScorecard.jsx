@@ -95,7 +95,7 @@ const score = (input) => {
     'Qualification depth':
       'Replace inconsistent intake with a structured qualification flow: intent, budget, timeline, financing, location. PAS captures all five in writing on every lead.',
     'Appointment booking':
-      'Stop ending qualified conversations without a booked next step. PAS books directly on the right agent’s calendar with full context attached.',
+      'Stop ending qualified conversations without a booked next step. PAS books directly on the right agent's calendar with full context attached.',
     'After-hours coverage':
       'Inquiries after 7pm and before 9am are highest-intent and most likely to leak. PAS runs continuously and books for the next available agent slot.',
   };
@@ -122,7 +122,7 @@ const score = (input) => {
   };
 };
 
-// ─── Sub components ─────────────────────────────────────────────────────────
+// ─── Sub components ───────────────────────────────────────────────────────
 function NumberInput({ label, value, set, prefix, suffix, hint, min, max, step = 1 }) {
   return (
     <div>
@@ -204,7 +204,7 @@ function RiskBadge({ risk }) {
   );
 }
 
-// ─── Page ───────────────────────────────────────────────────────────────────
+// ─── Page ───────────────────────────────────────────────────────────
 export default function LeakageScorecard() {
   useDocumentMeta({
     title: 'Lead Leakage Scorecard',
@@ -223,6 +223,8 @@ export default function LeakageScorecard() {
   const [owner, setOwner] = useState(FIRST_CONTACT_OWNERS[0]);
   const [leadCost, setLeadCost] = useState('');
   const [result, setResult] = useState(null);
+  const [email, setEmail] = useState('');
+  const [submitState, setSubmitState] = useState('idle');
 
   const handleDownloadPdf = () => {
     const element = document.getElementById('scorecard-result');
@@ -240,6 +242,50 @@ export default function LeakageScorecard() {
     };
 
     window.html2pdf().set(opt).from(element).save();
+  };
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    if (!email.includes('@') || !result) return;
+    setSubmitState('loading');
+
+    const payload = {
+      email,
+      submittedAt: new Date().toISOString(),
+      source: 'leakage_scorecard',
+      inputs: {
+        monthlyLeads: leads,
+        avgResponseTimeMin: responseMin,
+        contactRate,
+        qualificationRate: qualRate,
+        appointmentRate: apptRate,
+        afterHoursPct,
+        avgCommission: commission,
+        leadCost: leadCost || null,
+        firstContactOwner: owner,
+      },
+      outputs: {
+        leakageScore: result.leakage,
+        healthScore: result.health,
+        riskLevel: result.risk,
+        bottleneckName: result.bottleneck.name,
+        bottleneckScore: result.bottleneck.score,
+        missedRevenue: Math.round(result.missedRevenue),
+        missedSpend: Math.round(result.missedSpend),
+      },
+    };
+
+    try {
+      const res = await fetch('/api/leakage-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok && res.status !== 404) throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      console.warn('[leakage-scorecard] backend unavailable, captured locally', err, payload);
+    }
+    setSubmitState('success');
   };
 
   const run = () => {
@@ -535,6 +581,68 @@ export default function LeakageScorecard() {
                 </div>
 
                   <div style={{ background: '#fff', border: '1px solid #E5E8F0', borderRadius: 16, padding: 'clamp(24px, 4vw, 36px)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, alignItems: 'center', marginBottom: 24 }}>
+                      <div>
+                        <h3 style={{ fontSize: 20, fontFamily: DISPLAY, color: '#0F172A', margin: '0 0 6px' }}>
+                          Email me this scorecard report.
+                        </h3>
+                        <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.6 }}>
+                          Get a copy of your leakage analysis, breakdown, and recommended fix
+                          delivered to your inbox. No spam.
+                        </p>
+                      </div>
+                      {submitState === 'success' ? (
+                        <div
+                          style={{
+                            background: '#ECFDF5',
+                            border: '1px solid #A7F3D0',
+                            borderRadius: 10,
+                            padding: 16,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            color: '#065F46',
+                            fontSize: 14,
+                          }}
+                        >
+                          <CheckCircle2 size={18} /> Scorecard sent. Check your inbox.
+                        </div>
+                      ) : (
+                        <form
+                          onSubmit={handleEmailSubmit}
+                          style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}
+                        >
+                          <input
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="your@brokerage.com"
+                            style={{
+                              flex: '1 1 200px',
+                              background: '#fff',
+                              border: '1px solid #E5E8F0',
+                              borderRadius: 10,
+                              padding: '12px 14px',
+                              fontSize: 14,
+                              color: '#0F172A',
+                              outline: 'none',
+                            }}
+                          />
+                          <button
+                            type="submit"
+                            className="btn-primary"
+                            disabled={submitState === 'loading'}
+                            style={{ opacity: submitState === 'loading' ? 0.7 : 1 }}
+                          >
+                            {submitState === 'loading' ? 'Sending…' : 'Send report'} <ArrowRight size={15} />
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 12, color: '#94A3B8', width: '100%', textAlign: 'center', margin: 0 }}>
+                      Check your spam folder if you don't see the report in 5 minutes.
+                    </p>
                     <Newsletter source="leakage_scorecard" />
                   </div>
                 </div>
