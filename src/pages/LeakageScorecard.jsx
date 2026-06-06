@@ -256,50 +256,9 @@ export default function LeakageScorecard() {
   }, [searchParams]);
 
   const handleDownloadPdf = () => {
-    const element = document.getElementById('scorecard-result');
-    if (!element || !window.html2pdf) {
-      window.print();
-      return;
-    }
-
-    // Force styles on the actual element briefly for capture, then revert
-    const originalStyles = {
-      position: element.style.position,
-      overflow: element.style.overflow,
-      height: element.style.height
-    };
-
-    element.style.height = 'auto';
-    element.style.overflow = 'visible';
-
-    const opt = {
-      margin: [10, 5, 10, 5],
-      filename: `ORVN-Leakage-Scorecard-${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 1200
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    const noPrint = element.querySelectorAll('.no-print');
-    noPrint.forEach(el => el.style.display = 'none');
-
-    const printHeader = element.querySelector('.print-header');
-    if (printHeader) printHeader.style.display = 'block';
-
-    window.html2pdf().set(opt).from(element).save().then(() => {
-      noPrint.forEach(el => el.style.display = '');
-      if (printHeader) printHeader.style.display = '';
-      element.style.position = originalStyles.position;
-      element.style.overflow = originalStyles.overflow;
-      element.style.height = originalStyles.height;
-    });
+    // Reverting to the high-reliability Industry Standard: window.print()
+    // This ensures that the layout, fonts, and ORVN watermark are 100% accurate.
+    window.print();
   };
 
   const handleEmailSubmit = async (e) => {
