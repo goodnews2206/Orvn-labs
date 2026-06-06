@@ -95,7 +95,7 @@ const score = (input) => {
     'Qualification depth':
       'Replace inconsistent intake with a structured qualification flow: intent, budget, timeline, financing, location. PAS captures all five in writing on every lead.',
     'Appointment booking':
-      'Stop ending qualified conversations without a booked next step. PAS books directly on the right agent's calendar with full context attached.',
+      "Stop ending qualified conversations without a booked next step. PAS books directly on the right agent's calendar with full context attached.",
     'After-hours coverage':
       'Inquiries after 7pm and before 9am are highest-intent and most likely to leak. PAS runs continuously and books for the next available agent slot.',
   };
@@ -262,15 +262,28 @@ export default function LeakageScorecard() {
       return;
     }
 
+    // Force visibility and opacity for the capture
+    const originalStyle = element.style.cssText;
+    element.style.opacity = '1';
+    element.style.visibility = 'visible';
+
     const opt = {
-      margin: 10,
+      margin: [10, 10],
       filename: `ORVN-Leakage-Scorecard-${new Date().toISOString().split('T')[0]}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+        scrollY: -window.scrollY
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    window.html2pdf().set(opt).from(element).save();
+    window.html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
+      // Restore styles after generation
+      element.style.cssText = originalStyle;
+    }).save();
   };
 
   const handleEmailSubmit = async (e) => {
