@@ -18,7 +18,11 @@ const DISPLAY = "'Plus Jakarta Sans', sans-serif";
 
 const STARTER_PRICE = 500;
 
-const fm = (n) => '$' + Math.round(n).toLocaleString();
+const fm = (n) => {
+  const num = Math.round(n);
+  if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
+  return '$' + num.toLocaleString();
+};
 const pct = (n) => (n * 100).toFixed(0) + '%';
 
 const responsePenalty = (rt) => {
@@ -197,11 +201,17 @@ export default function RevenueCalculator() {
     const C = parseFloat(commission) || 0;
     const P = responsePenalty(rt);
     const ISA = parseFloat(isaCost) || 0;
-    const CRM = parseFloat(crmSize) || 0;
+
+    // Bug 1: Default CRM to 24 months of accumulated leads if blank
+    const CRM = parseFloat(crmSize) || (L * 24);
 
     const idealDeals = L * cr;
     const actualDeals = idealDeals * (1 - P);
+
+    // Bug 2: Calculate actual leads lost, not just deals
+    const leadsLostResponse = L * P;
     const dealsLost = idealDeals * P;
+
     const monthlyLost = dealsLost * C;
     const annualLost = monthlyLost * 12;
 
@@ -235,7 +245,7 @@ export default function RevenueCalculator() {
 
     setResults({
       rt, P, cr, L, C, ISA, CRM,
-      idealDeals, actualDeals, dealsLost,
+      idealDeals, actualDeals, dealsLost, leadsLostResponse,
       monthlyLost, annualLost,
       reactivatable, adjustedClose, recoverableDeals, graveyardValue,
       isaMonthly, isaSaving,
@@ -616,7 +626,7 @@ export default function RevenueCalculator() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
                   {[
-                    { label: 'Leads lost / month', value: Math.round(R.dealsLost), color: RED, sub: 'to slow response time' },
+                    { label: 'Leads lost / month', value: Math.round(R.leadsLostResponse), color: RED, sub: 'to slow response time' },
                     { label: 'Monthly commission lost', value: Math.round(R.monthlyLost), prefix: '$', color: RED, sub: 'speed-to-lead only' },
                     { label: 'Graveyard CRM value', value: Math.round(R.graveyardValue), prefix: '$', color: GREEN, sub: '12-month recoverable' },
                   ].map((c, i) => (
