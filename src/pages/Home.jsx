@@ -36,8 +36,11 @@ const fadeUp = (delay = 0) => ({
 
 const BASELINE_CLOSE_RATE = 0.03;
 
-const fmtCurrency = (n) =>
-  '$' + Math.round(Math.max(0, Number(n) || 0)).toLocaleString();
+const fmtCurrency = (n) => {
+  const num = Math.round(Math.max(0, Number(n) || 0));
+  if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
+  return '$' + num.toLocaleString();
+};
 const fmtNumber = (n) => Math.round(Math.max(0, Number(n) || 0)).toLocaleString();
 
 // ─── 1. HERO ─────────────────────────────────────────────────────────────────
@@ -416,6 +419,7 @@ function Diagnosis() {
     const ac = Math.max(0, Number(avgCommission) || 0);
     const mp = Math.min(100, Math.max(0, Number(missedPct) || 0)) / 100;
 
+    // Bug 1 & 2 fixes: consistent calculation logic
     const leadsAtRiskMonthly = ml * mp;
     const leadsAtRiskAnnual = leadsAtRiskMonthly * 12;
     const annualRevenueLeakage = leadsAtRiskAnnual * BASELINE_CLOSE_RATE * ac;
