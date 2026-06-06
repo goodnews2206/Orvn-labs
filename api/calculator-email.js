@@ -221,7 +221,7 @@ function buildEmailHtml({ inputs, outputs, email }) {
       <div style="margin-top:40px;text-align:center;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:32px;">
         <div style="font-size:20px;color:#0F172A;font-weight:700;margin-bottom:12px;letter-spacing:-0.01em;">Download your official PDF</div>
         <p style="color:#475569;font-size:15px;line-height:1.65;margin:0 0 24px;">Get a professionally formatted version of this audit to share with your team or file for review.</p>
-        <a href="https://orvnlabs.com/calculators/revenue?email=${email}" style="display:inline-block;background:#5B3FD4;color:#fff;padding:14px 28px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 8px 16px rgba(91,63,212,0.2);">Download PDF Report →</a>
+        <a href="https://orvnlabs.com/calculators/revenue?email=${email}&leads=${inputs.monthlyLeads}&comm=${inputs.avgCommission}&cr=${inputs.closeRate * 100}&rt=${inputs.responseTimeMin}&crm=${inputs.crmDatabaseSize || 0}&isa=${inputs.annualIsaCost || 0}" style="display:inline-block;background:#5B3FD4;color:#fff;padding:14px 28px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 8px 16px rgba(91,63,212,0.2);">Download PDF Report →</a>
       </div>
     </div>
 

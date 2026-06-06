@@ -256,10 +256,23 @@ export default function RevenueCalculator() {
     const e = searchParams.get('email');
     if (e) {
       setEmail(e);
-      // If we have an email, we can assume the user wants to see their results
-      // (Inputs would be saved in local storage or db in a real app, but here we
-      // just ensure the UI is ready for them to click calculate or show default)
-      calculate(false);
+
+      const l = searchParams.get('leads');
+      const c = searchParams.get('comm');
+      const cr = searchParams.get('cr');
+      const rt = searchParams.get('rt');
+      const crm = searchParams.get('crm');
+      const isa = searchParams.get('isa');
+
+      if (l) setLeads(l);
+      if (c) setCommission(c);
+      if (cr) setCloseRate(cr);
+      if (rt) setResponseTime(rt);
+      if (crm && crm !== '0') setCrmSize(crm);
+      if (isa && isa !== '0') setIsaCost(isa);
+
+      // Give React a moment to batch state updates
+      setTimeout(() => calculate(false), 100);
     }
   }, [searchParams]);
 
@@ -795,7 +808,7 @@ export default function RevenueCalculator() {
                             <TblRow header cols={[{ text: 'Revenue opportunity' }, { text: 'Annual value' }, { text: 'Confidence' }, { text: '' }]} />
                             <TblRow cols={[{ text: 'Speed-to-lead loss (recoverable)' }, { text: fm(R.annualLost), color: RED, bold: true }, { text: 'High — research-backed' }, { text: '' }]} />
                             {R.CRM > 0 && <TblRow cols={[{ text: 'Graveyard CRM value (recoverable)' }, { text: fm(R.graveyardValue), color: GREEN, bold: true }, { text: 'Medium — conservative' }, { text: '' }]} />}
-                            {R.ISA > 0 && <TblRow cols={[{ text: 'ISA cost reduction' }, { text: `${fm(R.isaSaving)}/mo`, color: GREEN, bold: true }, { text: 'High — direct comparison' }, { text: '' }]} />}
+                            {R.ISA > 0 && <TblRow cols={[{ text: 'ISA cost reduction' }, { text: fm(R.isaSaving * 12), color: GREEN, bold: true }, { text: 'High — direct comparison' }, { text: '' }]} />}
                             <div style={{ background: '#FEF2F2', borderTop: '2px solid #FECACA' }}>
                               <TblRow cols={[{ text: 'TOTAL ANNUAL OPPORTUNITY', bold: true }, { text: fm(R.total), color: RED, bold: true }, { text: 'Conservative combined' }, { text: '' }]} />
                             </div>

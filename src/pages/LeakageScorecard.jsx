@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, AlertTriangle, CheckCircle2, Gauge, Download } from 'lucide-react';
 
@@ -213,6 +213,7 @@ export default function LeakageScorecard() {
     path: '/calculators/leakage',
   });
 
+  const [searchParams] = useSearchParams();
   const [leads, setLeads] = useState(150);
   const [responseMin, setResponseMin] = useState(45);
   const [contactRate, setContactRate] = useState(55);
@@ -225,6 +226,34 @@ export default function LeakageScorecard() {
   const [result, setResult] = useState(null);
   const [email, setEmail] = useState('');
   const [submitState, setSubmitState] = useState('idle');
+
+  // Handle results from URL params (e.g. from email links)
+  React.useEffect(() => {
+    const l = searchParams.get('leads');
+    const rm = searchParams.get('rm');
+    const cr = searchParams.get('cr');
+    const qr = searchParams.get('qr');
+    const ar = searchParams.get('ar');
+    const ah = searchParams.get('ah');
+    const comm = searchParams.get('comm');
+    const lc = searchParams.get('lc');
+    const o = searchParams.get('owner');
+
+    if (l) setLeads(l);
+    if (rm) setResponseMin(rm);
+    if (cr) setContactRate(cr);
+    if (qr) setQualRate(qr);
+    if (ar) setApptRate(ar);
+    if (ah) setAfterHoursPct(ah);
+    if (comm) setCommission(comm);
+    if (lc) setLeadCost(lc);
+    if (o) setOwner(o);
+
+    if (l || rm || cr || qr || ar || ah || comm || lc || o) {
+      // Small delay to ensure state updates are processed
+      setTimeout(() => run(), 100);
+    }
+  }, [searchParams]);
 
   const handleDownloadPdf = () => {
     const element = document.getElementById('scorecard-result');
