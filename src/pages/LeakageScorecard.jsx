@@ -262,53 +262,44 @@ export default function LeakageScorecard() {
       return;
     }
 
-    // Professional PDF Configuration
+    // Force styles on the actual element briefly for capture, then revert
+    const originalStyles = {
+      position: element.style.position,
+      overflow: element.style.overflow,
+      height: element.style.height
+    };
+
+    element.style.height = 'auto';
+    element.style.overflow = 'visible';
+
     const opt = {
-      margin: [10, 10, 10, 10],
+      margin: [10, 5, 10, 5],
       filename: `ORVN-Leakage-Scorecard-${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg', quality: 1 },
+      image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,
         useCORS: true,
-        logging: false,
         letterRendering: true,
+        scrollX: 0,
+        scrollY: 0,
         windowWidth: 1200
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // To prevent blank pages, we clone the element and strip any Framer Motion opacity/transformations
-    const clone = element.cloneNode(true);
-    clone.style.opacity = '1';
-    clone.style.transform = 'none';
-    clone.style.visibility = 'visible';
-    clone.style.display = 'block';
-    clone.style.background = 'white';
-    clone.style.width = '1200px';
+    const noPrint = element.querySelectorAll('.no-print');
+    noPrint.forEach(el => el.style.display = 'none');
 
-    // Remove "no-print" elements from the clone
-    clone.querySelectorAll('.no-print').forEach(el => el.remove());
-
-    // Ensure the print header is visible in the PDF
-    const printHeader = clone.querySelector('.print-header');
+    const printHeader = element.querySelector('.print-header');
     if (printHeader) printHeader.style.display = 'block';
 
-    // Create a temporary container off-screen to render the clone
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.top = '-9999px';
-    container.style.left = '-9999px';
-    container.style.width = '1200px';
-    container.appendChild(clone);
-    document.body.appendChild(container);
-
-    window.html2pdf()
-      .set(opt)
-      .from(clone)
-      .save()
-      .then(() => {
-        document.body.removeChild(container);
-      });
+    window.html2pdf().set(opt).from(element).save().then(() => {
+      noPrint.forEach(el => el.style.display = '');
+      if (printHeader) printHeader.style.display = '';
+      element.style.position = originalStyles.position;
+      element.style.overflow = originalStyles.overflow;
+      element.style.height = originalStyles.height;
+    });
   };
 
   const handleEmailSubmit = async (e) => {
