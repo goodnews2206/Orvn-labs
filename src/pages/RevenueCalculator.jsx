@@ -278,12 +278,58 @@ export default function RevenueCalculator() {
 
   const handleDownloadPdf = () => {
     const element = document.getElementById('calc-results');
-    if (!element) return;
+    if (!element || !window.html2pdf) {
+      window.print();
+      return;
+    }
 
-    // Industry Standard: Use window.print() with a high-quality print stylesheet.
-    // This is the most reliable way to preserve high-fidelity fonts, layout,
-    // and the background watermark across all browsers.
-    window.print();
+    // Professional PDF Configuration
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `ORVN-Revenue-Audit-${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        letterRendering: true,
+        windowWidth: 1200
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // To prevent blank pages, we clone the element and strip any Framer Motion opacity/transformations
+    const clone = element.cloneNode(true);
+    clone.style.opacity = '1';
+    clone.style.transform = 'none';
+    clone.style.visibility = 'visible';
+    clone.style.display = 'block';
+    clone.style.background = 'white';
+    clone.style.width = '1200px';
+
+    // Remove "no-print" elements from the clone
+    clone.querySelectorAll('.no-print').forEach(el => el.remove());
+
+    // Ensure the print header is visible in the PDF
+    const printHeader = clone.querySelector('.print-header');
+    if (printHeader) printHeader.style.display = 'block';
+
+    // Create a temporary container off-screen to render the clone
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '-9999px';
+    container.style.left = '-9999px';
+    container.style.width = '1200px';
+    container.appendChild(clone);
+    document.body.appendChild(container);
+
+    window.html2pdf()
+      .set(opt)
+      .from(clone)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
   };
 
   const handleEmailSubmit = async (e) => {
