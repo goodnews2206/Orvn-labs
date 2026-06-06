@@ -283,15 +283,28 @@ export default function RevenueCalculator() {
       return;
     }
 
+    // Force visibility and opacity for the capture
+    const originalStyle = element.style.cssText;
+    element.style.opacity = '1';
+    element.style.visibility = 'visible';
+
     const opt = {
-      margin: 10,
+      margin: [10, 10],
       filename: `ORVN-Revenue-Audit-${new Date().toISOString().split('T')[0]}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+        scrollY: -window.scrollY
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    window.html2pdf().set(opt).from(element).save();
+    window.html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
+      // Restore styles after generation
+      element.style.cssText = originalStyle;
+    }).save();
   };
 
   const handleEmailSubmit = async (e) => {
