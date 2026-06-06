@@ -278,33 +278,12 @@ export default function RevenueCalculator() {
 
   const handleDownloadPdf = () => {
     const element = document.getElementById('calc-results');
-    if (!element || !window.html2pdf) {
-      window.print();
-      return;
-    }
+    if (!element) return;
 
-    // Force visibility and opacity for the capture
-    const originalStyle = element.style.cssText;
-    element.style.opacity = '1';
-    element.style.visibility = 'visible';
-
-    const opt = {
-      margin: [10, 10],
-      filename: `ORVN-Revenue-Audit-${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        scrollY: -window.scrollY
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    window.html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
-      // Restore styles after generation
-      element.style.cssText = originalStyle;
-    }).save();
+    // Industry Standard: Use window.print() with a high-quality print stylesheet.
+    // This is the most reliable way to preserve high-fidelity fonts, layout,
+    // and the background watermark across all browsers.
+    window.print();
   };
 
   const handleEmailSubmit = async (e) => {
