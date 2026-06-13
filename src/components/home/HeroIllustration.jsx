@@ -88,19 +88,19 @@ export default function HeroIllustration() {
       <g filter="url(#cardShadow)">
         <rect x="60" y="290" width="400" height="70" rx="16" fill="#fff"/>
         <rect x="60" y="290" width="400" height="70" rx="16" stroke="#E5E8F0" strokeWidth="1"/>
-        {/* Metric 1 */}
-        <text x="130" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0F172A" fontFamily="'Plus Jakarta Sans',sans-serif">94%</text>
-        <text x="130" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">CONTACT RATE</text>
+        {/* Metric 1 — capability, not a measured result */}
+        <text x="130" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0F172A" fontFamily="'Plus Jakarta Sans',sans-serif">&lt;30s</text>
+        <text x="130" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">FIRST RESPONSE</text>
         {/* Divider */}
         <line x1="200" y1="300" x2="200" y2="350" stroke="#F1F5F9" strokeWidth="1"/>
-        {/* Metric 2 */}
+        {/* Metric 2 — capability */}
         <text x="260" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#5B3FD4" fontFamily="'Plus Jakarta Sans',sans-serif">24/7</text>
         <text x="260" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">AVAILABILITY</text>
         {/* Divider */}
         <line x1="320" y1="300" x2="320" y2="350" stroke="#F1F5F9" strokeWidth="1"/>
-        {/* Metric 3 */}
-        <text x="390" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0D9E6E" fontFamily="'Plus Jakarta Sans',sans-serif">0</text>
-        <text x="390" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">LEADS MISSED</text>
+        {/* Metric 3 — capability */}
+        <text x="390" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0D9E6E" fontFamily="'Plus Jakarta Sans',sans-serif">EVERY</text>
+        <text x="390" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">LEAD LOGGED</text>
       </g>
 
       {/* Data particles flowing */}

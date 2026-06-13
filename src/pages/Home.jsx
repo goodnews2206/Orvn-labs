@@ -41,7 +41,6 @@ const fmtCurrency = (n) => {
   if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
   return '$' + num.toLocaleString();
 };
-const fmtNumber = (n) => Math.round(Math.max(0, Number(n) || 0)).toLocaleString();
 
 // ─── 1. HERO ─────────────────────────────────────────────────────────────────
 function Hero() {
@@ -477,8 +476,8 @@ function Diagnosis() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>Estimated leakage</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#DC2626' }}>{missedPct}%</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>Leads slipping today</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#D97706' }}>{missedPct}%</span>
               </div>
               <input
                 type="range"
@@ -494,15 +493,15 @@ function Diagnosis() {
             style={{
               marginTop: 32,
               padding: 24,
-              background: '#FFF5F5',
-              border: '1.5px solid rgba(220, 38, 38, 0.12)',
+              background: '#EEEAFB',
+              border: '1.5px solid rgba(91, 63, 212, 0.16)',
               borderRadius: 18,
               boxShadow: 'var(--shadow-xs)',
               position: 'relative',
               overflow: 'hidden',
             }}
           >
-            <div style={mono('#DC2626', 8)}>Est. Revenue Leakage</div>
+            <div style={mono('#5B3FD4', 8)}>Est. recoverable opportunity</div>
             <div
               style={{
                 fontSize: 'clamp(36px, 5vw, 46px)',
@@ -526,6 +525,10 @@ function Diagnosis() {
                 /yr
               </span>
             </div>
+            <p style={{ fontSize: 11.5, color: '#64748B', margin: '10px 0 0', lineHeight: 1.5, fontWeight: 500 }}>
+              Illustrative — assumes a ~3% close on recovered leads. Run the full calculator to model
+              your current vs. target close rate.
+            </p>
           </div>
         </motion.div>
 
@@ -540,7 +543,7 @@ function Diagnosis() {
           <ToolCard
             title="Full Revenue Calculator"
             icon={IconCalculator}
-            desc="Conservative estimate of speed-to-lead delay cost. Math shown step-by-step."
+            desc="Conservative estimate of the revenue you could recover with faster first contact. Math shown step by step."
             to="/calculators/revenue"
           />
         </div>

@@ -100,7 +100,6 @@ async function notifySlack(record) {
   if (!url) return;
   try {
     const o = record.outputs || {};
-    const i = record.inputs || {};
     await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -132,7 +131,7 @@ async function sendReportEmail(record) {
         from,
         to: [record.email],
         subject: `Your ORVN Lead Leakage Scorecard — Risk Level: ${o.riskLevel}`,
-        html: buildEmailHtml({ inputs: i, outputs: o, email: record.email }),
+        html: buildEmailHtml({ inputs: i, outputs: o }),
       }),
     });
   } catch (err) {
@@ -140,7 +139,7 @@ async function sendReportEmail(record) {
   }
 }
 
-function buildEmailHtml({ inputs, outputs, email }) {
+function buildEmailHtml({ inputs, outputs }) {
   const GREEN = '#0D9E6E';
   const AMBER = '#D97706';
   const RED = '#DC2626';
