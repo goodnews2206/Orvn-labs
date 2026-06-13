@@ -66,6 +66,12 @@ function FounderThesis() {
         >
           I didn’t start with AI. I started with missed leads.
         </motion.h2>
+        <motion.p
+          {...fadeUp(0.08)}
+          style={{ fontSize: 14, color: '#64748B', fontWeight: 600, margin: '14px 0 0' }}
+        >
+          Daniel Oyegoke, founder of ORVN Labs
+        </motion.p>
       </div>
 
       <motion.div {...fadeUp(0.05)} style={{ marginBottom: 36 }}>
