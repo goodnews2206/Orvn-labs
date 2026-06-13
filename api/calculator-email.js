@@ -105,7 +105,7 @@ async function notifySlack(record) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        text: `New revenue-calculator submission · ${record.email}\nTotal opportunity: ${fmt(o.totalOpportunity)} / yr · Speed-to-lead loss: ${fmt(o.annualRevenueLost)} · Graveyard: ${fmt(o.graveyardValue)}\nLeads/mo ${i.monthlyLeads} · Commission ${fmt(i.avgCommission)} · Close ${pct(i.closeRate)} · Response ${i.responseTimeMin} min`,
+        text: `New revenue-calculator submission · ${record.email}\nRecoverable opportunity: ${fmt(o.recoverableRevenuePerYear)} / yr · Database reactivation: ${fmt(o.databaseReactivationValue)} · Combined upside: ${fmt(o.combinedUpsideScenario)}\nLeads/mo ${i.monthlyLeads} · Commission ${fmt(i.avgCommission)} · Close ${pct(i.currentCloseRate)} → ${pct(i.targetCloseRate)} · Response ${i.responseTimeMin} min (${o.responseRiskBand || 'n/a'})`,
       }),
     });
   } catch (err) {
@@ -131,7 +131,7 @@ async function sendReportEmail(record) {
       body: JSON.stringify({
         from,
         to: [record.email],
-        subject: `Your ORVN revenue audit — ${fmt(o.totalOpportunity)} annual opportunity`,
+        subject: `Your ORVN revenue audit — ${fmt(o.recoverableRevenuePerYear)} annual recoverable opportunity`,
         html: buildEmailHtml({ inputs: i, outputs: o, email: record.email }),
       }),
     });
@@ -151,13 +151,15 @@ function buildEmailHtml({ inputs, outputs, email }) {
     `<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#94A3B8;font-family:monospace;margin:24px 0 12px;font-weight:700;">${title}</div>`;
 
   const isaComparison = inputs.annualIsaCost ? `
-    ${sectionHeader('Analysis 03: ISA vs PAS')}
+    ${sectionHeader('Analysis 03: ISA coverage & cost context')}
     <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:20px;margin-bottom:16px;">
       <table style="width:100%;border-collapse:collapse;">
-        <tr><td style="padding:6px 0;font-size:13px;color:#64748B;">Monthly ISA Cost</td><td style="padding:6px 0;font-size:13px;text-align:right;color:#DC2626;">${fmt(inputs.annualIsaCost / 12)}</td></tr>
-        <tr><td style="padding:6px 0;font-size:13px;color:#64748B;">PAS Starter</td><td style="padding:6px 0;font-size:13px;text-align:right;color:#0D9E6E;">$500</td></tr>
-        <tr style="border-top:1px solid #E2E8F0;"><td style="padding:8px 0;font-size:13px;font-weight:700;color:#0F172A;">Monthly Savings</td><td style="padding:8px 0;font-size:13px;text-align:right;font-weight:700;color:#0D9E6E;">${fmt((inputs.annualIsaCost / 12) - 500)}</td></tr>
+        <tr><td style="padding:6px 0;font-size:13px;color:#64748B;">Your annual ISA cost</td><td style="padding:6px 0;font-size:13px;text-align:right;color:#DC2626;">${fmt(inputs.annualIsaCost)}/yr</td></tr>
+        <tr><td style="padding:6px 0;font-size:13px;color:#64748B;">Human ISA coverage</td><td style="padding:6px 0;font-size:13px;text-align:right;color:#64748B;">~45 hrs/wk (2,340 hrs/yr)</td></tr>
+        <tr><td style="padding:6px 0;font-size:13px;color:#64748B;">Continuous coverage gap</td><td style="padding:6px 0;font-size:13px;text-align:right;color:#0D9E6E;">~6,420 hrs/yr</td></tr>
+        <tr style="border-top:1px solid #E2E8F0;"><td style="padding:8px 0;font-size:13px;font-weight:700;color:#0F172A;">PAS pricing</td><td style="padding:8px 0;font-size:13px;text-align:right;font-weight:700;color:#0F172A;">Custom early-access quote</td></tr>
       </table>
+      <div style="font-size:12px;color:#94A3B8;margin-top:10px;line-height:1.5;">Revenue opportunity and operating-cost savings are different buckets — they are not added together. PAS early-access pricing is quoted per brokerage.</div>
     </div>
   ` : '';
 
@@ -167,37 +169,38 @@ function buildEmailHtml({ inputs, outputs, email }) {
   <div style="max-width:600px;margin:24px auto;background:#fff;border:1px solid #E5E8F0;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.04);">
     <div style="background:#5B3FD4;padding:40px 32px;text-align:center;color:#fff;">
       <div style="font-size:12px;letter-spacing:0.2em;text-transform:uppercase;opacity:0.8;font-family:monospace;margin-bottom:8px;font-weight:700;">ORVN LABS — REVENUE AUDIT</div>
-      <div style="font-size:15px;opacity:0.9;margin-bottom:12px;">Conservative Annual Opportunity</div>
-      <div style="font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.02em;">${fmt(outputs.totalOpportunity)}</div>
+      <div style="font-size:15px;opacity:0.9;margin-bottom:12px;">Estimated annual recoverable opportunity</div>
+      <div style="font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.02em;">${fmt(outputs.recoverableRevenuePerYear)}</div>
     </div>
 
     <div style="padding:32px;">
       <p style="color:#475569;font-size:16px;line-height:1.7;margin:0 0 28px;">
-        The numbers below are based on the inputs you provided. Every assumption tilts conservative to provide a realistic floor for your brokerage's revenue potential.
+        The numbers below are based on the inputs you provided. This models the opportunity if faster, more consistent first contact lifts your close rate from your current baseline to the target scenario you chose. Your current close rate is never penalized twice.
       </p>
 
       ${sectionHeader('Audit Inputs')}
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
         ${row('Monthly leads', inputs.monthlyLeads)}
         ${row('Avg commission', fmt(inputs.avgCommission))}
-        ${row('Close rate', pct(inputs.closeRate))}
-        ${row('Avg response time', inputs.responseTimeMin + ' min')}
+        ${row('Current close rate', pct(inputs.currentCloseRate))}
+        ${row('Target close rate (scenario)', pct(inputs.targetCloseRate))}
+        ${row('Avg response time', inputs.responseTimeMin + ' min' + (outputs.responseRiskBand ? ' · ' + outputs.responseRiskBand : ''))}
         ${inputs.crmDatabaseSize ? row('CRM database size', inputs.crmDatabaseSize.toLocaleString() + ' leads') : ''}
       </table>
 
-      ${sectionHeader('Analysis 01: Speed-to-Lead')}
-      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;">
-        <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#DC2626;font-family:monospace;margin-bottom:8px;font-weight:700;">Annual speed-to-lead loss</div>
-        <div style="font-size:36px;color:#DC2626;font-weight:800;line-height:1;margin-bottom:8px;">${fmt(outputs.annualRevenueLost)}</div>
-        <div style="font-size:13px;color:#7F1D1D;line-height:1.5;">${pct(outputs.penaltyFactor)} of conversion potential is lost before an agent speaks to the lead.</div>
+      ${sectionHeader('Analysis 01: Close-rate opportunity')}
+      <div style="background:#EEEAFB;border:1px solid #C7BCF5;border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5B3FD4;font-family:monospace;margin-bottom:8px;font-weight:700;">Recoverable revenue / month</div>
+        <div style="font-size:36px;color:#5B3FD4;font-weight:800;line-height:1;margin-bottom:8px;">${fmt(outputs.recoverableRevenuePerMonth)}</div>
+        <div style="font-size:13px;color:#3A2899;line-height:1.5;">${Number(outputs.recoverableDealsPerMonth || 0)} recoverable deals/month (target − current close rate). Response time is a qualitative risk signal only — it does not multiply this figure.</div>
       </div>
 
-      ${outputs.graveyardValue > 0 ? `
-        ${sectionHeader('Analysis 02: CRM Graveyard')}
+      ${outputs.databaseReactivationValue > 0 ? `
+        ${sectionHeader('Analysis 02: Database reactivation (illustrative)')}
         <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;">
-          <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0D9E6E;font-family:monospace;margin-bottom:8px;font-weight:700;">Recoverable Graveyard Value</div>
-          <div style="font-size:36px;color:#0D9E6E;font-weight:800;line-height:1;margin-bottom:8px;">${fmt(outputs.graveyardValue)}</div>
-          <div style="font-size:13px;color:#064E3B;line-height:1.5;">Estimated revenue sitting dormant in your existing database.</div>
+          <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0D9E6E;font-family:monospace;margin-bottom:8px;font-weight:700;">Database reactivation value</div>
+          <div style="font-size:36px;color:#0D9E6E;font-weight:800;line-height:1;margin-bottom:8px;">${fmt(outputs.databaseReactivationValue)}</div>
+          <div style="font-size:13px;color:#064E3B;line-height:1.5;">A separate, illustrative estimate from your existing database — editable assumption, not research-backed. Kept apart from the close-rate opportunity above.</div>
         </div>
       ` : ''}
 
@@ -215,13 +218,15 @@ function buildEmailHtml({ inputs, outputs, email }) {
 
       ${sectionHeader('Summary')}
       <table style="width:100%;border-collapse:collapse;margin-top:8px;">
-        ${row('Total Annual Opportunity', fmt(outputs.totalOpportunity), '#0F172A', true)}
+        ${row('Recoverable revenue / year (close-rate opportunity)', fmt(outputs.recoverableRevenuePerYear), '#0F172A', true)}
+        ${outputs.databaseReactivationValue > 0 ? row('Database reactivation (illustrative)', fmt(outputs.databaseReactivationValue), '#0D9E6E') : ''}
+        ${outputs.databaseReactivationValue > 0 ? row('Combined upside scenario', fmt(outputs.combinedUpsideScenario), '#0F172A', true) : ''}
       </table>
 
       <div style="margin-top:40px;text-align:center;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:32px;">
         <div style="font-size:20px;color:#0F172A;font-weight:700;margin-bottom:12px;letter-spacing:-0.01em;">Download your official PDF</div>
         <p style="color:#475569;font-size:15px;line-height:1.65;margin:0 0 24px;">Get a professionally formatted version of this audit to share with your team or file for review.</p>
-        <a href="https://orvnlabs.com/calculators/revenue?email=${email}&leads=${inputs.monthlyLeads}&comm=${inputs.avgCommission}&cr=${inputs.closeRate * 100}&rt=${inputs.responseTimeMin}&crm=${inputs.crmDatabaseSize || 0}&isa=${inputs.annualIsaCost || 0}" style="display:inline-block;background:#5B3FD4;color:#fff;padding:14px 28px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 8px 16px rgba(91,63,212,0.2);">Download PDF Report →</a>
+        <a href="https://orvnlabs.com/calculators/revenue?email=${email}&leads=${inputs.monthlyLeads}&comm=${inputs.avgCommission}&cr=${inputs.currentCloseRate * 100}&tc=${inputs.targetCloseRate * 100}&rt=${inputs.responseTimeMin}&crm=${inputs.crmDatabaseSize || 0}&isa=${inputs.annualIsaCost || 0}" style="display:inline-block;background:#5B3FD4;color:#fff;padding:14px 28px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 8px 16px rgba(91,63,212,0.2);">Download PDF Report →</a>
       </div>
     </div>
 
