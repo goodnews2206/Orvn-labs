@@ -199,7 +199,7 @@ function Included() {
 
 function PositionedAgainst() {
   const rows = [
-    { item: 'Full-time ISA', cost: '$70,000–$90,000 / year + benefits + turnover' },
+    { item: 'Full-time ISA', cost: '≈ $70k–$90k / year (typical market range), plus benefits and turnover' },
     { item: 'Missed-appointment opportunity cost', cost: 'One commission per missed booking' },
     { item: 'Wasted lead spend on un-contacted leads', cost: 'Cost-per-lead × never-contacted rate' },
     { item: 'Operational delay (hours-to-first-response)', cost: 'Conversion decay across the funnel' },

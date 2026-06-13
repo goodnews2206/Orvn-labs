@@ -726,7 +726,7 @@ function CalculatorsTeaser() {
             Revenue Calculator
           </h3>
           <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.65, margin: '0 0 18px' }}>
-            Annual cost of speed-to-lead delay, math shown step by step.
+            Annual revenue you could recover with faster first contact — math shown step by step
           </p>
           <Link to="/calculators/revenue" className="btn-secondary">
             Run calculator <ArrowRight size={15} />
