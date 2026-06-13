@@ -80,7 +80,7 @@ async function notifySlack(record) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        text: `New revenue-calculator submission · ${record.email}\nTotal opportunity: ${fmt(o.totalOpportunity)} / yr · Speed-to-lead loss: ${fmt(o.annualRevenueLost)} · Graveyard: ${fmt(o.graveyardValue)}\nLeads/mo ${i.monthlyLeads} · Commission ${fmt(i.avgCommission)} · Close ${pct(i.closeRate)} · Response ${i.responseTimeMin} min`,
+        text: `New revenue-calculator submission · ${record.email}\nRecoverable opportunity: ${fmt(o.recoverableRevenuePerYear)} / yr · Database reactivation: ${fmt(o.databaseReactivationValue)} · Combined upside: ${fmt(o.combinedUpsideScenario)}\nLeads/mo ${i.monthlyLeads} · Commission ${fmt(i.avgCommission)} · Close ${pct(i.currentCloseRate)} → ${pct(i.targetCloseRate)} · Response ${i.responseTimeMin} min (${o.responseRiskBand || 'n/a'})`,
       }),
     });
   } catch (err) {
@@ -106,7 +106,7 @@ async function sendReportEmail(record) {
       body: JSON.stringify({
         from,
         to: [record.email],
-        subject: `Your ORVN revenue audit — ${fmt(o.totalOpportunity)} annual opportunity`,
+        subject: `Your ORVN revenue audit — ${fmt(o.recoverableRevenuePerYear)} annual recoverable opportunity`,
         html: buildEmailHtml({ inputs: i, outputs: o }),
       }),
     });
@@ -124,35 +124,37 @@ function buildEmailHtml({ inputs, outputs }) {
   <div style="max-width:600px;margin:24px auto;background:#fff;border:1px solid #E5E8F0;border-radius:14px;overflow:hidden;">
     <div style="background:#5B3FD4;padding:28px;text-align:center;color:#fff;">
       <div style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;opacity:0.7;font-family:monospace;margin-bottom:6px;">ORVN — Revenue audit</div>
-      <div style="font-size:14px;opacity:0.85;margin-bottom:6px;">Conservative annual opportunity</div>
-      <div style="font-size:48px;font-family:Georgia,serif;line-height:1;">${fmt(outputs.totalOpportunity)}</div>
+      <div style="font-size:14px;opacity:0.85;margin-bottom:6px;">Estimated annual recoverable opportunity</div>
+      <div style="font-size:48px;font-family:Georgia,serif;line-height:1;">${fmt(outputs.recoverableRevenuePerYear)}</div>
     </div>
     <div style="padding:28px;">
       <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 22px;">
-        The numbers below are based on the inputs you entered. Every assumption tilts conservative, so the real cost is usually higher.
+        The numbers below are based on the inputs you entered. This models the opportunity if faster, more consistent first contact lifts your close rate from your current baseline to the target scenario you chose. Your current close rate is never penalized twice.
       </p>
       <div style="background:#F7F8FB;border:1px solid #E5E8F0;border-radius:10px;padding:18px;margin-bottom:18px;">
         <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94A3B8;font-family:monospace;margin-bottom:10px;">Your inputs</div>
         <table style="width:100%;border-collapse:collapse;">
           ${inputRow('Monthly leads', inputs.monthlyLeads)}
           ${inputRow('Avg commission', fmt(inputs.avgCommission))}
-          ${inputRow('Close rate', pct(inputs.closeRate))}
-          ${inputRow('Response time', inputs.responseTimeMin + ' min')}
+          ${inputRow('Current close rate', pct(inputs.currentCloseRate))}
+          ${inputRow('Target close rate (scenario)', pct(inputs.targetCloseRate))}
+          ${inputRow('Response time', inputs.responseTimeMin + ' min' + (outputs.responseRiskBand ? ' · ' + outputs.responseRiskBand : ''))}
           ${inputs.crmDatabaseSize ? inputRow('CRM database', inputs.crmDatabaseSize.toLocaleString() + ' leads') : ''}
           ${inputs.annualIsaCost ? inputRow('Annual ISA cost', fmt(inputs.annualIsaCost)) : ''}
         </table>
       </div>
 
-      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:18px;text-align:center;margin-bottom:10px;">
-        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#DC2626;font-family:monospace;margin-bottom:6px;">Annual speed-to-lead loss</div>
-        <div style="font-size:32px;color:#DC2626;font-family:Georgia,serif;line-height:1;">${fmt(outputs.annualRevenueLost)}</div>
-        <div style="font-size:12px;color:#475569;margin-top:4px;">${pct(outputs.penaltyFactor)} of conversion potential lost before first contact</div>
+      <div style="background:#EEEAFB;border:1px solid #C7BCF5;border-radius:10px;padding:18px;text-align:center;margin-bottom:10px;">
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#5B3FD4;font-family:monospace;margin-bottom:6px;">Recoverable revenue / month</div>
+        <div style="font-size:32px;color:#5B3FD4;font-family:Georgia,serif;line-height:1;">${fmt(outputs.recoverableRevenuePerMonth)}</div>
+        <div style="font-size:12px;color:#475569;margin-top:4px;">${Number(outputs.recoverableDealsPerMonth || 0)} recoverable deals/month (target − current close rate)</div>
       </div>
 
-      ${outputs.graveyardValue > 0 ? `
+      ${outputs.databaseReactivationValue > 0 ? `
       <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;padding:18px;text-align:center;margin-bottom:18px;">
-        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#0D9E6E;font-family:monospace;margin-bottom:6px;">Recoverable graveyard value</div>
-        <div style="font-size:32px;color:#0D9E6E;font-family:Georgia,serif;line-height:1;">${fmt(outputs.graveyardValue)}</div>
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#0D9E6E;font-family:monospace;margin-bottom:6px;">Database reactivation — separate, illustrative</div>
+        <div style="font-size:32px;color:#0D9E6E;font-family:Georgia,serif;line-height:1;">${fmt(outputs.databaseReactivationValue)}</div>
+        <div style="font-size:12px;color:#475569;margin-top:4px;">Editable assumption — kept separate from the close-rate opportunity above</div>
       </div>
       ` : ''}
 
