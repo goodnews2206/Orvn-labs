@@ -214,46 +214,20 @@ export default function LeakageScorecard() {
   });
 
   const [searchParams] = useSearchParams();
-  const [leads, setLeads] = useState(150);
-  const [responseMin, setResponseMin] = useState(45);
-  const [contactRate, setContactRate] = useState(55);
-  const [qualRate, setQualRate] = useState(28);
-  const [apptRate, setApptRate] = useState(15);
-  const [afterHoursPct, setAfterHoursPct] = useState(35);
-  const [commission, setCommission] = useState(12000);
-  const [owner, setOwner] = useState(FIRST_CONTACT_OWNERS[0]);
-  const [leadCost, setLeadCost] = useState('');
+  // Inputs are lazily initialised from query params (emailed deep links), so prefill
+  // happens at first render — the effect below performs no synchronous setState.
+  const [leads, setLeads] = useState(() => searchParams.get('leads') || 150);
+  const [responseMin, setResponseMin] = useState(() => searchParams.get('rm') || 45);
+  const [contactRate, setContactRate] = useState(() => searchParams.get('cr') || 55);
+  const [qualRate, setQualRate] = useState(() => searchParams.get('qr') || 28);
+  const [apptRate, setApptRate] = useState(() => searchParams.get('ar') || 15);
+  const [afterHoursPct, setAfterHoursPct] = useState(() => searchParams.get('ah') || 35);
+  const [commission, setCommission] = useState(() => searchParams.get('comm') || 12000);
+  const [owner, setOwner] = useState(() => searchParams.get('owner') || FIRST_CONTACT_OWNERS[0]);
+  const [leadCost, setLeadCost] = useState(() => searchParams.get('lc') || '');
   const [result, setResult] = useState(null);
   const [email, setEmail] = useState('');
   const [submitState, setSubmitState] = useState('idle');
-
-  // Handle results from URL params (e.g. from email links)
-  React.useEffect(() => {
-    const l = searchParams.get('leads');
-    const rm = searchParams.get('rm');
-    const cr = searchParams.get('cr');
-    const qr = searchParams.get('qr');
-    const ar = searchParams.get('ar');
-    const ah = searchParams.get('ah');
-    const comm = searchParams.get('comm');
-    const lc = searchParams.get('lc');
-    const o = searchParams.get('owner');
-
-    if (l) setLeads(l);
-    if (rm) setResponseMin(rm);
-    if (cr) setContactRate(cr);
-    if (qr) setQualRate(qr);
-    if (ar) setApptRate(ar);
-    if (ah) setAfterHoursPct(ah);
-    if (comm) setCommission(comm);
-    if (lc) setLeadCost(lc);
-    if (o) setOwner(o);
-
-    if (l || rm || cr || qr || ar || ah || comm || lc || o) {
-      // Small delay to ensure state updates are processed
-      setTimeout(() => run(), 100);
-    }
-  }, [searchParams]);
 
   const handleDownloadPdf = () => {
     // Reverting to the high-reliability Industry Standard: window.print()
@@ -319,6 +293,17 @@ export default function LeakageScorecard() {
     setResult(r);
     setTimeout(() => document.getElementById('scorecard-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
   };
+
+  // If the visitor arrived from an emailed deep link, auto-run the scorecard once.
+  // Inputs are already prefilled via lazy useState initialisers above.
+  React.useEffect(() => {
+    const hasParams = ['leads', 'rm', 'cr', 'qr', 'ar', 'ah', 'comm', 'lc', 'owner'].some((k) => searchParams.get(k));
+    if (hasParams) {
+      const t = setTimeout(() => run(), 100);
+      return () => clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <PageWrapper>
@@ -570,6 +555,27 @@ export default function LeakageScorecard() {
                       )}
                     </div>
                   )}
+
+                  {/* Assumptions note (B9) — visible, not just in code */}
+                  <div
+                    style={{
+                      marginTop: 16,
+                      background: '#F7F8FB',
+                      border: '1px dashed #C7BCF5',
+                      borderRadius: 10,
+                      padding: '14px 18px',
+                    }}
+                  >
+                    <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: PURPLE, textTransform: 'uppercase', marginBottom: 8 }}>
+                      Assumptions in this estimate
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#475569', lineHeight: 1.7 }}>
+                      <li>Operator-grade benchmark: ~35% of inbound leads become a booked appointment.</li>
+                      <li>Missed revenue assumes ~18% of missed appointments would have closed, at your entered commission.</li>
+                      <li>Wasted lead spend is $0 unless you enter an average lead cost; it counts only never-contacted leads.</li>
+                      <li>This is a directional diagnostic, not a guaranteed forecast.</li>
+                    </ul>
+                  </div>
                 </div>
 
                 <div
