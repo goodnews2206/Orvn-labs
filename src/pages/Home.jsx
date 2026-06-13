@@ -740,10 +740,10 @@ function CalculatorsTeaser() {
 // ─── 9. PRICING TEASER ───────────────────────────────────────────────────────
 function PricingTeaser() {
   const tiers = [
-    { name: 'Starter', price: '$500', credits: '1,000 PAS Credits', for: 'Small teams testing PAS.' },
-    { name: 'Growth', price: '$1,500', credits: '4,000 PAS Credits', for: 'Active lead flow across channels.', highlight: true },
-    { name: 'Scale', price: '$3,500', credits: '12,000 PAS Credits', for: 'High-volume teams.' },
-    { name: 'Enterprise', price: 'Custom', credits: 'Custom volume', for: 'Multi-office, custom integrations, SLA.' },
+    { name: 'Single-channel start', for: 'Small teams testing PAS.' },
+    { name: 'Multi-channel', for: 'Active lead flow across channels.' },
+    { name: 'High-volume', for: 'High-volume teams.' },
+    { name: 'Multi-office', for: 'Multi-office, custom integrations, SLA.' },
   ];
 
   return (
@@ -753,6 +753,10 @@ function PricingTeaser() {
         <motion.h2 {...fadeUp(0.05)} className="h-section" style={{ fontSize: 'clamp(28px, 3.8vw, 44px)', margin: '14px 0 16px' }}>
           Priced against what leakage already costs you.
         </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          Custom early-access pricing based on inbound lead volume, workflow complexity, and
+          implementation scope. PAS is priced as infrastructure, not a pre-set subscription tier.
+        </motion.p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
@@ -762,38 +766,20 @@ function PricingTeaser() {
             {...fadeUp(0.04 * i)}
             style={{
               background: '#fff',
-              border: t.highlight ? '1px solid #5B3FD4' : '1px solid #E5E8F0',
+              border: '1px solid #E5E8F0',
               borderRadius: 14,
               padding: 24,
-              boxShadow: t.highlight ? '0 0 0 4px rgba(91,63,212,0.08)' : '0 1px 2px rgba(15,23,42,0.04)',
+              boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
               position: 'relative',
             }}
           >
-            {t.highlight && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: 12,
-                  right: 12,
-                  background: '#5B3FD4',
-                  color: '#fff',
-                  fontSize: 10,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  borderRadius: 999,
-                  padding: '3px 10px',
-                }}
-              >
-                Most operators
-              </span>
-            )}
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>{t.name}</div>
-            <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 32, lineHeight: 1, color: '#0F172A', marginBottom: 4 }}>
-              {t.price}
-              {t.price !== 'Custom' && <span style={{ fontSize: 13, color: '#94A3B8' }}>/mo</span>}
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94A3B8' }}>
+              Scope
+            </span>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', margin: '8px 0 6px' }}>{t.name}</div>
+            <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 22, lineHeight: 1.1, color: '#5B3FD4', marginBottom: 10 }}>
+              Custom quote
             </div>
-            <div style={{ fontSize: 12, color: '#475569', marginBottom: 12 }}>{t.credits}</div>
             <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.6 }}>{t.for}</p>
           </motion.div>
         ))}
@@ -802,7 +788,7 @@ function PricingTeaser() {
       <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <Link to="/pricing" className="btn-primary">See full pricing <ArrowRight size={15} /></Link>
         <p style={{ fontSize: 13, color: '#475569', margin: 0, maxWidth: 480 }}>
-          Setup fees vary by lead volume, integrations, and routing complexity.
+          Setup and pricing vary by lead volume, integrations, and routing complexity — quoted per brokerage.
         </p>
       </div>
     </Section>

@@ -19,9 +19,9 @@ const TOOLS = [
     title: 'Revenue Calculator',
     icon: Calculator,
     blurb:
-      'Conservative estimate of what speed-to-lead delay and CRM graveyards are costing per year. Math shown step by step, every assumption tilted low.',
+      'Conservative estimate of the annual revenue you could recover with faster, more consistent first contact. Math shown step by step, every assumption tilted low and clearly labeled.',
     cta: { to: '/calculators/revenue', label: 'Run the calculator' },
-    bullets: ['6 inputs', 'Audit panels with full math', 'Break-even on PAS Starter'],
+    bullets: ['Recoverable-opportunity model', 'Audit panels with full math', 'Separate buckets, visible assumptions'],
   },
 ];
 

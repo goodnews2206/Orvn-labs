@@ -16,6 +16,8 @@ import {
   ListChecks,
   Check,
   X,
+  Brain,
+  Eye,
 } from 'lucide-react';
 import PageWrapper from '../components/PageWrapper';
 import Section from '../components/ui/Section';
@@ -336,6 +338,116 @@ function Compliance() {
   );
 }
 
+// ── PAS Brain / brokerage memory (C4) ──
+function BrainMemory() {
+  return (
+    <Section borderTop>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'clamp(32px, 5vw, 56px)', alignItems: 'start' }}>
+        <div>
+          <motion.div {...fadeUp(0)}><Eyebrow>Brokerage memory · PAS Brain</Eyebrow></motion.div>
+          <motion.h2 {...fadeUp(0.05)} className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 0' }}>
+            Your brokerage doesn’t have a memory. It has a dozen people who can leave.
+          </motion.h2>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <motion.div {...fadeUp(0.05)} className="card" style={{ padding: 24, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+            <span style={{ display: 'inline-flex', width: 38, height: 38, borderRadius: 9, background: '#FEF2F2', color: '#DC2626', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Users size={18} />
+            </span>
+            <p style={{ fontSize: 15, color: '#0F172A', lineHeight: 1.7, margin: 0 }}>
+              By default, what your brokerage knows lives in individual heads, inboxes, call logs,
+              and a CRM nobody fully updates. When someone leaves, that knowledge leaves with them —
+              and the operation resets.
+            </p>
+          </motion.div>
+          <motion.div {...fadeUp(0.1)} className="card" style={{ padding: 24, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+            <span style={{ display: 'inline-flex', width: 38, height: 38, borderRadius: 9, background: '#EEEAFB', color: '#5B3FD4', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Brain size={18} />
+            </span>
+            <p style={{ fontSize: 15, color: '#0F172A', lineHeight: 1.7, margin: 0 }}>
+              PAS preserves what happened across the first-contact layer: every lead, every response
+              attempt, every outcome — held in the operation, not in a person. When people leave, the
+              operational record stays.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+// ── Operational visibility (C5) ──
+function OperationalVisibility() {
+  const items = [
+    'When the lead arrived',
+    'Whether a response was attempted, and how fast',
+    'The conversation outcome',
+    'The qualification result',
+    'Who it was routed to',
+    'Whether it was booked',
+    'The follow-up state',
+    'If it didn’t convert, the reason it was lost, went cold, or stayed unresponsive',
+  ];
+  return (
+    <Section background="surface" borderTop>
+      <div style={{ maxWidth: 760, marginBottom: 28 }}>
+        <motion.div {...fadeUp(0)}><Eyebrow>Operational visibility</Eyebrow></motion.div>
+        <motion.h2 {...fadeUp(0.05)} className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 16px' }}>
+          Operational visibility is not a list of what people say they did.
+        </motion.h2>
+        <motion.p {...fadeUp(0.1)} className="lead">
+          Real visibility is being able to see what actually happened to every lead — not
+          self-reported activity. For each inbound lead, PAS is built to show:
+        </motion.p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14 }}>
+        {items.map((it, i) => (
+          <motion.div key={it} {...fadeUp(0.04 * i)} className="card" style={{ padding: 20, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <Eye size={18} color="#5B3FD4" style={{ flexShrink: 0, marginTop: 2 }} />
+            <span style={{ fontSize: 14, color: '#0F172A', lineHeight: 1.6 }}>{it}</span>
+          </motion.div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// ── Founder (C6) ──
+function Founder() {
+  return (
+    <Section borderTop>
+      <div style={{ maxWidth: 760 }}>
+        <motion.div {...fadeUp(0)}><Eyebrow>Founder</Eyebrow></motion.div>
+        <motion.h2 {...fadeUp(0.05)} className="h-section" style={{ fontSize: 'clamp(26px, 3.6vw, 40px)', margin: '14px 0 18px' }}>
+          Built from the operational gap most brokerages normalize.
+        </motion.h2>
+        <motion.p {...fadeUp(0.08)} style={{ fontSize: 16, color: '#0F172A', lineHeight: 1.75, margin: '0 0 16px' }}>
+          ORVN Labs was founded by Daniel Oyegoke. PAS came out of studying the same brokerage
+          failures repeating across the industry: delayed first response, weak and inconsistent
+          follow-up, an operation that depends on whether a specific person is available, CRM
+          graveyards full of leads nobody worked, and institutional memory that walks out the door
+          when people leave.
+        </motion.p>
+        <motion.p {...fadeUp(0.1)} style={{ fontSize: 16, color: '#0F172A', lineHeight: 1.75, margin: '0 0 16px' }}>
+          PAS is the layer built to close that gap — answering, qualifying, routing, booking, and
+          remembering first contact, so intent isn’t lost to human delay and knowledge isn’t lost to
+          turnover.
+        </motion.p>
+        <motion.p {...fadeUp(0.12)} style={{ fontSize: 16, color: '#0F172A', lineHeight: 1.75, margin: '0 0 24px' }}>
+          We’re early, and we’re building in the open. If you run a brokerage and these failures
+          sound like your operation, I’d like to talk.
+        </motion.p>
+        <motion.div {...fadeUp(0.14)} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+          <a href="mailto:hello@orvnlabs.com?subject=ORVN%20—%20book%20a%20call" className="btn-primary">
+            Book a call <ArrowRight size={15} />
+          </a>
+          <span style={{ fontSize: 13, color: '#94A3B8' }}>Daniel Oyegoke — Founder, ORVN Labs</span>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
 function CTA() {
   return (
     <Section borderTop>
@@ -381,12 +493,15 @@ export default function PAS() {
     <PageWrapper>
       <Hero />
       <Capabilities />
+      <BrainMemory />
       <Channels />
       <Anatomy />
+      <OperationalVisibility />
       <Routing />
       <Compare />
       <CreditsAndIntegrations />
       <Compliance />
+      <Founder />
       <CTA />
     </PageWrapper>
   );

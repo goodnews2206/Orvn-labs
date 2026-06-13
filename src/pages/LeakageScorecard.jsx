@@ -433,6 +433,26 @@ export default function LeakageScorecard() {
                       )}
                     </div>
                   )}
+
+                  <div
+                    style={{
+                      marginTop: 16,
+                      background: '#F7F8FB',
+                      border: '1px dashed #C7BCF5',
+                      borderRadius: 10,
+                      padding: '14px 18px',
+                    }}
+                  >
+                    <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: PURPLE, textTransform: 'uppercase', marginBottom: 8 }}>
+                      Assumptions in this estimate
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#475569', lineHeight: 1.7 }}>
+                      <li>Operator-grade benchmark: ~35% of inbound leads become a booked appointment.</li>
+                      <li>Missed revenue assumes ~18% of missed appointments would have closed, at your entered commission.</li>
+                      <li>Wasted lead spend is $0 unless you enter an average lead cost; it counts only never-contacted leads.</li>
+                      <li>This is a directional diagnostic, not a guaranteed forecast.</li>
+                    </ul>
+                  </div>
                 </div>
 
                 <div

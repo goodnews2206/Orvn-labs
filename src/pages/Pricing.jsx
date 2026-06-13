@@ -8,11 +8,12 @@ import Eyebrow from '../components/ui/Eyebrow';
 import { useDocumentMeta } from '../lib/seo';
 import { PAS_LINKS } from '../lib/pas';
 
+// Scope guides only — these describe what a deployment can cover, not pre-set
+// price points. PAS is priced as infrastructure via a custom early-access quote.
 const TIERS = [
   {
-    name: 'Starter',
-    price: 500,
-    credits: '1,000 PAS Credits / month',
+    name: 'Single-channel start',
+    scope: 'Small teams testing PAS on a single channel.',
     forWho: 'Small teams testing PAS on a single channel.',
     features: [
       'Inbound first-contact coverage',
@@ -23,11 +24,9 @@ const TIERS = [
     ],
   },
   {
-    name: 'Growth',
-    price: 1500,
-    credits: '4,000 PAS Credits / month',
+    name: 'Multi-channel',
+    scope: 'Active lead flow across voice, SMS, and chat.',
     forWho: 'Growing brokerages with active lead flow across multiple channels.',
-    highlight: true,
     features: [
       'Voice + SMS + chat coverage',
       'Multi-rule routing',
@@ -38,12 +37,11 @@ const TIERS = [
     ],
   },
   {
-    name: 'Scale',
-    price: 3500,
-    credits: '12,000 PAS Credits / month',
+    name: 'High-volume',
+    scope: 'High-volume teams routing inbound across many agents.',
     forWho: 'High-volume teams routing inbound across many agents.',
     features: [
-      'Everything in Growth',
+      'Everything in multi-channel',
       'Custom routing logic',
       'Multi-team / multi-calendar support',
       'Dedicated onboarding',
@@ -51,12 +49,11 @@ const TIERS = [
     ],
   },
   {
-    name: 'Enterprise',
-    price: 'Custom',
-    credits: 'Custom volume',
+    name: 'Multi-office',
+    scope: 'Multi-office brokerages, complex CRM integrations, SLA.',
     forWho: 'Multi-office brokerages, complex CRM integrations, custom workflows, SLA.',
     features: [
-      'Everything in Scale',
+      'Everything in high-volume',
       'Multi-office deployment',
       'Custom CRM integrations',
       'Custom data residency',
@@ -81,9 +78,17 @@ function Hero() {
           Priced against what leakage already costs you.
         </h1>
         <p className="lead" style={{ maxWidth: 700 }}>
-          ISA cost. Missed appointments. Wasted lead spend. PAS is priced as infrastructure, not a
-          subscription experiment. Most operators run on Growth.
+          Custom early-access pricing based on inbound lead volume, workflow complexity, and
+          implementation scope. PAS is priced as infrastructure, not a pre-set subscription tier.
         </p>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 24 }}>
+          <a href={PAS_LINKS.earlyAccess} target="_blank" rel="noopener noreferrer" className="btn-primary">
+            Request an early-access quote <ArrowRight size={15} />
+          </a>
+          <a href="mailto:hello@orvnlabs.com?subject=PAS%20pricing%20call" className="btn-secondary">
+            Book a call for pricing
+          </a>
+        </div>
       </div>
     </section>
   );
@@ -108,53 +113,32 @@ function Tiers() {
             transition={{ duration: 0.5, delay: 0.05 * i }}
             style={{
               background: '#fff',
-              border: t.highlight ? '1.5px solid #5B3FD4' : '1px solid #E5E8F0',
+              border: '1px solid #E5E8F0',
               borderRadius: 16,
               padding: 28,
               position: 'relative',
-              boxShadow: t.highlight
-                ? '0 0 0 6px rgba(91,63,212,0.08), 0 12px 28px rgba(15,23,42,0.08)'
-                : '0 1px 2px rgba(15,23,42,0.04)',
+              boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
               display: 'flex',
               flexDirection: 'column',
             }}
           >
-            {t.highlight && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: -12,
-                  left: 24,
-                  background: '#5B3FD4',
-                  color: '#fff',
-                  fontSize: 10,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  borderRadius: 999,
-                  padding: '5px 12px',
-                }}
-              >
-                Most operators
+            <span
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: '#94A3B8',
+                marginBottom: 10,
+              }}
+            >
+              Scope
+            </span>
+            <div style={{ fontSize: 18, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>{t.name}</div>
+            <div style={{ marginBottom: 14 }}>
+              <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: '#5B3FD4', lineHeight: 1.1 }}>
+                Custom quote
               </span>
-            )}
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', marginBottom: 12 }}>{t.name}</div>
-            <div style={{ marginBottom: 8 }}>
-              {typeof t.price === 'number' ? (
-                <>
-                  <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: 44, color: '#0F172A', lineHeight: 1 }}>
-                    ${t.price.toLocaleString()}
-                  </span>
-                  <span style={{ fontSize: 14, color: '#94A3B8', marginLeft: 4 }}>/mo</span>
-                </>
-              ) : (
-                <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: 44, color: '#0F172A', lineHeight: 1 }}>
-                  Custom
-                </span>
-              )}
-            </div>
-            <div style={{ fontSize: 12.5, fontFamily: "'JetBrains Mono', monospace", color: '#475569', marginBottom: 14 }}>
-              {t.credits}
             </div>
             <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, margin: '0 0 18px' }}>{t.forWho}</p>
 
@@ -167,21 +151,15 @@ function Tiers() {
             </ul>
 
             <div style={{ marginTop: 'auto' }}>
-              {t.name === 'Enterprise' ? (
-                <a href="mailto:hello@orvnlabs.com?subject=PAS%20Enterprise%20enquiry" className="btn-primary" style={{ width: '100%' }}>
-                  Talk to ORVN <ArrowRight size={15} />
-                </a>
-              ) : (
-                <a
-                  href={PAS_LINKS.earlyAccess}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={t.highlight ? 'btn-primary' : 'btn-secondary'}
-                  style={{ width: '100%' }}
-                >
-                  Apply for early access <ArrowRight size={15} />
-                </a>
-              )}
+              <a
+                href={PAS_LINKS.earlyAccess}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary"
+                style={{ width: '100%' }}
+              >
+                Request an early-access quote <ArrowRight size={15} />
+              </a>
             </div>
           </motion.div>
         ))}
@@ -225,7 +203,7 @@ function PositionedAgainst() {
     { item: 'Missed-appointment opportunity cost', cost: 'One commission per missed booking' },
     { item: 'Wasted lead spend on un-contacted leads', cost: 'Cost-per-lead × never-contacted rate' },
     { item: 'Operational delay (hours-to-first-response)', cost: 'Conversion decay across the funnel' },
-    { item: 'PAS Growth plan', cost: '$1,500 / month — covers the first-contact layer' },
+    { item: 'PAS early access', cost: 'Custom quote — sized to your volume, channels & scope' },
   ];
   return (
     <Section borderTop>
@@ -293,7 +271,7 @@ export default function Pricing() {
   useDocumentMeta({
     title: 'Pricing',
     description:
-      'PAS pricing for real estate brokerages. Starter, Growth, Scale, and Enterprise plans. Priced against ISA cost, missed appointments, and wasted lead spend.',
+      'PAS pricing for real estate brokerages. Custom early-access pricing based on lead volume, workflow complexity, and implementation scope — priced as infrastructure, not a pre-set tier.',
     path: '/pricing',
   });
   return (
