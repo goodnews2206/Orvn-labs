@@ -98,27 +98,27 @@ export default function Blog() {
       </section>
 
       <Section borderTop background="surface">
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 clamp(16px, 5vw, 48px)' }}>
           {/* Category Filter */}
           <motion.div
             {...fadeUp(0)}
             style={{
               display: 'flex',
-              gap: 8,
+              gap: 'clamp(6px, 2vw, 12px)',
               flexWrap: 'wrap',
-              marginBottom: 48,
+              marginBottom: 'clamp(32px, 6vw, 48px)',
               justifyContent: 'center',
             }}
           >
             <button
               onClick={() => setSelectedCategory(null)}
               style={{
-                padding: '10px 20px',
+                padding: 'clamp(8px, 1.5vw, 12px) clamp(14px, 3vw, 20px)',
                 borderRadius: 100,
                 border: selectedCategory === null ? 'none' : '1.5px solid #E5E8F0',
                 background: selectedCategory === null ? '#5B3FD4' : '#fff',
                 color: selectedCategory === null ? '#fff' : '#475569',
-                fontSize: 14,
+                fontSize: 'clamp(12px, 1.2vw, 14px)',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
@@ -131,12 +131,12 @@ export default function Blog() {
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  padding: '10px 20px',
+                  padding: 'clamp(8px, 1.5vw, 12px) clamp(14px, 3vw, 20px)',
                   borderRadius: 100,
                   border: selectedCategory === cat ? 'none' : '1.5px solid #E5E8F0',
                   background: selectedCategory === cat ? '#5B3FD4' : '#fff',
                   color: selectedCategory === cat ? '#fff' : '#475569',
-                  fontSize: 14,
+                  fontSize: 'clamp(12px, 1.2vw, 14px)',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
@@ -183,7 +183,7 @@ export default function Blog() {
                   {...fadeUp(idx * 0.05)}
                   className="card"
                   style={{
-                    padding: 32,
+                    padding: 'clamp(20px, 4vw, 32px)',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
