@@ -1,20 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 import PageWrapper from '../components/PageWrapper';
 import Section from '../components/ui/Section';
-import Markdown from '../components/Markdown';
+import ContentRenderer from '../components/ContentRenderer';
 import Newsletter from '../components/Newsletter';
 import { useDocumentMeta } from '../lib/seo';
-import { getPost, getRelatedPosts } from '../lib/blog';
 
 const fmt = (iso) =>
   new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
 export default function BlogPost() {
   const { slug } = useParams();
-  const post = getPost(slug);
+  const [post, setPost] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    loadPost();
+  }, [slug]);
+
+  const loadPost = async () => {
+    try {
+      setLoading(true);
+      setNotFound(false);
+
+      const res = await fetch(`/api/blog/post?slug=${slug}`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          setNotFound(true);
+        }
+        throw new Error('Failed to load post');
+      }
+
+      const data = await res.json();
+      setPost(data.post);
+      setRelated(data.related || []);
+    } catch (err) {
+      console.error('Failed to load post:', err);
+      setNotFound(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useDocumentMeta(
     post
@@ -27,11 +57,19 @@ export default function BlogPost() {
       : { title: 'Post not found' }
   );
 
-  if (!post) {
-    return <Navigate to="/blog" replace />;
+  if (loading) {
+    return (
+      <PageWrapper>
+        <div style={{ padding: '100px 20px', textAlign: 'center', color: '#94A3B8' }}>
+          Loading post...
+        </div>
+      </PageWrapper>
+    );
   }
 
-  const related = getRelatedPosts(post.slug, 3);
+  if (notFound || !post) {
+    return <Navigate to="/blog" replace />;
+  }
 
   return (
     <PageWrapper>
@@ -57,9 +95,9 @@ export default function BlogPost() {
               {post.category}
             </span>
             <span style={{ color: '#CBD5E1' }}>·</span>
-            <span style={{ fontSize: 13, color: '#94A3B8' }}>{fmt(post.date)}</span>
+            <span style={{ fontSize: 13, color: '#94A3B8' }}>{fmt(post.published_at)}</span>
             <span style={{ color: '#CBD5E1' }}>·</span>
-            <span style={{ fontSize: 13, color: '#94A3B8' }}>{post.readMinutes} min read</span>
+            <span style={{ fontSize: 13, color: '#94A3B8' }}>{post.read_minutes} min read</span>
           </div>
           <h1 className="h-display" style={{ fontSize: 'clamp(34px, 5vw, 56px)', margin: '0 0 18px' }}>
             {post.title}
@@ -68,7 +106,7 @@ export default function BlogPost() {
         </div>
 
         <div className="container-page" style={{ maxWidth: 760, paddingBlock: 'clamp(16px, 3vw, 32px)' }}>
-          <Markdown source={post.body} />
+          <ContentRenderer html={post.body} />
         </div>
 
         <div className="container-page" style={{ maxWidth: 760, marginTop: 40 }}>
@@ -108,7 +146,7 @@ export default function BlogPost() {
         <Newsletter source={`blog_post_${post.slug}`} />
       </Section>
 
-      {related.length > 0 && (
+      {related && related.length > 0 && (
         <Section borderTop>
           <h2 className="h-section" style={{ fontSize: 'clamp(24px, 3vw, 32px)', margin: '0 0 20px' }}>
             Keep reading

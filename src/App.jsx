@@ -11,8 +11,12 @@ import PAS from './pages/PAS';
 // import Thesis from './pages/Thesis';
 import RevenueCalculator from './pages/RevenueCalculator';
 import LeakageScorecard from './pages/LeakageScorecard';
-// import BlogPost from './pages/BlogPost';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import FAQ from './pages/FAQ';
+import AdminLogin from './pages/admin/AdminLogin';
+import BlogDashboard from './pages/admin/BlogDashboard';
+import BlogEditor from './pages/admin/BlogEditor';
 // import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 
@@ -56,10 +60,17 @@ function AnimatedRoutes() {
         <Route path="/calculators/revenue" element={<RevenueCalculator />} />
         <Route path="/calculators/leakage" element={<LeakageScorecard />} />
 
-        {/* <Route path="/blog" element={<Navigate to="/thesis" replace />} /> */}
-        {/* <Route path="/blog/:slug" element={<BlogPost />} /> */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
 
         <Route path="/faq" element={<FAQ />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/blog" element={<BlogDashboard />} />
+        <Route path="/admin/blog/create" element={<BlogEditor />} />
+        <Route path="/admin/blog/edit/:slug" element={<BlogEditor />} />
+
         {/* <Route path="/login" element={<Login />} /> */}
 
         <Route path="/legal/privacy" element={<Privacy />} />
@@ -76,6 +87,7 @@ function AnimatedRoutes() {
         <Route path="/lead-leakage-scorecard" element={<Navigate to="/calculators/leakage" replace />} />
         <Route path="/test" element={<Navigate to="/pas" replace />} />
         <Route path="/test-pas" element={<Navigate to="/pas" replace />} />
+        <Route path="/resources" element={<Blog />} />
         <Route path="/newsletter" element={<Navigate to="/blog" replace />} />
         <Route path="/privacy" element={<Navigate to="/legal/privacy" replace />} />
         <Route path="/terms" element={<Navigate to="/legal/terms" replace />} />

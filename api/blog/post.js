@@ -1,0 +1,49 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_API_KEY
+);
+
+export default async function handler(req, res) {
+  const { slug } = req.query;
+
+  if (req.method === 'GET') {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_published', true)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (!data) {
+        return res.status(404).json({ error: 'post_not_found' });
+      }
+
+      // Fetch related posts
+      const { data: related } = await supabase
+        .from('blog_posts')
+        .select('id, slug, title, excerpt, category, featured_image_url, featured_image_alt, read_minutes, published_at')
+        .eq('is_published', true)
+        .eq('category', data.category)
+        .neq('slug', slug)
+        .order('published_at', { ascending: false })
+        .limit(3);
+
+      res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+      return res.status(200).json({
+        post: data,
+        related: related || [],
+      });
+    } catch (err) {
+      console.error('[blog/post]', err);
+      return res.status(500).json({ error: 'failed_to_fetch_post' });
+    }
+  }
+
+  res.setHeader('Allow', 'GET');
+  return res.status(405).json({ error: 'method_not_allowed' });
+}

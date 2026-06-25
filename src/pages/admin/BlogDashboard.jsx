@@ -1,0 +1,322 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, LogOut, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
+
+import { supabase } from '../../lib/supabase';
+import { signOut, getCurrentUser } from '../../lib/admin-auth';
+
+export default function BlogDashboard() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        navigate('/admin/login');
+        return;
+      }
+      setUser(user);
+      loadPosts();
+    } catch (err) {
+      console.error('Auth check failed:', err);
+      navigate('/admin/login');
+    }
+  };
+
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPosts(data || []);
+    } catch (err) {
+      console.error('Failed to load posts:', err);
+      alert('Failed to load posts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      navigate('/admin/login');
+    } catch (err) {
+      console.error('Sign out failed:', err);
+      alert('Failed to sign out');
+      setIsSigningOut(false);
+    }
+  };
+
+  const handleDelete = async (slug, title) => {
+    if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        alert('Session expired. Please log in again.');
+        navigate('/admin/login');
+        return;
+      }
+
+      const res = await fetch(`/api/blog/admin/delete?slug=${slug}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error('Failed to delete post');
+
+      setPosts(posts.filter((p) => p.slug !== slug));
+      alert('Post deleted successfully');
+    } catch (err) {
+      console.error('Delete failed:', err);
+      alert('Failed to delete post');
+    }
+  };
+
+  const handleTogglePublish = async (post) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        alert('Session expired. Please log in again.');
+        navigate('/admin/login');
+        return;
+      }
+
+      const res = await fetch(`/api/blog/admin/update?slug=${post.slug}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          is_published: !post.is_published,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update post');
+
+      const updated = await res.json();
+      setPosts(posts.map((p) => (p.slug === post.slug ? updated.post : p)));
+    } catch (err) {
+      console.error('Toggle publish failed:', err);
+      alert('Failed to update post');
+    }
+  };
+
+  const fmt = (iso) =>
+    new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#F7F8FB' }}>
+      {/* Header */}
+      <div style={{ background: '#fff', borderBottom: '1px solid #E5E8F0', padding: '20px' }}>
+        <div className="container-page" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', margin: '0 0 6px' }}>
+              Blog Dashboard
+            </h1>
+            <p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>
+              Logged in as {user?.email}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              onClick={() => navigate('/admin/blog/create')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                background: '#5B3FD4',
+                color: '#fff',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: 10,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              <Plus size={18} /> New Post
+            </button>
+            <button
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                background: '#FEF2F2',
+                color: '#DC2626',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: 10,
+                fontWeight: 600,
+                cursor: 'pointer',
+                opacity: isSigningOut ? 0.7 : 1,
+              }}
+            >
+              <LogOut size={18} /> Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="container-page" style={{ padding: '40px 0' }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>
+            Loading posts...
+          </div>
+        ) : posts.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>
+            <p>No posts yet.</p>
+            <button
+              onClick={() => navigate('/admin/blog/create')}
+              style={{
+                marginTop: 20,
+                background: '#5B3FD4',
+                color: '#fff',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: 8,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Create your first post
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '2fr 1fr 1fr 1fr auto',
+                gap: 16,
+                padding: '16px 20px',
+                background: '#F7F8FB',
+                borderBottom: '1px solid #E5E8F0',
+                fontWeight: 600,
+                fontSize: 13,
+                color: '#94A3B8',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              <div>Title</div>
+              <div>Category</div>
+              <div>Date</div>
+              <div>Status</div>
+              <div>Actions</div>
+            </div>
+
+            {posts.map((post) => (
+              <div
+                key={post.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1fr 1fr 1fr auto',
+                  gap: 16,
+                  padding: '16px 20px',
+                  borderBottom: '1px solid #F1F5F9',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>
+                    {post.title}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#94A3B8' }}>
+                    {post.slug}
+                  </div>
+                </div>
+                <div style={{ fontSize: 14, color: '#475569' }}>
+                  {post.category}
+                </div>
+                <div style={{ fontSize: 14, color: '#94A3B8' }}>
+                  {fmt(post.created_at)}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    onClick={() => handleTogglePublish(post)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: post.is_published ? '#0D9E6E' : '#94A3B8',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                    title={post.is_published ? 'Click to draft' : 'Click to publish'}
+                  >
+                    {post.is_published ? <Eye size={14} /> : <EyeOff size={14} />}
+                    {post.is_published ? 'Published' : 'Draft'}
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button
+                    onClick={() => navigate(`/admin/blog/edit/${post.slug}`)}
+                    style={{
+                      background: '#EEEAFB',
+                      border: 'none',
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      color: '#5B3FD4',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(post.slug, post.title)}
+                    style={{
+                      background: '#FEE2E2',
+                      border: 'none',
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      color: '#DC2626',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

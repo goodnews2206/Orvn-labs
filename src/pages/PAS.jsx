@@ -1072,8 +1072,8 @@ function UseCases() {
   );
 }
 
-// ─── WAITLIST SIGNUP ──────────────────────────────────────────────────────
-function WaitlistSignup() {
+// ─── FORUM SIGNUP ─────────────────────────────────────────────────────────
+function ForumSignup() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
 
@@ -1084,9 +1084,9 @@ function WaitlistSignup() {
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'product_waitlist' }),
+        body: JSON.stringify({ email, source: 'product_forum' }),
       });
-      if (!res.ok) throw new Error('Failed to join waitlist');
+      if (!res.ok) throw new Error('Failed to join forum');
       setStatus('success');
     } catch (err) {
       console.error(err);
@@ -1130,7 +1130,7 @@ function WaitlistSignup() {
               fontWeight: 700,
             }}
           >
-            You're on the list.
+            Welcome to the forum.
           </h3>
           <p style={{ color: '#065F46', fontSize: 16, margin: '8px 0 0', fontWeight: 500 }}>
             We'll notify you as soon as a slot opens for your brokerage.<br/>
@@ -1155,7 +1155,7 @@ function WaitlistSignup() {
           boxShadow: 'var(--shadow-xl)',
         }}
       >
-        <motion.div {...fadeUp(0)}><Eyebrow>Join the waitlist</Eyebrow></motion.div>
+        <motion.div {...fadeUp(0)}><Eyebrow>Join the forum</Eyebrow></motion.div>
         <motion.h2
           {...fadeUp(0.05)}
           className="h-section"
@@ -1174,7 +1174,7 @@ function WaitlistSignup() {
           style={{ marginBottom: 40, maxWidth: 640, margin: '0 auto 40px' }}
         >
           We are currently onboarding brokerages in cohorts to ensure high-touch implementation.
-          Join the waitlist to secure your spot.
+          Join the forum to secure your spot.
         </motion.p>
 
         <motion.form
@@ -1215,7 +1215,7 @@ function WaitlistSignup() {
             className="btn-primary"
             style={{ padding: '16px 32px', fontSize: 15.5, borderRadius: 100 }}
           >
-            {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <ArrowRight size={18} />
+            {status === 'loading' ? 'Joining...' : 'Join the forum'} <ArrowRight size={18} />
           </button>
         </motion.form>
         {status === 'error' && (
@@ -1248,7 +1248,7 @@ export default function PAS() {
       <ProductProof />
       <ControlRoom />
       <UseCases />
-      <WaitlistSignup />
+      <ForumSignup />
     </PageWrapper>
   );
 }

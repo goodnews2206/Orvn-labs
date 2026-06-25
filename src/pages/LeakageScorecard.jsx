@@ -256,9 +256,133 @@ export default function LeakageScorecard() {
   }, [searchParams]);
 
   const handleDownloadPdf = () => {
-    // Reverting to the high-reliability Industry Standard: window.print()
-    // This ensures that the layout, fonts, and ORVN watermark are 100% accurate.
-    window.print();
+    if (!result || !window.jspdf) return;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const dateStr = new Date().toLocaleDateString();
+
+    // ─── WATERMARK ──────────────────────────────────────────────────────────
+    try {
+      doc.setGState(new doc.GState({ opacity: 0.03 }));
+      doc.addImage('/logo.png', 'PNG', pageWidth / 2 - 50, pageHeight / 2 - 50, 100, 100, undefined, 'FAST');
+      doc.setGState(new doc.GState({ opacity: 1 }));
+    } catch (e) {
+      console.warn('PDF Watermark failed to load', e);
+    }
+
+    // ─── 1. HEADER ───────────────────────────────────────────────────────────
+    doc.setFillColor(91, 63, 212); // Brand Purple
+    doc.rect(0, 0, pageWidth, 40, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(22);
+    doc.text('ORVN LABS', 15, 18);
+
+    doc.setFontSize(10);
+    doc.setFont('times', 'normal');
+    doc.text('LEAD LEAKAGE SCORECARD', 15, 26);
+    doc.text(`DATE: ${dateStr}`, pageWidth - 15, 26, { align: 'right' });
+
+    // ─── 2. SCORE SECTION ───────────────────────────────────────────────────
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(11);
+    doc.text('OVERALL LEAKAGE SCORE', 15, 55);
+
+    const scoreColor = result.leakage <= 20 ? [13, 158, 110] : result.leakage <= 40 ? [217, 119, 6] : [220, 38, 38];
+    doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+    doc.setFontSize(42);
+    doc.setFont('times', 'bold');
+    doc.text(`${result.leakage}/100`, 15, 72);
+
+    doc.setFontSize(12);
+    doc.text(`RISK LEVEL: ${result.risk.toUpperCase()}`, 15, 82);
+
+    // ─── 3. SUB-SCORES TABLE ────────────────────────────────────────────────
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(12);
+    doc.text('01. PERFORMANCE BREAKDOWN', 15, 100);
+
+    const breakdownData = result.breakdown.map(b => [b.name, `${b.score}/100`]);
+    doc.autoTable({
+      startY: 105,
+      head: [['Category', 'Score']],
+      body: breakdownData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [91, 63, 212],
+        textColor: [255, 255, 255],
+        fontSize: 10,
+        fontStyle: 'bold',
+        font: 'helvetica',
+        halign: 'left',
+        valign: 'middle'
+      },
+      bodyStyles: {
+        textColor: [15, 23, 42],
+        fontSize: 10,
+        font: 'helvetica',
+        halign: 'left',
+        valign: 'middle'
+      },
+      alternateRowStyles: {
+        fillColor: [247, 248, 251]
+      },
+      margin: { left: 15, right: 15 },
+      columnStyles: { 1: { halign: 'right' } }
+    });
+
+    // ─── 4. BOTTLENECK ANALYSIS ─────────────────────────────────────────────
+    let currentY = doc.lastAutoTable.finalY + 20;
+    doc.setFontSize(12);
+    doc.setFont('times', 'bold');
+    doc.text('02. PRIMARY BOTTLENECK', 15, currentY);
+    currentY += 10;
+
+    doc.setFillColor(254, 242, 242);
+    doc.rect(15, currentY, pageWidth - 30, 30, 'F');
+    doc.setTextColor(220, 38, 38);
+    doc.setFontSize(11);
+    doc.text(result.bottleneck.name.toUpperCase(), 20, currentY + 10);
+    doc.setTextColor(71, 85, 105);
+    doc.setFontSize(10);
+    doc.setFont('times', 'normal');
+    const splitFix = doc.splitTextToSize(result.fix, pageWidth - 45);
+    doc.text(splitFix, 20, currentY + 18);
+    currentY += 40;
+
+    // ─── 5. MISSED OPPORTUNITY ──────────────────────────────────────────────
+    if (result.missedRevenue > 0 || result.missedSpend > 0) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text('03. FINANCIAL IMPACT', 15, currentY);
+      currentY += 10;
+
+      const impactData = [];
+      if (result.missedRevenue > 0) impactData.push(['Est. Missed Revenue / Mo', `$${Math.round(result.missedRevenue).toLocaleString()}`]);
+      if (result.missedSpend > 0) impactData.push(['Wasted Lead Spend / Mo', `$${Math.round(result.missedSpend).toLocaleString()}`]);
+
+      doc.autoTable({
+        startY: currentY,
+        body: impactData,
+        theme: 'plain',
+        bodyStyles: { fontSize: 11, fontStyle: 'bold' },
+        margin: { left: 15, right: 15 },
+      });
+    }
+
+    // ─── FOOTER ──────────────────────────────────────────────────────────────
+    doc.setDrawColor(229, 232, 240);
+    doc.line(15, 280, pageWidth - 15, 280);
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text('ORVN LABS © 2025 · HELLO@ORVNLABS.COM · AUDIT REPORT', pageWidth / 2, 287, { align: 'center' });
+
+    doc.save(`ORVN-Scorecard-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const handleEmailSubmit = async (e) => {

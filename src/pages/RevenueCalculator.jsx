@@ -287,9 +287,240 @@ export default function RevenueCalculator() {
   }, [searchParams]);
 
   const handleDownloadPdf = () => {
-    // Reverting to the high-reliability Industry Standard: window.print()
-    // This ensures that the layout, fonts, and ORVN watermark are 100% accurate.
-    window.print();
+    if (!results || !window.jspdf) return;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const dateStr = new Date().toLocaleDateString();
+    const margin = 15;
+    let yPos = margin;
+
+    const addPage = () => {
+      doc.addPage();
+      yPos = margin;
+    };
+
+    const checkPageBreak = (spaceNeeded) => {
+      if (yPos + spaceNeeded > pageHeight - margin) {
+        addPage();
+      }
+    };
+
+    // ─── HEADER ──────────────────────────────────────────────────────────────
+    doc.setFillColor(91, 63, 212);
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.text('ORVN LABS', margin, 15);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('REVENUE AUDIT REPORT', margin, 24);
+    doc.text(`Generated: ${dateStr}`, pageWidth - margin, 24, { align: 'right' });
+    yPos = 45;
+
+    // ─── HEADLINE METRICS ────────────────────────────────────────────────────
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text('Total Annual Opportunity', margin, yPos);
+    yPos += 10;
+    doc.setFontSize(28);
+    doc.setTextColor(220, 38, 38);
+    doc.text(fm(results.total), margin, yPos);
+    yPos += 15;
+
+    doc.setDrawColor(229, 232, 240);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 10;
+
+    // ─── SECTION 1: AUDIT INPUTS ────────────────────────────────────────────
+    checkPageBreak(60);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('1. AUDIT INPUTS', margin, yPos);
+    yPos += 8;
+
+    const inputRows = [
+      ['Monthly Inbound Leads', results.L.toLocaleString()],
+      ['Average Commission', fm(results.C)],
+      ['Lead-to-Close Rate', pct(results.cr)],
+      ['Response Time', formatResp(results.rt)],
+      ['CRM Database Size', results.CRM > 0 ? results.CRM.toLocaleString() : 'N/A'],
+      ['Annual ISA Cost', results.ISA > 0 ? fm(results.ISA) : 'N/A'],
+    ];
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    inputRows.forEach(([label, value]) => {
+      doc.setTextColor(100, 116, 139);
+      doc.text(label, margin, yPos);
+      doc.setTextColor(15, 23, 42);
+      doc.text(value, pageWidth - margin - 20, yPos, { align: 'right' });
+      yPos += 7;
+    });
+    yPos += 10;
+
+    // ─── SECTION 2: SPEED-TO-LEAD CALCULATION ───────────────────────────────
+    checkPageBreak(80);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('2. SPEED-TO-LEAD ANALYSIS', margin, yPos);
+    yPos += 8;
+
+    doc.setFillColor(254, 242, 242);
+    doc.rect(margin, yPos, pageWidth - 2 * margin, 30, 'F');
+    doc.setTextColor(220, 38, 38);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Annual Revenue Lost to Slow Response', margin + 5, yPos + 8);
+    doc.setFontSize(18);
+    doc.text(fm(results.annualLost), margin + 5, yPos + 18);
+    doc.setFontSize(9);
+    doc.setTextColor(127, 29, 29);
+    doc.text(`${pct(results.P)} conversion potential lost before first human contact`, margin + 5, yPos + 25);
+    yPos += 35;
+
+    // Calculation breakdown
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    yPos += 3;
+    doc.text(`Ideal deals/month: ${results.L} leads × ${pct(results.cr)} close rate = ${results.idealDeals.toFixed(1)}`, margin + 5, yPos);
+    yPos += 6;
+    doc.text(`Deals lost/month: ${results.idealDeals.toFixed(1)} × ${pct(results.P)} = ${results.dealsLost.toFixed(1)}`, margin + 5, yPos);
+    yPos += 6;
+    doc.text(`Revenue lost/month: ${results.dealsLost.toFixed(1)} deals × ${fm(results.C)} = ${fm(results.monthlyLost)}`, margin + 5, yPos);
+    yPos += 6;
+    doc.text(`Annual total: ${fm(results.monthlyLost)} × 12 months = ${fm(results.annualLost)}`, margin + 5, yPos);
+    yPos += 12;
+
+    // ─── SECTION 3: GRAVEYARD ANALYSIS ──────────────────────────────────────
+    if (results.CRM > 0 && results.graveyardValue > 0) {
+      checkPageBreak(70);
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('3. CRM GRAVEYARD ANALYSIS', margin, yPos);
+      yPos += 8;
+
+      doc.setFillColor(236, 253, 245);
+      doc.rect(margin, yPos, pageWidth - 2 * margin, 30, 'F');
+      doc.setTextColor(13, 158, 110);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text('Recoverable Revenue in Dormant Leads', margin + 5, yPos + 8);
+      doc.setFontSize(18);
+      doc.text(fm(results.graveyardValue), margin + 5, yPos + 18);
+      doc.setFontSize(9);
+      doc.setTextColor(13, 158, 110);
+      doc.text(`${Math.round(results.reactivatable)} leads × ${pct(results.adjustedClose)} adjusted close rate`, margin + 5, yPos + 25);
+      yPos += 35;
+
+      // Calculation breakdown
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      yPos += 3;
+      doc.text(`Reactivatable leads: ${results.CRM.toLocaleString()} × 12% = ${Math.round(results.reactivatable)}`, margin + 5, yPos);
+      yPos += 6;
+      doc.text(`Adjusted close rate: ${pct(results.cr)} × 40% discount = ${pct(results.adjustedClose)}`, margin + 5, yPos);
+      yPos += 6;
+      doc.text(`Recoverable deals: ${Math.round(results.reactivatable)} × ${pct(results.adjustedClose)} = ${results.recoverableDeals.toFixed(1)}`, margin + 5, yPos);
+      yPos += 6;
+      doc.text(`Graveyard value: ${results.recoverableDeals.toFixed(1)} deals × ${fm(results.C)} = ${fm(results.graveyardValue)}`, margin + 5, yPos);
+      yPos += 12;
+    }
+
+    // ─── SECTION 4: ISA vs PAS ───────────────────────────────────────────────
+    if (results.ISA > 0) {
+      checkPageBreak(60);
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('4. ISA COST vs PAS', margin, yPos);
+      yPos += 8;
+
+      const isaRows = [
+        ['Annual ISA Cost', fm(results.ISA)],
+        ['Monthly ISA Cost', fm(results.isaMonthly)],
+        ['PAS Starter Monthly', '$500'],
+        ['Monthly Savings', fm(results.isaSaving)],
+      ];
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      isaRows.forEach(([label, value]) => {
+        doc.setTextColor(100, 116, 139);
+        doc.text(label, margin, yPos);
+        doc.setTextColor(15, 23, 42);
+        const color = value.includes('-') ? [220, 38, 38] : [13, 158, 110];
+        doc.setTextColor(...color);
+        doc.text(value, pageWidth - margin - 20, yPos, { align: 'right' });
+        yPos += 7;
+      });
+      yPos += 10;
+    }
+
+    // ─── SECTION 5: BREAK-EVEN ANALYSIS ─────────────────────────────────────
+    if (results.breakEvenAppts) {
+      checkPageBreak(50);
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('5. PAS BREAK-EVEN ANALYSIS', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Revenue per appointment:', margin, yPos);
+      doc.setTextColor(15, 23, 42);
+      doc.text(fm(results.revenuePerAppt), pageWidth - margin - 20, yPos, { align: 'right' });
+      yPos += 7;
+
+      doc.setTextColor(100, 116, 139);
+      doc.text('PAS Starter monthly cost:', margin, yPos);
+      doc.setTextColor(15, 23, 42);
+      doc.text('$500', pageWidth - margin - 20, yPos, { align: 'right' });
+      yPos += 7;
+
+      doc.setTextColor(100, 116, 139);
+      doc.text('Break-even appointments needed:', margin, yPos);
+      doc.setTextColor(13, 158, 110);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${results.breakEvenAppts} appointments`, pageWidth - margin - 20, yPos, { align: 'right' });
+      yPos += 12;
+    }
+
+    // ─── SECTION 6: INSIGHTS & RECOMMENDATIONS ──────────────────────────────
+    checkPageBreak(60);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('6. KEY INSIGHTS & RECOMMENDATIONS', margin, yPos);
+    yPos += 8;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(71, 85, 105);
+    const insight = results.insight || 'Review your calculation inputs above.';
+    const splitInsight = doc.splitTextToSize(insight, pageWidth - 2 * margin - 5);
+    doc.text(splitInsight, margin + 5, yPos);
+    yPos += splitInsight.length * 6 + 15;
+
+    // ─── FOOTER ──────────────────────────────────────────────────────────────
+    doc.setDrawColor(229, 232, 240);
+    doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text('ORVN LABS © 2025 · HELLO@ORVNLABS.COM', pageWidth / 2, pageHeight - 8, { align: 'center' });
+
+    doc.save(`ORVN-Audit-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const handleEmailSubmit = async (e) => {

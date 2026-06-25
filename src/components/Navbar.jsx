@@ -8,6 +8,7 @@ import { PAS_LINKS } from '../lib/pas';
 const NAV_LINKS = [
   { label: 'Product', to: '/pas' },
   { label: 'Calculators', to: '/calculate' },
+  { label: 'Blog', to: '/blog' },
   // { label: 'Pricing', to: '/pricing' },
   // { label: 'Thesis', to: '/thesis' },
   { label: 'FAQ', to: '/faq' },

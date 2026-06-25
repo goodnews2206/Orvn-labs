@@ -1,4 +1,4 @@
-// Vercel serverless function: receives waitlist/signup submissions and routes them to hello@orvnlabs.com.
+// Vercel serverless function: receives forum/signup submissions and routes them to hello@orvnlabs.com.
 //
 // Env vars:
 //   - RESEND_API_KEY (required to send email)
@@ -50,11 +50,11 @@ async function routeToAdmin(record) {
       body: JSON.stringify({
         from,
         to: [to],
-        subject: `New Waitlist Signup: ${record.email}`,
+        subject: `New Forum Signup: ${record.email}`,
         html: `
-          <h3>New Waitlist Signup</h3>
+          <h3>New Forum Signup</h3>
           <p><strong>Email:</strong> ${record.email}</p>
-          <p><strong>Source:</strong> ${record.source || 'product_waitlist'}</p>
+          <p><strong>Source:</strong> ${record.source || 'product_forum'}</p>
           <pre>${JSON.stringify(record, null, 2)}</pre>
         `,
       }),

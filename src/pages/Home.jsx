@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -929,9 +929,9 @@ function FinalCTA() {
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'home_cta_waitlist' }),
+        body: JSON.stringify({ email, source: 'home_cta_forum' }),
       });
-      if (!res.ok) throw new Error('Failed to join waitlist');
+      if (!res.ok) throw new Error('Failed to join forum');
       setStatus('success');
     } catch (err) {
       console.error(err);
@@ -974,10 +974,10 @@ function FinalCTA() {
               letterSpacing: '-0.02em',
             }}
           >
-            We've got it.
+            Welcome to the forum.
           </h3>
           <p style={{ color: '#065F46', fontSize: 15.5, margin: '8px 0 0', fontWeight: 500 }}>
-            You're on the waitlist. We'll reach out within one business day.<br/>
+            You're in. We'll reach out within one business day.<br/>
             <span style={{ opacity: 0.8, fontSize: 13 }}>Check your spam folder if you don't see our welcome email in 5 minutes.</span>
           </p>
         </div>
@@ -1048,7 +1048,7 @@ function FinalCTA() {
               fontWeight: 500,
             }}
           >
-            Early access is limited. Join the waitlist to secure your brokerage's spot in our next
+            Early access is limited. Join the forum to secure your brokerage's spot in our next
             cohort.
           </motion.p>
 
@@ -1100,7 +1100,7 @@ function FinalCTA() {
                 boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               }}
             >
-              {status === 'loading' ? 'Joining...' : 'Join Waitlist'} <IconArrowRight size={18} />
+              {status === 'loading' ? 'Joining...' : 'Join the forum'} <IconArrowRight size={18} />
             </button>
           </motion.form>
           {status === 'error' && (
@@ -1113,6 +1113,150 @@ function FinalCTA() {
           </p>
         </div>
       </div>
+    </Section>
+  );
+}
+
+// ─── RECENT BLOGS ────────────────────────────────────────────────────────────
+function RecentBlogsSection() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadRecentPosts();
+  }, []);
+
+  const loadRecentPosts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/blog/list');
+      if (!res.ok) throw new Error('Failed to load posts');
+      const data = await res.json();
+      setPosts((data.posts || []).slice(0, 3));
+    } catch (err) {
+      console.error('Failed to load recent posts:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fmt = (iso) =>
+    new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  return (
+    <Section borderTop>
+      <div style={{ maxWidth: 840, marginBottom: 56 }}>
+        <motion.div {...fadeUp(0)}><Eyebrow>Latest from the blog</Eyebrow></motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{
+            fontSize: 'clamp(32px, 4vw, 48px)',
+            margin: '18px 0 20px',
+            lineHeight: 1.1,
+            letterSpacing: '-0.025em',
+          }}
+        >
+          Field notes on lead conversion.
+        </motion.h2>
+        <motion.p
+          {...fadeUp(0.1)}
+          className="lead"
+          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
+        >
+          Insights from the trenches: first-contact strategy, operational frameworks, and real estate market analysis.
+        </motion.p>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>
+          Loading posts...
+        </div>
+      ) : posts.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <p style={{ fontSize: 16, color: '#94A3B8' }}>No blog posts yet.</p>
+          <Link to="/blog" className="btn-secondary" style={{ marginTop: 20, display: 'inline-block' }}>
+            Explore the blog
+          </Link>
+        </div>
+      ) : (
+        <div>
+          <div className="grid-cols-responsive" style={{ gap: 24, marginBottom: 48 }}>
+            {posts.map((post, idx) => (
+              <motion.article
+                key={post.slug}
+                {...fadeUp(idx * 0.05)}
+                className="card"
+                style={{
+                  padding: 32,
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 24,
+                  background: '#fff',
+                  border: '1px solid #E5E8F0',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 10,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: '#5B3FD4',
+                    marginBottom: 12,
+                    display: 'inline-block',
+                    fontWeight: 600,
+                  }}
+                >
+                  {post.category}
+                </span>
+                <h3
+                  style={{
+                    fontSize: 'clamp(18px, 2.2vw, 22px)',
+                    fontWeight: 700,
+                    color: '#0F172A',
+                    margin: '0 0 12px',
+                    lineHeight: 1.35,
+                  }}
+                >
+                  <Link to={`/blog/${post.slug}`} style={{ color: '#0F172A', textDecoration: 'none' }}>
+                    {post.title}
+                  </Link>
+                </h3>
+                <p style={{ fontSize: 15, color: '#475569', lineHeight: 1.65, margin: '0 0 18px', flex: 1 }}>
+                  {post.excerpt}
+                </p>
+                <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#94A3B8', marginBottom: 16 }}>
+                  <span>{fmt(post.published_at)}</span>
+                  <span>·</span>
+                  <span>{post.read_minutes} min read</span>
+                </div>
+                <Link
+                  to={`/blog/${post.slug}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    color: '#5B3FD4',
+                    fontWeight: 700,
+                    fontSize: 14,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Read post →
+                </Link>
+              </motion.article>
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <Link to="/blog" className="btn-secondary">
+              Explore all posts <IconArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      )}
     </Section>
   );
 }
@@ -1146,6 +1290,26 @@ export default function Home() {
             cta="Read thesis"
             icon={IconBook}
           />
+        </div>
+      </Section>
+
+      {/* Resources Section */}
+      <RecentBlogsSection />
+
+      <Section borderTop background="surface" style={{ display: 'none' }}>
+        <div className="grid-cols-responsive" style={{ gap: 24, marginBottom: 48 }}>
+          <motion.div {...fadeUp(0.05)}>
+            <ResourceSection
+              title="Toolkits & Thesis"
+              icon={IconSystems}
+              items={[
+                { title: 'First-Contact Intelligence Framework', desc: 'The philosophy and operational model behind PAS.' },
+                { title: 'Lead Qualification Template', desc: 'A structured intake flow you can deploy today.' },
+                { title: 'Speed-to-Lead Audit Checklist', desc: 'Identify and eliminate every delay in your pipeline.' },
+              ]}
+              link="/resources"
+            />
+          </motion.div>
         </div>
       </Section>
 
@@ -1223,6 +1387,93 @@ function LinkCard({ eyebrow, title, desc, to, cta, icon: Icon }) {
         </div>
       </motion.div>
     </Link>
+  );
+}
+
+function ResourceSection({ title, icon: Icon, items, link }) {
+  return (
+    <div
+      style={{
+        background: '#fff',
+        border: '1px solid #E5E8F0',
+        borderRadius: 24,
+        padding: 'clamp(32px, 5vw, 44px)',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
+        <span
+          style={{
+            color: '#5B3FD4',
+            display: 'inline-flex',
+            padding: 10,
+            background: 'rgba(91, 63, 212, 0.06)',
+            borderRadius: 14,
+          }}
+        >
+          <Icon size={22} />
+        </span>
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10.5,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: '#5B3FD4',
+            fontWeight: 700,
+          }}
+        >
+          {title}
+        </span>
+      </div>
+
+      <ul
+        style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          flex: 1,
+        }}
+      >
+        {items.map((item) => (
+          <li
+            key={item.title}
+            style={{
+              paddingBottom: 16,
+              borderBottom: '1px solid #F1F5F9',
+            }}
+          >
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
+              {item.title}
+            </div>
+            <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.5 }}>
+              {item.desc}
+            </p>
+          </li>
+        ))}
+      </ul>
+
+      <Link
+        to={link}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          color: '#5B3FD4',
+          fontWeight: 700,
+          fontSize: 14.5,
+          marginTop: 16,
+          textDecoration: 'none',
+        }}
+      >
+        Explore all <IconArrowRight size={16} />
+      </Link>
+    </div>
   );
 }
 

@@ -1,117 +1,175 @@
 import React from 'react';
 
-// Custom SVG illustration showing lead flowing through PAS system —
-// a real-estate brokerage AI pipeline: phone ring → AI brain → routed agent → booked calendar
 export default function HeroIllustration() {
   return (
-    <svg viewBox="0 0 520 400" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto' }}>
+    <svg viewBox="0 0 560 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto' }}>
       <defs>
-        <linearGradient id="heroGrad" x1="0" y1="0" x2="520" y2="400" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#5B3FD4" stopOpacity="0.06"/>
-          <stop offset="1" stopColor="#0D9E6E" stopOpacity="0.04"/>
+        <linearGradient id="bgGradHero" x1="0" y1="0" x2="560" y2="420">
+          <stop stopColor="#F3F0FF" stopOpacity="0.4"/>
+          <stop offset="1" stopColor="#F0FFFE" stopOpacity="0.4"/>
         </linearGradient>
-        <linearGradient id="pipeGrad" x1="60" y1="200" x2="460" y2="200">
-          <stop stopColor="#5B3FD4" stopOpacity="0.15"/>
-          <stop offset="0.5" stopColor="#5B3FD4" stopOpacity="0.3"/>
-          <stop offset="1" stopColor="#0D9E6E" stopOpacity="0.2"/>
+        <linearGradient id="flowGrad" x1="50" y1="200" x2="510" y2="200">
+          <stop stopColor="#5B3FD4" stopOpacity="0.8"/>
+          <stop offset="0.5" stopColor="#7B5FEA" stopOpacity="0.6"/>
+          <stop offset="1" stopColor="#0D9E6E" stopOpacity="0.8"/>
         </linearGradient>
-        <filter id="glow1"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="cardShadow"><feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#0F172A" floodOpacity="0.06"/></filter>
+        <filter id="shadow-lg">
+          <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#5B3FD4" floodOpacity="0.15"/>
+        </filter>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
 
       {/* Background */}
-      <rect width="520" height="400" rx="24" fill="url(#heroGrad)"/>
+      <rect width="560" height="420" fill="url(#bgGradHero)" rx="28"/>
 
-      {/* Grid lines */}
-      {[80,160,240,320,400].map(x=><line key={`v${x}`} x1={x} y1="0" x2={x} y2="400" stroke="#5B3FD4" strokeOpacity="0.04" strokeWidth="1"/>)}
-      {[80,160,240,320].map(y=><line key={`h${y}`} x1="0" y1={y} x2="520" y2={y} stroke="#5B3FD4" strokeOpacity="0.04" strokeWidth="1"/>)}
+      {/* Subtle grid pattern */}
+      <g opacity="0.08" stroke="#5B3FD4" strokeWidth="1">
+        {[0, 70, 140, 210, 280, 350, 420, 490].map(x => (
+          <line key={`v${x}`} x1={x} y1="0" x2={x} y2="420"/>
+        ))}
+        {[0, 70, 140, 210, 280, 350].map(y => (
+          <line key={`h${y}`} x1="0" y1={y} x2="560" y2={y}/>
+        ))}
+      </g>
 
-      {/* Connection pipeline */}
-      <path d="M100 200 C160 200, 160 140, 220 140 S320 200, 340 200 S400 160, 420 160" stroke="url(#pipeGrad)" strokeWidth="3" strokeLinecap="round" fill="none" strokeDasharray="8 4">
-        <animate attributeName="stroke-dashoffset" from="24" to="0" dur="2s" repeatCount="indefinite"/>
+      {/* Main flow pipeline - curved path */}
+      <path
+        d="M 80 210 Q 140 140, 210 140 T 350 210 T 480 150"
+        stroke="url(#flowGrad)"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray="12 6"
+        opacity="0.7">
+        <animate attributeName="stroke-dashoffset" from="0" to="18" dur="3s" repeatCount="indefinite"/>
       </path>
 
-      {/* Node 1: Lead Inquiry — Phone icon */}
-      <g filter="url(#cardShadow)">
-        <rect x="40" y="155" width="110" height="90" rx="16" fill="#fff"/>
-        <rect x="40" y="155" width="110" height="90" rx="16" stroke="#E5E8F0" strokeWidth="1"/>
-        <circle cx="95" cy="185" r="16" fill="#F0EEFF"/>
-        <path d="M89 179 a6 6 0 0 1 12 0v2a2 2 0 0 1-2 2h-1a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1m-8 0h-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2v-2" stroke="#5B3FD4" strokeWidth="1.5" strokeLinecap="round"/>
-        <circle cx="95" cy="185" r="20" stroke="#5B3FD4" strokeOpacity="0.15" strokeWidth="1" fill="none">
-          <animate attributeName="r" values="20;24;20" dur="3s" repeatCount="indefinite"/>
-          <animate attributeName="stroke-opacity" values="0.15;0;0.15" dur="3s" repeatCount="indefinite"/>
+      {/* PHASE 1: Phone/Lead Input */}
+      <g filter="url(#shadow-lg)">
+        <rect x="35" y="165" width="90" height="90" rx="16" fill="#fff" stroke="#E5E8F0" strokeWidth="1.5"/>
+        <circle cx="80" cy="195" r="20" fill="#F0EEFF"/>
+        {/* Phone icon */}
+        <path d="M 75 185 Q 75 182 77 182 L 83 182 Q 85 182 85 185 L 85 210 Q 85 213 83 213 L 77 213 Q 75 213 75 210 Z"
+              fill="none" stroke="#5B3FD4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="80" cy="200" r="1" fill="#5B3FD4"/>
+
+        {/* Animated pulse ring */}
+        <circle cx="80" cy="195" r="24" fill="none" stroke="#5B3FD4" strokeWidth="2" opacity="0.4">
+          <animate attributeName="r" values="24;32" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.4;0" dur="2s" repeatCount="indefinite"/>
         </circle>
-        <text x="95" y="222" textAnchor="middle" fontSize="10" fontWeight="700" fill="#0F172A" fontFamily="'Plus Jakarta Sans',sans-serif">Lead Inquiry</text>
-        <text x="95" y="235" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">INBOUND</text>
+
+        <text x="80" y="232" textAnchor="middle" fontSize="11" fontWeight="700" fill="#0F172A" fontFamily="'Plus Jakarta Sans'">Inbound</text>
+        <text x="80" y="244" textAnchor="middle" fontSize="9" fill="#94A3B8" fontFamily="'JetBrains Mono'">LEAD</text>
       </g>
 
-      {/* Node 2: PAS AI Brain */}
-      <g filter="url(#cardShadow)">
-        <rect x="195" y="95" width="130" height="110" rx="18" fill="#fff"/>
-        <rect x="195" y="95" width="130" height="110" rx="18" stroke="#D4CBF9" strokeWidth="1.5"/>
-        <rect x="195" y="95" width="130" height="4" rx="2" fill="#5B3FD4"/>
-        <circle cx="260" cy="135" r="20" fill="#F0EEFF"/>
-        <text x="260" y="139" textAnchor="middle" fontSize="16" fill="#5B3FD4" fontWeight="700" fontFamily="'Plus Jakarta Sans',sans-serif">⚡</text>
-        <circle cx="260" cy="135" r="24" stroke="#5B3FD4" strokeOpacity="0.1" fill="none" strokeWidth="1" strokeDasharray="4 3">
-          <animateTransform attributeName="transform" type="rotate" from="0 260 135" to="360 260 135" dur="12s" repeatCount="indefinite"/>
-        </circle>
-        <text x="260" y="172" textAnchor="middle" fontSize="11" fontWeight="800" fill="#3A2899" fontFamily="'Plus Jakarta Sans',sans-serif">PAS ENGINE</text>
-        <text x="260" y="186" textAnchor="middle" fontSize="8" fill="#7B5FEA" fontFamily="'JetBrains Mono',monospace">QUALIFY · ROUTE · BOOK</text>
+      {/* PHASE 2: AI Brain/Engine */}
+      <g filter="url(#shadow-lg)">
+        <rect x="165" y="115" width="90" height="90" rx="16" fill="#fff" stroke="#D4CBF9" strokeWidth="2"/>
+        <rect x="165" y="115" width="90" height="6" rx="3" fill="#5B3FD4"/>
+
+        {/* Brain-like icon with dual circles */}
+        <circle cx="204" cy="155" r="12" fill="none" stroke="#5B3FD4" strokeWidth="2"/>
+        <circle cx="216" cy="155" r="12" fill="none" stroke="#7B5FEA" strokeWidth="2"/>
+        <rect x="200" y="151" width="20" height="8" fill="#5B3FD4" opacity="0.15" rx="2"/>
+
+        {/* Rotating elements inside */}
+        <g opacity="0.6">
+          <circle cx="210" cy="155" r="18" fill="none" stroke="#5B3FD4" strokeWidth="1" strokeDasharray="4 3">
+            <animateTransform attributeName="transform" type="rotate" from="0 210 155" to="360 210 155" dur="8s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <text x="210" y="178" textAnchor="middle" fontSize="10" fontWeight="700" fill="#3A2899" fontFamily="'Plus Jakarta Sans'">PAS</text>
+        <text x="210" y="190" textAnchor="middle" fontSize="8" fill="#7B5FEA" fontFamily="'JetBrains Mono'">QUALIFY</text>
       </g>
 
-      {/* Node 3: Routed Agent — Person icon */}
-      <g filter="url(#cardShadow)">
-        <rect x="370" y="115" width="110" height="90" rx="16" fill="#fff"/>
-        <rect x="370" y="115" width="110" height="90" rx="16" stroke="#A7F3D0" strokeWidth="1"/>
-        <circle cx="425" cy="145" r="14" fill="#ECFDF5"/>
-        <circle cx="425" cy="141" r="5" fill="#0D9E6E"/>
-        <path d="M415 153 a10 8 0 0 1 20 0" fill="#0D9E6E" opacity="0.3"/>
-        <text x="425" y="177" textAnchor="middle" fontSize="10" fontWeight="700" fill="#065F46" fontFamily="'Plus Jakarta Sans',sans-serif">Routed</text>
-        <text x="425" y="190" textAnchor="middle" fontSize="8" fill="#0D9E6E" fontFamily="'JetBrains Mono',monospace">BOOKED ✓</text>
+      {/* PHASE 3: Agent/Booking */}
+      <g filter="url(#shadow-lg)">
+        <rect x="295" y="140" width="90" height="90" rx="16" fill="#fff" stroke="#A7F3D0" strokeWidth="1.5"/>
+
+        {/* Person icon */}
+        <circle cx="340" cy="165" r="8" fill="#0D9E6E" opacity="0.7"/>
+        <path d="M 340 174 Q 334 180 334 185 L 334 195 Q 334 197 336 197 L 344 197 Q 346 197 346 195 L 346 185 Q 346 180 340 174 Z"
+              fill="#0D9E6E" opacity="0.5"/>
+
+        {/* Calendar checkmark */}
+        <rect x="335" y="182" width="10" height="10" rx="2" fill="none" stroke="#0D9E6E" strokeWidth="1.2"/>
+        <path d="M 337 186 L 339 188 L 343 184" stroke="#0D9E6E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+
+        <text x="340" y="218" textAnchor="middle" fontSize="11" fontWeight="700" fill="#065F46" fontFamily="'Plus Jakarta Sans'">Booked</text>
+        <text x="340" y="230" textAnchor="middle" fontSize="9" fill="#0D9E6E" fontFamily="'JetBrains Mono'">✓ ROUTE</text>
       </g>
 
-      {/* Status badges floating */}
-      <g>
-        <rect x="320" y="55" width="88" height="26" rx="13" fill="#ECFDF5" stroke="#A7F3D0" strokeWidth="1">
-          <animate attributeName="y" values="55;50;55" dur="4s" repeatCount="indefinite"/>
-        </rect>
-        <circle cx="334" cy="68" r="3" fill="#0D9E6E">
-          <animate attributeName="y" values="55;50;55" dur="4s" repeatCount="indefinite"/>
-        </circle>
-        <text x="364" y="72" textAnchor="middle" fontSize="8" fontWeight="600" fill="#065F46" fontFamily="'JetBrains Mono',monospace">
-          <animate attributeName="y" values="72;67;72" dur="4s" repeatCount="indefinite"/>
-          &lt; 30s
-        </text>
+      {/* PHASE 4: Success/Metrics */}
+      <g filter="url(#shadow-lg)">
+        <rect x="425" y="110" width="90" height="90" rx="16" fill="#fff" stroke="#FEE2E2" strokeWidth="1.5"/>
+
+        {/* Upward arrow with growth indicator */}
+        <path d="M 455 175 L 455 155 M 445 165 L 455 155 L 465 165"
+              stroke="#0D9E6E" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+
+        {/* Percentage symbol */}
+        <circle cx="475" cy="160" r="3" fill="#0D9E6E"/>
+        <text x="482" y="165" fontSize="14" fontWeight="800" fill="#0D9E6E" fontFamily="'Plus Jakarta Sans'">94</text>
+
+        <text x="470" y="198" textAnchor="middle" fontSize="10" fontWeight="700" fill="#065F46" fontFamily="'Plus Jakarta Sans'">Contact</text>
+        <text x="470" y="210" textAnchor="middle" fontSize="8" fill="#0D9E6E" fontFamily="'JetBrains Mono'">RATE</text>
       </g>
 
-      {/* Bottom metrics row */}
-      <g filter="url(#cardShadow)">
-        <rect x="60" y="290" width="400" height="70" rx="16" fill="#fff"/>
-        <rect x="60" y="290" width="400" height="70" rx="16" stroke="#E5E8F0" strokeWidth="1"/>
-        {/* Metric 1 */}
-        <text x="130" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0F172A" fontFamily="'Plus Jakarta Sans',sans-serif">94%</text>
-        <text x="130" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">CONTACT RATE</text>
-        {/* Divider */}
-        <line x1="200" y1="300" x2="200" y2="350" stroke="#F1F5F9" strokeWidth="1"/>
-        {/* Metric 2 */}
-        <text x="260" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#5B3FD4" fontFamily="'Plus Jakarta Sans',sans-serif">24/7</text>
-        <text x="260" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">AVAILABILITY</text>
-        {/* Divider */}
-        <line x1="320" y1="300" x2="320" y2="350" stroke="#F1F5F9" strokeWidth="1"/>
-        {/* Metric 3 */}
-        <text x="390" y="318" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0D9E6E" fontFamily="'Plus Jakarta Sans',sans-serif">0</text>
-        <text x="390" y="334" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono',monospace">LEADS MISSED</text>
-      </g>
-
-      {/* Data particles flowing */}
-      {[0,1,2].map(i => (
-        <circle key={i} r="3" fill="#5B3FD4" opacity="0.4">
-          <animateMotion dur={`${2+i*0.5}s`} repeatCount="indefinite" begin={`${i*0.6}s`}>
-            <mpath href="#flowPath"/>
+      {/* Data particles flowing along path - 3 particles with different timing */}
+      {[0, 1, 2].map((i) => (
+        <g key={i} filter="url(#glow)">
+          <animateMotion dur={`${3 + i * 0.6}s`} repeatCount="indefinite" begin={`${i * 0.8}s`}>
+            <path d="M 80 210 Q 140 140, 210 140 T 350 210 T 480 150" fill="none"/>
+            <circle r="5" fill="#5B3FD4" opacity="0.7"/>
           </animateMotion>
-        </circle>
+        </g>
       ))}
-      <path id="flowPath" d="M100 200 C160 200, 160 140, 220 140 S320 200, 340 200 S400 160, 420 160" fill="none" stroke="none"/>
+
+      {/* Bottom metric bar */}
+      <g filter="url(#shadow-lg)">
+        <rect x="60" y="320" width="440" height="70" rx="16" fill="#fff" stroke="#E5E8F0" strokeWidth="1.5"/>
+
+        {/* Metric 1 */}
+        <g>
+          <text x="140" y="345" textAnchor="middle" fontSize="20" fontWeight="800" fill="#0F172A" fontFamily="'Plus Jakarta Sans'">94%</text>
+          <text x="140" y="363" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono'" fontWeight="600">CONTACT RATE</text>
+        </g>
+
+        {/* Divider */}
+        <line x1="210" y1="330" x2="210" y2="385" stroke="#E5E8F0" strokeWidth="1.5"/>
+
+        {/* Metric 2 */}
+        <g>
+          <text x="280" y="345" textAnchor="middle" fontSize="20" fontWeight="800" fill="#5B3FD4" fontFamily="'Plus Jakarta Sans'">24/7</text>
+          <text x="280" y="363" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono'" fontWeight="600">AVAILABILITY</text>
+        </g>
+
+        {/* Divider */}
+        <line x1="350" y1="330" x2="350" y2="385" stroke="#E5E8F0" strokeWidth="1.5"/>
+
+        {/* Metric 3 */}
+        <g>
+          <text x="420" y="345" textAnchor="middle" fontSize="20" fontWeight="800" fill="#0D9E6E" fontFamily="'Plus Jakarta Sans'">0</text>
+          <text x="420" y="363" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="'JetBrains Mono'" fontWeight="600">LEADS LOST</text>
+        </g>
+      </g>
+
+      {/* Corner accent lines */}
+      <g stroke="#5B3FD4" strokeWidth="2" opacity="0.2">
+        <line x1="60" y1="20" x2="100" y2="20"/>
+        <line x1="60" y1="20" x2="60" y2="60"/>
+        <line x1="500" y1="400" x2="460" y2="400"/>
+        <line x1="500" y1="400" x2="500" y2="360"/>
+      </g>
     </svg>
   );
 }

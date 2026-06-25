@@ -1,0 +1,253 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+import PageWrapper from '../components/PageWrapper';
+import Section from '../components/ui/Section';
+import Eyebrow from '../components/ui/Eyebrow';
+import Newsletter from '../components/Newsletter';
+import { useDocumentMeta } from '../lib/seo';
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 18 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+  transition: { duration: 0.6, ease: [0.23, 1, 0.32, 1], delay },
+});
+
+const fmt = (iso) =>
+  new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+export default function Blog() {
+  useDocumentMeta({
+    title: 'Blog',
+    description: 'Field notes on first-contact infrastructure, lead conversion, and brokerage operations.',
+    path: '/blog',
+  });
+
+  const [posts, setPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadPostsAndCategories();
+  }, []);
+
+  const loadPostsAndCategories = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      // Load posts
+      const postsRes = await fetch('/api/blog/list');
+      if (!postsRes.ok) throw new Error('Failed to load posts');
+      const postsData = await postsRes.json();
+      setPosts(postsData.posts || []);
+
+      // Load categories
+      const categoriesRes = await fetch('/api/blog/categories');
+      if (!categoriesRes.ok) throw new Error('Failed to load categories');
+      const categoriesData = await categoriesRes.json();
+      setCategories(categoriesData.categories || []);
+    } catch (err) {
+      console.error('Failed to load blog data:', err);
+      setError('Failed to load blog posts. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredPosts = selectedCategory
+    ? posts.filter((p) => p.category === selectedCategory)
+    : posts;
+
+  return (
+    <PageWrapper>
+      <section style={{ padding: 'clamp(48px, 6vw, 80px) 0 clamp(20px, 3vw, 32px)', background: '#fff' }}>
+        <div className="container-page" style={{ maxWidth: 840 }}>
+          <motion.div {...fadeUp(0)}>
+            <Eyebrow>Blog</Eyebrow>
+          </motion.div>
+          <motion.h1
+            {...fadeUp(0.05)}
+            className="h-display"
+            style={{
+              fontSize: 'clamp(44px, 5.8vw, 76px)',
+              lineHeight: 1.1,
+              marginBottom: 24,
+              fontWeight: 800,
+            }}
+          >
+            Field notes on first-contact infrastructure.
+          </motion.h1>
+          <motion.p
+            {...fadeUp(0.1)}
+            className="lead"
+            style={{
+              fontSize: 'clamp(17px, 1.8vw, 19px)',
+              lineHeight: 1.65,
+              color: '#475569',
+              maxWidth: 660,
+            }}
+          >
+            Weekly insights on how brokerages lose, recover, and convert inbound leads. The philosophy, the operators, the patterns that repeat.
+          </motion.p>
+        </div>
+      </section>
+
+      <Section borderTop background="surface">
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          {/* Category Filter */}
+          <motion.div
+            {...fadeUp(0)}
+            style={{
+              display: 'flex',
+              gap: 8,
+              flexWrap: 'wrap',
+              marginBottom: 48,
+              justifyContent: 'center',
+            }}
+          >
+            <button
+              onClick={() => setSelectedCategory(null)}
+              style={{
+                padding: '10px 20px',
+                borderRadius: 100,
+                border: selectedCategory === null ? 'none' : '1.5px solid #E5E8F0',
+                background: selectedCategory === null ? '#5B3FD4' : '#fff',
+                color: selectedCategory === null ? '#fff' : '#475569',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              All posts
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: 100,
+                  border: selectedCategory === cat ? 'none' : '1.5px solid #E5E8F0',
+                  background: selectedCategory === cat ? '#5B3FD4' : '#fff',
+                  color: selectedCategory === cat ? '#fff' : '#475569',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Loading State */}
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>
+              Loading posts...
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#DC2626' }}>
+              <p>{error}</p>
+              <button
+                onClick={loadPostsAndCategories}
+                style={{
+                  marginTop: 16,
+                  padding: '10px 20px',
+                  background: '#5B3FD4',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Try Again
+              </button>
+            </div>
+          ) : filteredPosts.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <p style={{ fontSize: 16, color: '#94A3B8' }}>No posts in this category yet.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
+              {filteredPosts.map((post, idx) => (
+                <motion.article
+                  key={post.slug}
+                  {...fadeUp(idx * 0.05)}
+                  className="card"
+                  style={{
+                    padding: 32,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: '#5B3FD4',
+                      marginBottom: 12,
+                      display: 'inline-block',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {post.category}
+                  </span>
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    style={{
+                      fontSize: 'clamp(18px, 2.2vw, 24px)',
+                      fontWeight: 700,
+                      color: '#0F172A',
+                      margin: '0 0 12px',
+                      lineHeight: 1.35,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    {post.title}
+                  </Link>
+                  <p style={{ fontSize: 15, color: '#475569', lineHeight: 1.65, margin: '0 0 18px', flex: 1 }}>
+                    {post.excerpt}
+                  </p>
+                  <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#94A3B8', marginBottom: 16 }}>
+                    <span>{fmt(post.published_at)}</span>
+                    <span>·</span>
+                    <span>{post.read_minutes} min read</span>
+                  </div>
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      color: '#5B3FD4',
+                      fontWeight: 700,
+                      fontSize: 14,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    Read post →
+                  </Link>
+                </motion.article>
+              ))}
+            </div>
+          )}
+        </div>
+      </Section>
+
+      <Section borderTop background="surface">
+        <Newsletter source="blog_list" />
+      </Section>
+    </PageWrapper>
+  );
+}
