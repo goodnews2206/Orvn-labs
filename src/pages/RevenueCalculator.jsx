@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ChevronDown, ChevronUp, ArrowRight, Download, Printer } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronUp, ArrowRight, Download } from 'lucide-react';
 
 import PageWrapper from '../components/PageWrapper';
 import Section from '../components/ui/Section';
@@ -16,33 +16,26 @@ const MONO = "'JetBrains Mono', monospace";
 const SANS = "'Inter', sans-serif";
 const DISPLAY = "'Plus Jakarta Sans', sans-serif";
 
-const STARTER_PRICE = 500;
-
 const fm = (n) => {
   const num = Math.round(n);
   if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
   return '$' + num.toLocaleString();
 };
 const pct = (n) => (n * 100).toFixed(0) + '%';
-
-const responsePenalty = (rt) => {
-  if (rt <= 5) return 0;
-  if (rt <= 30) return 0.4;
-  if (rt <= 60) return 0.6;
-  if (rt <= 240) return 0.72;
-  return 0.82;
-};
+const pct1 = (n) => (n * 100).toFixed(1) + '%';
 
 const formatResp = (v) => (v <= 60 ? `${v} min` : `${(v / 60).toFixed(1)} hrs`);
 
-const pctLabel = (p) =>
-  ({
-    0: 'top 10%',
-    0.4: 'bottom 30%',
-    0.6: 'bottom 20%',
-    0.72: 'bottom 12%',
-    0.82: 'bottom 5%',
-  }[p] ?? 'bottom 30%');
+// Qualitative response-time risk band. No revenue multiplier — there is no sourced
+// response-time→conversion distribution in this repo, so response time is a risk
+// signal only, never a dollar figure.
+const responseBand = (rt) => {
+  if (rt < 5) return { label: 'Target zone', tone: GREEN, bg: '#ECFDF5', border: '#A7F3D0', text: '#065F46' };
+  if (rt <= 15) return { label: 'Early leakage risk', tone: AMBER, bg: '#FFFBEB', border: '#FDE68A', text: '#92400E' };
+  if (rt <= 60) return { label: 'Meaningful delay', tone: AMBER, bg: '#FFFBEB', border: '#FDE68A', text: '#92400E' };
+  if (rt <= 240) return { label: 'High delay', tone: RED, bg: '#FEF2F2', border: '#FECACA', text: '#991B1B' };
+  return { label: 'Severe delay', tone: RED, bg: '#FEF2F2', border: '#FECACA', text: '#991B1B' };
+};
 
 function AnimCounter({ target, prefix = '', suffix = '', duration = 1200 }) {
   const [val, setVal] = useState(0);
@@ -178,79 +171,95 @@ export default function RevenueCalculator() {
   useDocumentMeta({
     title: 'Revenue Calculator',
     description:
-      'Conservative estimate of what speed-to-lead delay and CRM graveyards cost a real estate brokerage per year. Math shown step by step.',
+      'Conservative estimate of the annual revenue a real estate brokerage could recover with faster, more consistent first contact. Math shown step by step.',
     path: '/calculators/revenue',
   });
 
   const [searchParams] = useSearchParams();
-  const [leads, setLeads] = useState(150);
-  const [commission, setCommission] = useState(12000);
-  const [closeRate, setCloseRate] = useState(8);
-  const [responseTime, setResponseTime] = useState(45);
-  const [isaCost, setIsaCost] = useState('');
-  const [crmSize, setCrmSize] = useState('');
+  // Inputs are lazily initialised from query params (emailed-report deep links),
+  // so prefill happens at first render — no setState inside the effect below.
+  const [leads, setLeads] = useState(() => searchParams.get('leads') || 150);
+  const [commission, setCommission] = useState(() => searchParams.get('comm') || 12000);
+  const [currentClose, setCurrentClose] = useState(() => searchParams.get('cr') || 8);
+  // Pre-filled, editable target scenario — a modest lift above the current rate.
+  const [targetClose, setTargetClose] = useState(() => {
+    const tc = searchParams.get('tc');
+    if (tc) return tc;
+    const cr = parseFloat(searchParams.get('cr'));
+    return cr ? String(Math.min(30, cr + 4)) : 12;
+  });
+  const [responseTime, setResponseTime] = useState(() => searchParams.get('rt') || 45);
+  const [isaCost, setIsaCost] = useState(() => {
+    const isa = searchParams.get('isa');
+    return isa && isa !== '0' ? isa : '';
+  });
+  const [crmSize, setCrmSize] = useState(() => {
+    const crm = searchParams.get('crm');
+    return crm && crm !== '0' ? crm : '';
+  });
   const [results, setResults] = useState(null);
   const [showAudit, setShowAudit] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => searchParams.get('email') || '');
   const [submitState, setSubmitState] = useState('idle');
 
   const calculate = (scroll = true) => {
-    const rt = parseInt(responseTime, 10);
-    const cr = parseFloat(closeRate) / 100;
+    const rt = parseInt(responseTime, 10) || 0;
+    const curCR = (parseFloat(currentClose) || 0) / 100;
+    const tgtCR = (parseFloat(targetClose) || 0) / 100;
     const L = parseFloat(leads) || 0;
     const C = parseFloat(commission) || 0;
-    const P = responsePenalty(rt);
     const ISA = parseFloat(isaCost) || 0;
 
-    // Bug 1: Default CRM to 24 months of accumulated leads if blank
+    // CRM fallback preserved from main: default to ~24 months of accumulated leads if blank.
+    const crmFallback = !(parseFloat(crmSize) > 0);
     const CRM = parseFloat(crmSize) || (L * 24);
 
-    const idealDeals = L * cr;
-    const actualDeals = idealDeals * (1 - P);
+    // ── Recoverable-opportunity model (current close rate is never penalized twice) ──
+    const currentDeals = L * curCR;
+    const targetDeals = L * tgtCR;
+    const hasGap = tgtCR > curCR;
+    const recoverableDeals = hasGap ? Math.max(targetDeals - currentDeals, 0) : 0;
+    const recoverableMonth = recoverableDeals * C;
+    const recoverableYear = recoverableMonth * 12;
 
-    // Bug 2: Calculate actual leads lost, not just deals
-    const leadsLostResponse = L * P;
-    const dealsLost = idealDeals * P;
+    // ── Database re-engagement ("graveyard") — separate, clearly-labeled, illustrative bucket ──
+    const reRate = 0.12; // illustrative assumption — not research-backed
+    const reactivatable = CRM * reRate;
+    const graveyardClose = curCR * 0.4; // 40% OF the current close rate (a 60% haircut)
+    const graveyardDeals = reactivatable * graveyardClose;
+    const graveyardValue = graveyardDeals * C;
 
-    const monthlyLost = dealsLost * C;
-    const annualLost = monthlyLost * 12;
-
-    const reactivatable = CRM * 0.12;
-    const adjustedClose = cr * 0.4;
-    const recoverableDeals = reactivatable * adjustedClose;
-    const graveyardValue = recoverableDeals * C;
-
+    // ── ISA coverage / operating-cost context (no fabricated PAS price) ──
+    const isaHoursWeek = 45;
+    const isaAnnualHours = isaHoursWeek * 52; // 2,340 hrs/yr
+    const pasAnnualHours = 8760; // 24 × 365
+    const coverageGap = Math.max(pasAnnualHours - isaAnnualHours, 0); // 6,420 hrs/yr
     const isaMonthly = ISA / 12;
-    const isaSaving = isaMonthly - STARTER_PRICE;
 
-    const revenuePerAppt = C * cr;
-    const breakEvenAppts = revenuePerAppt > 0 ? (STARTER_PRICE / revenuePerAppt).toFixed(2) : null;
+    // Combined upside is only ever shown as an explicitly-labeled scenario.
+    const combinedUpside = recoverableYear + graveyardValue;
 
-    const total = annualLost + graveyardValue;
+    const band = responseBand(rt);
 
     let insight = '';
-    if (P === 0) {
-      insight = `With a response time under 5 minutes, you are in the top 10% of brokerages for speed-to-lead. Your primary opportunity is graveyard CRM reactivation — ${fm(graveyardValue)} in recoverable revenue sitting dormant in your database.`;
-    } else if (P <= 0.4) {
-      insight = `A ${formatResp(rt)} response time costs you ${pct(P)} of your conversion potential before any agent picks up the phone — ${fm(monthlyLost)} per month, ${fm(annualLost)} per year. This is a systems problem, not an effort problem.`;
+    if (!hasGap) {
+      insight = `Based on your inputs, your target close rate (${pct(tgtCR)}) isn't higher than your current rate (${pct(curCR)}), so there's no modeled close-rate gap to recover. Faster, more consistent first contact still reduces risk on the leads you're currently losing — your response time of ${formatResp(rt)} is in the "${band.label.toLowerCase()}" range.`;
     } else {
-      insight = `A ${formatResp(rt)} response time places you in the ${pctLabel(P)} of US brokerages for speed-to-lead. You are losing ${pct(P)} of your conversion potential — ${fm(monthlyLost)} per month — before the first human interaction.`;
+      insight = `Lifting your close rate from ${pct(curCR)} to a target of ${pct(tgtCR)} on ${L.toLocaleString()} monthly leads models ${recoverableDeals.toFixed(1)} additional deals per month — ${fm(recoverableMonth)}/month, ${fm(recoverableYear)}/year of recoverable opportunity. This is a systems opportunity: protect more of the intent you already pay for.`;
     }
     if (CRM > 500) {
-      insight += ` Your CRM database of ${CRM.toLocaleString()} leads contains an estimated ${Math.round(reactivatable)} reactivatable contacts within a 12-month window.`;
+      insight += ` Separately, your database of ${CRM.toLocaleString()} leads holds an illustrative ${Math.round(reactivatable)} re-engageable contacts (a ${pct(reRate)} editable assumption) worth roughly ${fm(graveyardValue)} at a conservative reactivation close rate.`;
     }
     if (ISA > 0) {
-      insight += ` Your ISA investment of ${fm(ISA)}/year (${fm(isaMonthly)}/month) is the current first-contact infrastructure cost. PAS Starter at $${STARTER_PRICE}/month would represent ${isaSaving > 0 ? fm(isaSaving) + '/month savings' : 'a more flexible structure'} while removing the human delay variable entirely.`;
+      insight += ` Your ISA investment of ${fm(ISA)}/year (${fm(isaMonthly)}/month) is your current first-contact cost. A human ISA covers about ${isaAnnualHours.toLocaleString()} hours/year against continuous coverage — a gap of roughly ${coverageGap.toLocaleString()} hours. PAS early-access pricing is quoted per brokerage.`;
     }
 
     setResults({
-      rt, P, cr, L, C, ISA, CRM,
-      idealDeals, actualDeals, dealsLost, leadsLostResponse,
-      monthlyLost, annualLost,
-      reactivatable, adjustedClose, recoverableDeals, graveyardValue,
-      isaMonthly, isaSaving,
-      revenuePerAppt, breakEvenAppts,
-      total, insight,
+      rt, band, curCR, tgtCR, hasGap, L, C, ISA, CRM, crmFallback, reRate,
+      currentDeals, targetDeals, recoverableDeals, recoverableMonth, recoverableYear,
+      reactivatable, graveyardClose, graveyardDeals, graveyardValue,
+      isaHoursWeek, isaAnnualHours, pasAnnualHours, coverageGap, isaMonthly,
+      combinedUpside, insight,
     });
     setShowAudit(false);
 
@@ -261,29 +270,15 @@ export default function RevenueCalculator() {
     }
   };
 
-  // Handle email link redirect
+  // If the visitor arrived from an emailed report link, auto-run the calculation once.
+  // Inputs are already prefilled via lazy useState initialisers above, so the effect
+  // body performs no synchronous setState.
   useEffect(() => {
-    const e = searchParams.get('email');
-    if (e) {
-      setEmail(e);
-
-      const l = searchParams.get('leads');
-      const c = searchParams.get('comm');
-      const cr = searchParams.get('cr');
-      const rt = searchParams.get('rt');
-      const crm = searchParams.get('crm');
-      const isa = searchParams.get('isa');
-
-      if (l) setLeads(l);
-      if (c) setCommission(c);
-      if (cr) setCloseRate(cr);
-      if (rt) setResponseTime(rt);
-      if (crm && crm !== '0') setCrmSize(crm);
-      if (isa && isa !== '0') setIsaCost(isa);
-
-      // Give React a moment to batch state updates
-      setTimeout(() => calculate(false), 100);
+    if (searchParams.get('email')) {
+      const t = setTimeout(() => calculate(false), 100);
+      return () => clearTimeout(t);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const handleDownloadPdf = () => {
@@ -535,17 +530,20 @@ export default function RevenueCalculator() {
       inputs: {
         monthlyLeads: results.L,
         avgCommission: results.C,
-        closeRate: results.cr,
+        currentCloseRate: results.curCR,
+        targetCloseRate: results.tgtCR,
         responseTimeMin: results.rt,
         annualIsaCost: results.ISA || null,
         crmDatabaseSize: results.CRM || null,
+        reEngagementRate: results.reRate,
       },
       outputs: {
-        annualRevenueLost: Math.round(results.annualLost),
-        graveyardValue: Math.round(results.graveyardValue),
-        totalOpportunity: Math.round(results.total),
-        penaltyFactor: results.P,
-        monthlyLost: Math.round(results.monthlyLost),
+        recoverableRevenuePerMonth: Math.round(results.recoverableMonth),
+        recoverableRevenuePerYear: Math.round(results.recoverableYear),
+        recoverableDealsPerMonth: Number(results.recoverableDeals.toFixed(2)),
+        databaseReactivationValue: Math.round(results.graveyardValue),
+        combinedUpsideScenario: Math.round(results.combinedUpside),
+        responseRiskBand: results.band.label,
       },
     };
 
@@ -586,7 +584,7 @@ export default function RevenueCalculator() {
         <div className="container-page" style={{ maxWidth: 760 }}>
           <Eyebrow>Revenue calculator</Eyebrow>
           <h1 className="h-display" style={{ fontSize: 'clamp(34px, 5vw, 56px)', margin: '14px 0 16px' }}>
-            How much revenue is your brokerage losing every year?
+            How much revenue could faster first contact recover?
           </h1>
           <p className="lead">
             Every formula shown step by step. Every assumption conservative — this is a floor, not
@@ -618,10 +616,10 @@ export default function RevenueCalculator() {
             }}
           >
             <span style={{ fontWeight: 600, fontSize: 14, color: '#0F172A' }}>
-              Speed-to-lead revenue audit
+              Recoverable revenue model
             </span>
             <span style={{ fontFamily: MONO, fontSize: 11, color: '#94A3B8' }}>
-              6 inputs · runs locally · no signup
+              All inputs editable · runs locally · no signup
             </span>
           </div>
 
@@ -640,7 +638,31 @@ export default function RevenueCalculator() {
               }}
             >
               <strong>Conservative by design.</strong> Every formula is shown step by step after
-              you calculate. Every assumption tilts low. The real cost is almost always higher.
+              you calculate. Every assumption tilts low. The real opportunity is almost always
+              higher.
+            </div>
+
+            {/* C1 — How to read this number */}
+            <div
+              style={{
+                background: '#EEEAFB',
+                border: '1px solid #C7BCF5',
+                borderLeft: `3px solid ${PURPLE}`,
+                borderRadius: 8,
+                padding: '14px 16px',
+                marginBottom: 24,
+                fontSize: 13.5,
+                color: '#3A2899',
+                lineHeight: 1.7,
+              }}
+            >
+              <strong>How to read this number.</strong> Your current close rate already reflects
+              your current operation — including how fast you respond today. This calculator does
+              not punish that number twice. Instead, it estimates the annual opportunity if faster,
+              more consistent first contact lifts your close rate from your current baseline to a
+              target scenario you control. If your target isn’t higher than your current rate, the
+              recoverable opportunity is $0 — and the response-time risk below still applies to the
+              leads you’re currently losing.
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18, marginBottom: 24 }}>
@@ -705,7 +727,7 @@ export default function RevenueCalculator() {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginBottom: 28 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, marginBottom: 28 }}>
               <div>
                 <label
                   style={{
@@ -718,15 +740,37 @@ export default function RevenueCalculator() {
                     marginBottom: 8,
                   }}
                 >
-                  Lead-to-close rate <span style={{ color: PURPLE }}>*</span>
+                  Current close rate <span style={{ color: PURPLE }}>*</span>
                 </label>
-                <input type="range" min="1" max="30" value={closeRate} onChange={(e) => setCloseRate(e.target.value)} />
+                <input type="range" min="1" max="30" value={currentClose} onChange={(e) => setCurrentClose(e.target.value)} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
                   <span style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8' }}>1%</span>
-                  <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 700, color: PURPLE }}>{closeRate}%</span>
+                  <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 700, color: PURPLE }}>{currentClose}%</span>
                   <span style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8' }}>30%</span>
                 </div>
-                <p style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginTop: 4 }}>Industry avg ~8%</p>
+                <p style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginTop: 4 }}>What you close today, as-is</p>
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: 'block',
+                    fontFamily: MONO,
+                    fontSize: 10,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: '#94A3B8',
+                    marginBottom: 8,
+                  }}
+                >
+                  Target close rate — editable scenario <span style={{ color: PURPLE }}>*</span>
+                </label>
+                <input type="range" min="1" max="30" value={targetClose} onChange={(e) => setTargetClose(e.target.value)} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8' }}>1%</span>
+                  <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 700, color: GREEN }}>{targetClose}%</span>
+                  <span style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8' }}>30%</span>
+                </div>
+                <p style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginTop: 4 }}>Achievable with faster, better first contact</p>
               </div>
               <div>
                 <label
@@ -758,13 +802,13 @@ export default function RevenueCalculator() {
                   <span style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8' }}>8 hrs+</span>
                 </div>
                 <p style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginTop: 4 }}>
-                  Ideal: under 5 minutes
+                  Risk signal only — not a revenue multiplier
                 </p>
               </div>
             </div>
 
             <button type="button" onClick={calculate} className="btn-primary" style={{ width: '100%', padding: 16, fontSize: 16 }}>
-              Calculate annual revenue loss <ArrowRight size={16} />
+              Calculate recoverable opportunity <ArrowRight size={16} />
             </button>
           </div>
 
@@ -806,341 +850,465 @@ export default function RevenueCalculator() {
                     </div>
                   </div>
 
+                  {R.hasGap ? (
+                    <div
+                      style={{
+                        background: '#EEEAFB',
+                        border: '1px solid #C7BCF5',
+                        borderRadius: 14,
+                        padding: 32,
+                        textAlign: 'center',
+                        marginBottom: 20,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: MONO,
+                          fontSize: 10,
+                          letterSpacing: '0.16em',
+                          color: PURPLE,
+                          textTransform: 'uppercase',
+                          marginBottom: 12,
+                        }}
+                      >
+                        Estimated annual recoverable opportunity
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: DISPLAY,
+                          fontSize: 'clamp(48px, 8vw, 78px)',
+                          color: PURPLE,
+                          lineHeight: 1,
+                          marginBottom: 8,
+                        }}
+                      >
+                        <AnimCounter target={R.recoverableYear} prefix="$" />
+                      </div>
+                      <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>
+                        Close-rate opportunity · math shown below · database reactivation shown separately
+                      </p>
+
+                      {/* Download Button */}
+                      <div className="no-print" style={{ marginTop: 24, display: 'flex', justifyContent: 'center', gap: 12 }}>
+                        <button
+                          onClick={handleDownloadPdf}
+                          className="btn-secondary"
+                          style={{ background: '#fff', fontSize: 13, padding: '10px 20px' }}
+                        >
+                          <Download size={14} /> Download PDF Report
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        background: '#F7F8FB',
+                        border: '1px solid #E5E8F0',
+                        borderLeft: `3px solid ${PURPLE}`,
+                        borderRadius: 14,
+                        padding: 28,
+                        marginBottom: 20,
+                      }}
+                    >
+                      <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.16em', color: PURPLE, textTransform: 'uppercase', marginBottom: 10 }}>
+                        Estimated annual recoverable opportunity · $0
+                      </div>
+                      <p style={{ fontSize: 14.5, color: '#0F172A', margin: 0, lineHeight: 1.7 }}>
+                        Based on your inputs, there’s no modeled close-rate gap to recover — your
+                        target rate isn’t higher than your current rate. Faster first contact still
+                        reduces risk on the leads you’re currently losing — see the response-time risk
+                        below.
+                      </p>
+                      <div className="no-print" style={{ marginTop: 20, display: 'flex', gap: 12 }}>
+                        <button
+                          onClick={handleDownloadPdf}
+                          className="btn-secondary"
+                          style={{ background: '#fff', fontSize: 13, padding: '10px 20px' }}
+                        >
+                          <Download size={14} /> Download PDF Report
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Response-time risk — qualitative band, no dollar figure */}
                   <div
                     style={{
-                      background: '#FEF2F2',
-                      border: '1px solid #FECACA',
-                      borderRadius: 14,
-                      padding: 32,
-                      textAlign: 'center',
+                      background: R.band.bg,
+                      border: `1px solid ${R.band.border}`,
+                      borderLeft: `3px solid ${R.band.tone}`,
+                      borderRadius: 10,
+                      padding: '16px 20px',
                       marginBottom: 20,
                     }}
                   >
-                  <div
-                    style={{
-                      fontFamily: MONO,
-                      fontSize: 10,
-                      letterSpacing: '0.16em',
-                      color: RED,
-                      textTransform: 'uppercase',
-                      marginBottom: 12,
-                    }}
-                  >
-                    Estimated annual revenue being lost
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: DISPLAY,
-                      fontSize: 'clamp(48px, 8vw, 78px)',
-                      color: RED,
-                      lineHeight: 1,
-                      marginBottom: 8,
-                    }}
-                  >
-                    <AnimCounter target={R.total} prefix="$" />
-                  </div>
-                  <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>
-                    Conservative estimate · math shown below
-                  </p>
-
-                  {/* Download Button */}
-                  <div className="no-print" style={{ marginTop: 24, display: 'flex', justifyContent: 'center', gap: 12 }}>
-                    <button
-                      onClick={handleDownloadPdf}
-                      className="btn-secondary"
-                      style={{ background: '#fff', fontSize: 13, padding: '10px 20px' }}
-                    >
-                      <Download size={14} /> Download PDF Report
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
-                  {[
-                    { label: 'Leads lost / month', value: Math.round(R.leadsLostResponse), color: RED, sub: 'to slow response time' },
-                    { label: 'Monthly commission lost', value: Math.round(R.monthlyLost), prefix: '$', color: RED, sub: 'speed-to-lead only' },
-                    { label: 'Graveyard CRM value', value: Math.round(R.graveyardValue), prefix: '$', color: GREEN, sub: '12-month recoverable' },
-                  ].map((c, i) => (
-                    <div key={i} style={{ background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 10, padding: 18, textAlign: 'center' }}>
-                      <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.1em', color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8 }}>
-                        {c.label}
-                      </div>
-                      <div style={{ fontFamily: DISPLAY, fontSize: 28, color: c.color, lineHeight: 1, marginBottom: 4 }}>
-                        <AnimCounter target={c.value} prefix={c.prefix || ''} />
-                      </div>
-                      <div style={{ fontSize: 11, color: '#94A3B8' }}>{c.sub}</div>
+                    <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: R.band.text, marginBottom: 6 }}>
+                      Response-time risk
                     </div>
-                  ))}
-                </div>
-
-                <div style={{ background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 10, padding: 20, marginBottom: 20 }}>
-                  <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.14em', color: AMBER, textTransform: 'uppercase', marginBottom: 14 }}>
-                    Step-by-step calculation
+                    <div style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>
+                      {formatResp(R.rt)} — {R.band.label}
+                    </div>
+                    <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.65 }}>
+                      Faster first contact protects intent before it cools. The sub-5-minute window is
+                      the ceiling most operations never reach — not because people aren’t trying, but
+                      because no human is on every inbound lead the moment it arrives.
+                    </p>
                   </div>
-                  <MathRow label="Monthly leads" value={R.L} />
-                  <MathRow label="Lead-to-close rate" value={pct(R.cr)} />
-                  <MathRow label={`Ideal deals/month  (${R.L} × ${pct(R.cr)})`} value={R.idealDeals.toFixed(1)} />
-                  <MathRow label={`Response-time penalty  P = ${pct(R.P)} at ${formatResp(R.rt)}`} value={pct(R.P)} color={RED} />
-                  <MathRow label={`Deals lost/month  (${R.idealDeals.toFixed(1)} × ${pct(R.P)})`} value={R.dealsLost.toFixed(1)} color={RED} />
-                  <MathRow label={`Monthly revenue lost  (${R.dealsLost.toFixed(1)} × ${fm(R.C)})`} value={fm(R.monthlyLost)} color={RED} />
-                  <MathRow label="Annual speed-to-lead loss  (× 12)" value={fm(R.annualLost)} color={RED} />
-                  {R.CRM > 0 && (
-                    <>
-                      <MathRow label={`Graveyard leads  (${R.CRM.toLocaleString()} × 12%)`} value={Math.round(R.reactivatable)} color={GREEN} />
-                      <MathRow label={`Adjusted close rate  (${pct(R.cr)} × 40% discount)`} value={pct(R.adjustedClose)} color={GREEN} />
-                      <MathRow label={`Recoverable deals  (${Math.round(R.reactivatable)} × ${pct(R.adjustedClose)})`} value={R.recoverableDeals.toFixed(1)} color={GREEN} />
-                      <MathRow label={`Graveyard value  (${R.recoverableDeals.toFixed(1)} × ${fm(R.C)})`} value={fm(R.graveyardValue)} color={GREEN} />
-                    </>
-                  )}
-                  <MathRow label="TOTAL ANNUAL OPPORTUNITY" value={fm(R.total)} color={RED} bold border={false} />
-                </div>
 
-                <div
-                  style={{
-                    background: '#F7F8FB',
-                    border: '1px solid #E5E8F0',
-                    borderLeft: `3px solid ${PURPLE}`,
-                    borderRadius: 10,
-                    padding: '18px 20px',
-                    marginBottom: 20,
-                  }}
-                >
-                  <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: PURPLE, textTransform: 'uppercase', marginBottom: 10 }}>
-                    ORVN analysis
-                  </div>
-                  <p style={{ fontSize: 14, lineHeight: 1.8, color: '#0F172A', margin: 0 }}>{R.insight}</p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAudit((o) => !o);
-                    setTimeout(() => document.getElementById('full-audit')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-                  }}
-                  className="btn-secondary"
-                  style={{ width: '100%', marginBottom: 16 }}
-                >
-                  {showAudit ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  {showAudit ? 'Hide' : 'View'} full personalised audit report
-                </button>
-
-                <AnimatePresence>
-                  {showAudit && (
-                    <motion.div
-                      id="full-audit"
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ marginBottom: 20 }}
-                    >
-                      <div style={{ background: '#EEEAFB', border: '1px solid #C7BCF5', borderRadius: 12, padding: 22, marginBottom: 14 }}>
-                        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: PURPLE, marginBottom: 8 }}>
-                          ORVN — Full revenue audit
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
+                    {[
+                      { label: 'Recoverable deals / month', value: Number(R.recoverableDeals.toFixed(1)), color: GREEN, sub: 'target − current close' },
+                      { label: 'Recoverable revenue / month', value: Math.round(R.recoverableMonth), prefix: '$', color: GREEN, sub: 'close-rate opportunity' },
+                      { label: 'Database reactivation', value: Math.round(R.graveyardValue), prefix: '$', color: PURPLE, sub: 'separate · illustrative' },
+                    ].map((c, i) => (
+                      <div key={i} style={{ background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 10, padding: 18, textAlign: 'center' }}>
+                        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.1em', color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8 }}>
+                          {c.label}
                         </div>
-                        <div style={{ fontFamily: DISPLAY, fontSize: 22, color: '#0F172A', marginBottom: 4 }}>Revenue Audit Report</div>
-                        <div style={{ fontSize: 12, color: '#475569', marginBottom: 12 }}>
-                          Prepared {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        <div style={{ fontFamily: DISPLAY, fontSize: 28, color: c.color, lineHeight: 1, marginBottom: 4 }}>
+                          <AnimCounter target={c.value} prefix={c.prefix || ''} />
                         </div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
-                          {[
-                            ['Leads/mo', R.L],
-                            ['Commission', fm(R.C)],
-                            ['Close rate', pct(R.cr)],
-                            ['Response time', formatResp(R.rt)],
-                            ...(R.CRM > 0 ? [['CRM size', R.CRM.toLocaleString()]] : []),
-                          ].map(([k, v]) => (
-                            <div key={k} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                              <span style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8' }}>{k}:</span>
-                              <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: '#0F172A' }}>{v}</span>
-                            </div>
-                          ))}
-                        </div>
+                        <div style={{ fontSize: 11, color: '#94A3B8' }}>{c.sub}</div>
                       </div>
+                    ))}
+                  </div>
 
-                      <AuditPanel number="1" title="Speed-to-lead analysis">
-                        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderLeft: `3px solid ${RED}`, borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13.5, color: '#991B1B' }}>
-                          <strong>Finding:</strong> Your response time of <strong>{formatResp(R.rt)}</strong> places your brokerage in the <strong>{pctLabel(R.P)}</strong> of US brokerages for speed-to-lead.
-                        </div>
-                        <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
-                          <div style={{ overflowX: 'auto' }}>
-                            <TblRow header cols={[{ text: 'Metric' }, { text: 'Your number' }, { text: 'Benchmark' }, { text: 'Gap' }]} />
-                            <TblRow cols={[{ text: 'Avg response time' }, { text: formatResp(R.rt), color: RED }, { text: '< 5 min (top 10%)' }, { text: `−${Math.max(0, R.rt - 5)} min from optimal`, color: RED }]} />
-                            <TblRow cols={[{ text: 'Penalty factor (P)' }, { text: pct(R.P), color: RED }, { text: 'P = 0% at optimal' }, { text: `−${pct(R.P)} conversion loss`, color: RED }]} />
-                            <TblRow cols={[{ text: 'Ideal deals/month' }, { text: R.idealDeals.toFixed(1) }, { text: 'Your ceiling' }, { text: '—' }]} />
-                            <TblRow cols={[{ text: 'Actual deals/month' }, { text: R.actualDeals.toFixed(1), color: RED }, { text: `${R.idealDeals.toFixed(1)} at optimal` }, { text: `−${R.dealsLost.toFixed(1)} deals/mo`, color: RED }]} />
+                  <div style={{ background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 10, padding: 20, marginBottom: 20 }}>
+                    <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.14em', color: AMBER, textTransform: 'uppercase', marginBottom: 14 }}>
+                      Step-by-step calculation
+                    </div>
+                    <MathRow label="Monthly leads" value={R.L} />
+                    <MathRow label="Current close rate" value={pct(R.curCR)} />
+                    <MathRow label="Target close rate (editable scenario)" value={pct(R.tgtCR)} color={GREEN} />
+                    <MathRow label={`Current deals/month  (${R.L} × ${pct(R.curCR)})`} value={R.currentDeals.toFixed(1)} />
+                    <MathRow label={`Target deals/month  (${R.L} × ${pct(R.tgtCR)})`} value={R.targetDeals.toFixed(1)} color={GREEN} />
+                    <MathRow label="Recoverable deals/month  (target − current)" value={R.recoverableDeals.toFixed(1)} color={GREEN} />
+                    <MathRow label={`Recoverable revenue/month  (${R.recoverableDeals.toFixed(1)} × ${fm(R.C)})`} value={fm(R.recoverableMonth)} color={GREEN} />
+                    <MathRow label="Recoverable revenue/year  (× 12)" value={fm(R.recoverableYear)} color={GREEN} bold border={false} />
+                    {!R.hasGap && (
+                      <div style={{ marginTop: 10, fontSize: 12.5, color: '#92400E', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 12px' }}>
+                        Guardrail: target ≤ current, so recoverable opportunity is set to $0.
+                      </div>
+                    )}
+                  </div>
+
+                  {R.CRM > 0 && (
+                    <div style={{ background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 10, padding: 20, marginBottom: 20 }}>
+                      <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.14em', color: PURPLE, textTransform: 'uppercase', marginBottom: 6 }}>
+                        Database reactivation — separate bucket
+                      </div>
+                      <p style={{ fontSize: 12.5, color: '#94A3B8', margin: '0 0 12px', lineHeight: 1.6 }}>
+                        Kept separate from the close-rate opportunity above. The re-engagement rate is
+                        an editable, illustrative assumption — not research-backed.
+                      </p>
+                      <MathRow label={`Re-engageable leads  (${R.CRM.toLocaleString()} × ${pct(R.reRate)} illustrative)`} value={Math.round(R.reactivatable)} color={PURPLE} />
+                      <MathRow label={`Reactivation close rate  (${pct(R.curCR)} × 40% of current = 60% haircut)`} value={pct1(R.graveyardClose)} color={PURPLE} />
+                      <MathRow label={`Recoverable deals  (${Math.round(R.reactivatable)} × ${pct1(R.graveyardClose)})`} value={R.graveyardDeals.toFixed(1)} color={PURPLE} />
+                      <MathRow label={`Database reactivation value  (${R.graveyardDeals.toFixed(1)} × ${fm(R.C)})`} value={fm(R.graveyardValue)} color={PURPLE} bold border={false} />
+                    </div>
+                  )}
+
+                  {R.CRM > 0 && (R.recoverableYear > 0 || R.graveyardValue > 0) && (
+                    <div
+                      style={{
+                        background: '#fff',
+                        border: '1px solid #E5E8F0',
+                        borderRadius: 10,
+                        padding: 18,
+                        marginBottom: 20,
+                      }}
+                    >
+                      <MathRow label="Recoverable revenue/year (close-rate opportunity)" value={fm(R.recoverableYear)} color={GREEN} />
+                      <MathRow label="Database reactivation (illustrative)" value={fm(R.graveyardValue)} color={PURPLE} />
+                      <MathRow label="Combined upside scenario (revenue opportunity + database reactivation)" value={fm(R.combinedUpside)} color={PURPLE} bold border={false} />
+                    </div>
+                  )}
+
+                  {/* Assumptions note */}
+                  <div
+                    style={{
+                      background: '#F7F8FB',
+                      border: '1px dashed #C7BCF5',
+                      borderRadius: 10,
+                      padding: '14px 18px',
+                      marginBottom: 20,
+                    }}
+                  >
+                    <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: PURPLE, textTransform: 'uppercase', marginBottom: 8 }}>
+                      Assumptions in this model
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#475569', lineHeight: 1.7 }}>
+                      <li>Recoverable opportunity = (target − current close rate) × leads × commission. Close rate is never penalized twice.</li>
+                      <li>Response time is a qualitative risk signal only — it does not multiply any dollar figure.</li>
+                      <li>Database reactivation uses an editable {pct(R.reRate)} re-engagement assumption and a reactivation close rate of 40% of your current rate. Both are illustrative, not research-backed.</li>
+                      {R.crmFallback ? <li>CRM size was left blank, so it’s estimated at ~24 months of your monthly lead volume.</li> : null}
+                      {R.ISA > 0 && <li>ISA coverage assumes ~{R.isaHoursWeek} hrs/week ({R.isaAnnualHours.toLocaleString()} hrs/year) against 24/7 ({R.pasAnnualHours.toLocaleString()} hrs/year).</li>}
+                    </ul>
+                  </div>
+
+                  <div
+                    style={{
+                      background: '#F7F8FB',
+                      border: '1px solid #E5E8F0',
+                      borderLeft: `3px solid ${PURPLE}`,
+                      borderRadius: 10,
+                      padding: '18px 20px',
+                      marginBottom: 20,
+                    }}
+                  >
+                    <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: PURPLE, textTransform: 'uppercase', marginBottom: 10 }}>
+                      ORVN analysis
+                    </div>
+                    <p style={{ fontSize: 14, lineHeight: 1.8, color: '#0F172A', margin: 0 }}>{R.insight}</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAudit((o) => !o);
+                      setTimeout(() => document.getElementById('full-audit')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+                    }}
+                    className="btn-secondary"
+                    style={{ width: '100%', marginBottom: 16 }}
+                  >
+                    {showAudit ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    {showAudit ? 'Hide' : 'View'} full personalised audit report
+                  </button>
+
+                  <AnimatePresence>
+                    {showAudit && (
+                      <motion.div
+                        id="full-audit"
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ marginBottom: 20 }}
+                      >
+                        <div style={{ background: '#EEEAFB', border: '1px solid #C7BCF5', borderRadius: 12, padding: 22, marginBottom: 14 }}>
+                          <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: PURPLE, marginBottom: 8 }}>
+                            ORVN — Full revenue audit
+                          </div>
+                          <div style={{ fontFamily: DISPLAY, fontSize: 22, color: '#0F172A', marginBottom: 4 }}>Revenue Audit Report</div>
+                          <div style={{ fontSize: 12, color: '#475569', marginBottom: 12 }}>
+                            Prepared {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          </div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+                            {[
+                              ['Leads/mo', R.L],
+                              ['Commission', fm(R.C)],
+                              ['Current close', pct(R.curCR)],
+                              ['Target close', pct(R.tgtCR)],
+                              ['Response time', formatResp(R.rt)],
+                              ...(R.CRM > 0 ? [['CRM size', R.CRM.toLocaleString()]] : []),
+                            ].map(([k, v]) => (
+                              <div key={k} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                <span style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8' }}>{k}:</span>
+                                <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: '#0F172A' }}>{v}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-                          <div style={{ fontFamily: DISPLAY, fontSize: 40, color: RED, lineHeight: 1, marginBottom: 6 }}>{fm(R.annualLost)}</div>
-                          <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: '#94A3B8', textTransform: 'uppercase' }}>
-                            Annual speed-to-lead revenue loss
-                          </div>
-                        </div>
-                      </AuditPanel>
 
-                      {R.CRM > 0 && (
-                        <AuditPanel number="2" title="Graveyard CRM analysis">
+                        <AuditPanel number="1" title="Close-rate opportunity analysis">
                           <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderLeft: `3px solid ${GREEN}`, borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13.5, color: '#065F46' }}>
-                            <strong>Finding:</strong> Your database of <strong>{R.CRM.toLocaleString()} leads</strong> contains recoverable revenue. Roughly 12% of abandoned leads transact within 12 months with systematic follow-up.
+                            <strong>Finding:</strong> Lifting your close rate from <strong>{pct(R.curCR)}</strong> to a target of <strong>{pct(R.tgtCR)}</strong> models <strong>{R.recoverableDeals.toFixed(1)} additional deals/month</strong>. {R.hasGap ? '' : 'Your target is not above your current rate, so the modeled opportunity is $0.'}
                           </div>
                           <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
                             <div style={{ overflowX: 'auto' }}>
-                              <TblRow header cols={[{ text: 'Component' }, { text: 'Value' }, { text: 'Formula' }, { text: 'Source' }]} />
-                              <TblRow cols={[{ text: 'CRM database' }, { text: `${R.CRM.toLocaleString()} leads` }, { text: 'Your input' }, { text: '—' }]} />
-                              <TblRow cols={[{ text: 'Re-engagement rate' }, { text: '12%' }, { text: 'CRM × 0.12' }, { text: 'Industry research' }]} />
-                              <TblRow cols={[{ text: 'Reactivatable leads' }, { text: `${Math.round(R.reactivatable)} leads`, color: GREEN }, { text: '' }, { text: '' }]} />
-                              <TblRow cols={[{ text: 'Adjusted close rate' }, { text: pct(R.adjustedClose) }, { text: `${pct(R.cr)} × 40% discount` }, { text: 'Conservative' }]} />
-                              <TblRow cols={[{ text: 'Recoverable deals' }, { text: `${R.recoverableDeals.toFixed(1)} deals`, color: GREEN }, { text: '' }, { text: '' }]} />
+                              <TblRow header cols={[{ text: 'Metric' }, { text: 'Current' }, { text: 'Target scenario' }, { text: 'Gap' }]} />
+                              <TblRow cols={[{ text: 'Close rate' }, { text: pct(R.curCR) }, { text: pct(R.tgtCR), color: GREEN }, { text: R.hasGap ? `+${pct(R.tgtCR - R.curCR)}` : '0%', color: R.hasGap ? GREEN : '#94A3B8' }]} />
+                              <TblRow cols={[{ text: 'Deals/month' }, { text: R.currentDeals.toFixed(1) }, { text: R.targetDeals.toFixed(1), color: GREEN }, { text: `+${R.recoverableDeals.toFixed(1)}`, color: GREEN }]} />
                             </div>
                           </div>
                           <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-                            <div style={{ fontFamily: DISPLAY, fontSize: 40, color: GREEN, lineHeight: 1, marginBottom: 6 }}>{fm(R.graveyardValue)}</div>
+                            <div style={{ fontFamily: DISPLAY, fontSize: 40, color: GREEN, lineHeight: 1, marginBottom: 6 }}>{fm(R.recoverableYear)}</div>
                             <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: '#94A3B8', textTransform: 'uppercase' }}>
-                              Recoverable graveyard CRM value
+                              Annual recoverable revenue opportunity
                             </div>
                           </div>
                         </AuditPanel>
-                      )}
 
-                      {R.ISA > 0 && (
-                        <AuditPanel number={R.CRM > 0 ? '3' : '2'} title="ISA cost vs PAS">
+                        <AuditPanel number="2" title="Response-time risk (qualitative)">
+                          <div style={{ background: R.band.bg, border: `1px solid ${R.band.border}`, borderLeft: `3px solid ${R.band.tone}`, borderRadius: 8, padding: '12px 16px', fontSize: 13.5, color: R.band.text }}>
+                            <strong>Finding:</strong> Your response time of <strong>{formatResp(R.rt)}</strong> falls in the <strong>{R.band.label}</strong> band.
+                          </div>
+                          <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {[
+                              ['Under 5 minutes', 'Target zone'],
+                              ['5–15 minutes', 'Early leakage risk'],
+                              ['15–60 minutes', 'Meaningful delay'],
+                              ['1–4 hours', 'High delay'],
+                              ['4+ hours', 'Severe delay'],
+                            ].map(([range, label]) => (
+                              <div key={range} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '6px 0', borderBottom: '1px solid #F1F3F9' }}>
+                                <span style={{ color: '#475569' }}>{range}</span>
+                                <span style={{ fontFamily: MONO, fontSize: 12, color: label === R.band.label ? R.band.tone : '#94A3B8', fontWeight: label === R.band.label ? 700 : 400 }}>{label}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <p style={{ fontSize: 12.5, color: '#94A3B8', margin: '12px 0 0', lineHeight: 1.65 }}>
+                            Response time is a risk signal, not a revenue multiplier. There is no
+                            sourced response-time→conversion distribution behind a dollar figure, so we
+                            don’t invent one.
+                          </p>
+                        </AuditPanel>
+
+                        {R.CRM > 0 && (
+                          <AuditPanel number="3" title="Database reactivation (illustrative)">
+                            <div style={{ background: '#EEEAFB', border: '1px solid #C7BCF5', borderLeft: `3px solid ${PURPLE}`, borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13.5, color: '#3A2899' }}>
+                              <strong>Finding:</strong> Your database of <strong>{R.CRM.toLocaleString()} leads</strong> may hold recoverable revenue. The figures below use editable, illustrative assumptions — not research-backed rates.
+                            </div>
+                            <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
+                              <div style={{ overflowX: 'auto' }}>
+                                <TblRow header cols={[{ text: 'Component' }, { text: 'Value' }, { text: 'Formula' }, { text: 'Basis' }]} />
+                                <TblRow cols={[{ text: 'CRM database' }, { text: `${R.CRM.toLocaleString()} leads` }, { text: 'Your input' }, { text: '—' }]} />
+                                <TblRow cols={[{ text: 'Re-engagement rate' }, { text: pct(R.reRate) }, { text: `CRM × ${pct(R.reRate)}` }, { text: 'Illustrative' }]} />
+                                <TblRow cols={[{ text: 'Re-engageable leads' }, { text: `${Math.round(R.reactivatable)} leads`, color: PURPLE }, { text: '' }, { text: '' }]} />
+                                <TblRow cols={[{ text: 'Reactivation close rate' }, { text: pct1(R.graveyardClose) }, { text: `${pct(R.curCR)} × 40% of current` }, { text: 'Conservative' }]} />
+                                <TblRow cols={[{ text: 'Recoverable deals' }, { text: `${R.graveyardDeals.toFixed(1)} deals`, color: PURPLE }, { text: '' }, { text: '' }]} />
+                              </div>
+                            </div>
+                            <div style={{ background: '#EEEAFB', border: '1px solid #C7BCF5', borderRadius: 10, padding: 20, textAlign: 'center' }}>
+                              <div style={{ fontFamily: DISPLAY, fontSize: 40, color: PURPLE, lineHeight: 1, marginBottom: 6 }}>{fm(R.graveyardValue)}</div>
+                              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.12em', color: '#94A3B8', textTransform: 'uppercase' }}>
+                                Illustrative database reactivation value
+                              </div>
+                            </div>
+                          </AuditPanel>
+                        )}
+
+                        {R.ISA > 0 && (
+                          <AuditPanel number={R.CRM > 0 ? '4' : '3'} title="ISA coverage & cost context">
+                            <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden' }}>
+                              <div style={{ overflowX: 'auto' }}>
+                                <TblRow header cols={[{ text: 'Component' }, { text: 'Human ISA' }, { text: 'PAS' }, { text: 'Note' }]} />
+                                <TblRow cols={[{ text: 'Annual cost' }, { text: `${fm(R.ISA)}/yr`, color: RED }, { text: 'Custom early-access quote' }, { text: 'Your input' }]} />
+                                <TblRow cols={[{ text: 'Coverage' }, { text: `~${R.isaHoursWeek} hrs/wk (${R.isaAnnualHours.toLocaleString()} hrs/yr)` }, { text: `24/7/365 (${R.pasAnnualHours.toLocaleString()} hrs/yr)`, color: GREEN }, { text: `+${R.coverageGap.toLocaleString()} hrs/yr`, bold: true }]} />
+                                <TblRow cols={[{ text: 'Response time' }, { text: 'Varies by rep & shift', color: RED }, { text: 'Consistent, every channel', color: GREEN }, { text: 'Structural' }]} />
+                                <TblRow cols={[{ text: 'Turnover risk' }, { text: 'Typically high-turnover', color: RED }, { text: 'Infrastructure', color: GREEN }, { text: 'No re-hire cost' }]} />
+                              </div>
+                            </div>
+                            <p style={{ fontSize: 12.5, color: '#94A3B8', margin: '12px 0 0', lineHeight: 1.65 }}>
+                              Revenue opportunity and operating-cost savings are different buckets — they
+                              are not added together. PAS early-access pricing is quoted per brokerage,
+                              so no PAS price is asserted here.
+                            </p>
+                          </AuditPanel>
+                        )}
+
+                        <AuditPanel number={[R.CRM > 0, R.ISA > 0].filter(Boolean).length + 3} title="Summary — opportunity by bucket">
                           <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden' }}>
                             <div style={{ overflowX: 'auto' }}>
-                              <TblRow header cols={[{ text: 'Component' }, { text: 'Human ISA' }, { text: 'PAS Starter ($500)' }, { text: 'Difference' }]} />
-                              <TblRow cols={[{ text: 'Monthly cost' }, { text: `${fm(R.isaMonthly)}/mo`, color: RED }, { text: `$${STARTER_PRICE}/mo` }, { text: `${fm(R.isaSaving)}/mo`, color: GREEN, bold: true }]} />
-                              <TblRow cols={[{ text: 'Response time' }, { text: '15–90 min avg', color: RED }, { text: 'Under 30 sec', color: GREEN }, { text: 'Structural' }]} />
-                              <TblRow cols={[{ text: 'Coverage' }, { text: '~45 hrs/wk' }, { text: '24 / 7 / 365', color: GREEN }, { text: '+8,580 hrs/yr' }]} />
-                              <TblRow cols={[{ text: 'Turnover risk' }, { text: 'Avg 14 months', color: RED }, { text: 'Infrastructure', color: GREEN }, { text: 'No re-hire cost' }]} />
+                              <TblRow header cols={[{ text: 'Bucket' }, { text: 'Annual value' }, { text: 'Confidence' }, { text: '' }]} />
+                              <TblRow cols={[{ text: 'Recoverable revenue (close-rate opportunity)' }, { text: fm(R.recoverableYear), color: GREEN, bold: true }, { text: 'Your target scenario' }, { text: '' }]} />
+                              {R.CRM > 0 && <TblRow cols={[{ text: 'Database reactivation (illustrative)' }, { text: fm(R.graveyardValue), color: PURPLE, bold: true }, { text: 'Illustrative assumptions' }, { text: '' }]} />}
+                              {R.CRM > 0 && (
+                                <div style={{ background: '#EEEAFB', borderTop: '2px solid #C7BCF5' }}>
+                                  <TblRow cols={[{ text: 'Combined upside scenario', bold: true }, { text: fm(R.combinedUpside), color: PURPLE, bold: true }, { text: 'Revenue + reactivation' }, { text: '' }]} />
+                                </div>
+                              )}
+                              {R.ISA > 0 && <TblRow cols={[{ text: 'ISA cost (separate — operating cost, not revenue)' }, { text: `${fm(R.ISA)}/yr` }, { text: 'Context only' }, { text: '' }]} />}
                             </div>
                           </div>
-                        </AuditPanel>
-                      )}
 
-                      {R.breakEvenAppts && (
-                        <AuditPanel number={[R.CRM > 0, R.ISA > 0].filter(Boolean).length + 2} title={`Break-even on PAS Starter ($${STARTER_PRICE})`}>
-                          <div style={{ background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 8, padding: 18 }}>
-                            <MathRow label="Revenue per appointment" value={fm(R.revenuePerAppt)} color={PURPLE} />
-                            <MathRow label="PAS Starter monthly cost" value={`$${STARTER_PRICE}/mo`} />
-                            <MathRow label="Extra appointments to break even" value={`${R.breakEvenAppts} appts`} color={GREEN} bold border={false} />
-                          </div>
-                          <div style={{ marginTop: 14, padding: '14px 16px', background: '#EEEAFB', border: '1px solid #C7BCF5', borderRadius: 8, fontSize: 13.5, color: '#3A2899' }}>
-                            <strong>Bottom line:</strong> PAS Starter pays for itself with{' '}
-                            <strong>{R.breakEvenAppts} extra booked appointments per month</strong>. Most operators land on Growth ($1,500/mo) at this lead volume.
-                          </div>
-                        </AuditPanel>
-                      )}
-
-                      <AuditPanel number={[R.CRM > 0, R.ISA > 0, !!R.breakEvenAppts].filter(Boolean).length + 2} title="Summary — total annual opportunity">
-                        <div style={{ border: '1px solid #E5E8F0', borderRadius: 8, overflow: 'hidden' }}>
-                          <div style={{ overflowX: 'auto' }}>
-                            <TblRow header cols={[{ text: 'Revenue opportunity' }, { text: 'Annual value' }, { text: 'Confidence' }, { text: '' }]} />
-                            <TblRow cols={[{ text: 'Speed-to-lead loss (recoverable)' }, { text: fm(R.annualLost), color: RED, bold: true }, { text: 'High — research-backed' }, { text: '' }]} />
-                            {R.CRM > 0 && <TblRow cols={[{ text: 'Graveyard CRM value (recoverable)' }, { text: fm(R.graveyardValue), color: GREEN, bold: true }, { text: 'Medium — conservative' }, { text: '' }]} />}
-                            {R.ISA > 0 && <TblRow cols={[{ text: 'ISA cost reduction' }, { text: fm(R.isaSaving * 12), color: GREEN, bold: true }, { text: 'High — direct comparison' }, { text: '' }]} />}
-                            <div style={{ background: '#FEF2F2', borderTop: '2px solid #FECACA' }}>
-                              <TblRow cols={[{ text: 'TOTAL ANNUAL OPPORTUNITY', bold: true }, { text: fm(R.total), color: RED, bold: true }, { text: 'Conservative combined' }, { text: '' }]} />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {[
-                            { n: 1, text: 'This week: stand up a sub-5-minute response mechanism for every inbound channel. Every hour past 5 minutes pays the penalty above.' },
-                            { n: 2, text: `This week: run a graveyard scan on your CRM. The ${fm(R.graveyardValue || 0)} above is the conservative floor.` },
-                            { n: 3, text: 'This month: run the Lead Leakage Scorecard to identify the single bottleneck with the highest payoff.' },
-                          ].map((s) => (
-                            <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 8, padding: '12px 14px' }}>
-                              <div style={{ width: 24, height: 24, borderRadius: '50%', background: PURPLE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO, fontSize: 10, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
-                                {s.n}
+                          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {[
+                              { n: 1, text: 'This week: stand up a sub-5-minute response mechanism for every inbound channel — the highest-leverage move on response-time risk.' },
+                              { n: 2, text: R.CRM > 0 ? `This week: run a re-engagement pass on your database. The ${fm(R.graveyardValue)} above is illustrative — treat it as a hypothesis to test, not a promise.` : 'This week: capture your CRM database size to model database reactivation as a separate bucket.' },
+                              { n: 3, text: 'This month: run the Lead Leakage Scorecard to identify the single bottleneck with the highest payoff.' },
+                            ].map((s) => (
+                              <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#F7F8FB', border: '1px solid #E5E8F0', borderRadius: 8, padding: '12px 14px' }}>
+                                <div style={{ width: 24, height: 24, borderRadius: '50%', background: PURPLE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO, fontSize: 10, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+                                  {s.n}
+                                </div>
+                                <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.65, margin: 0 }}>{s.text}</p>
                               </div>
-                              <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.65, margin: 0 }}>{s.text}</p>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
 
-                        <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                          <Link to="/calculators/leakage" className="btn-secondary">Run Lead Leakage Scorecard</Link>
-                        </div>
-                      </AuditPanel>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <div
-                  style={{
-                    background: '#F7F8FB',
-                    border: '1px solid #E5E8F0',
-                    borderRadius: 14,
-                    padding: 28,
-                    marginTop: 8,
-                  }}
-                >
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, alignItems: 'center' }}>
-                    <div>
-                      <h3 style={{ fontSize: 20, fontFamily: DISPLAY, color: '#0F172A', margin: '0 0 6px' }}>
-                        Email me the full audit report.
-                      </h3>
-                      <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.6 }}>
-                        A copy of these numbers, the math, and a one-page diagnosis you can share
-                        with your team. No spam.
-                      </p>
-                    </div>
-                    {submitState === 'success' ? (
-                      <div
-                        style={{
-                          background: '#ECFDF5',
-                          border: '1px solid #A7F3D0',
-                          borderRadius: 10,
-                          padding: 16,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 10,
-                          color: '#065F46',
-                          fontSize: 14,
-                        }}
-                      >
-                        <CheckCircle2 size={18} /> Full audit sent. Download your PDF above or check your inbox.
-                      </div>
-                    ) : (
-                      <form
-                        onSubmit={handleEmailSubmit}
-                        style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}
-                      >
-                        <input
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="your@brokerage.com"
-                          style={{
-                            flex: '1 1 200px',
-                            background: '#fff',
-                            border: '1px solid #E5E8F0',
-                            borderRadius: 10,
-                            padding: '12px 14px',
-                            fontSize: 14,
-                            color: '#0F172A',
-                            outline: 'none',
-                          }}
-                        />
-                        <button
-                          type="submit"
-                          className="btn-primary"
-                          disabled={submitState === 'loading'}
-                          style={{ opacity: submitState === 'loading' ? 0.7 : 1 }}
-                        >
-                          {submitState === 'loading' ? 'Sending…' : 'Send report'} <ArrowRight size={15} />
-                        </button>
-                      </form>
+                          <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <Link to="/calculators/leakage" className="btn-secondary">Run Lead Leakage Scorecard</Link>
+                          </div>
+                        </AuditPanel>
+                      </motion.div>
                     )}
+                  </AnimatePresence>
+
+                  <div
+                    style={{
+                      background: '#F7F8FB',
+                      border: '1px solid #E5E8F0',
+                      borderRadius: 14,
+                      padding: 28,
+                      marginTop: 8,
+                    }}
+                  >
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, alignItems: 'center' }}>
+                      <div>
+                        <h3 style={{ fontSize: 20, fontFamily: DISPLAY, color: '#0F172A', margin: '0 0 6px' }}>
+                          Email me the full audit report.
+                        </h3>
+                        <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.6 }}>
+                          A copy of these numbers, the math, and a one-page diagnosis you can share
+                          with your team. No spam.
+                        </p>
+                      </div>
+                      {submitState === 'success' ? (
+                        <div
+                          style={{
+                            background: '#ECFDF5',
+                            border: '1px solid #A7F3D0',
+                            borderRadius: 10,
+                            padding: 16,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            color: '#065F46',
+                            fontSize: 14,
+                          }}
+                        >
+                          <CheckCircle2 size={18} /> Full audit sent. Download your PDF above or check your inbox.
+                        </div>
+                      ) : (
+                        <form
+                          onSubmit={handleEmailSubmit}
+                          style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}
+                        >
+                          <input
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="your@brokerage.com"
+                            style={{
+                              flex: '1 1 200px',
+                              background: '#fff',
+                              border: '1px solid #E5E8F0',
+                              borderRadius: 10,
+                              padding: '12px 14px',
+                              fontSize: 14,
+                              color: '#0F172A',
+                              outline: 'none',
+                            }}
+                          />
+                          <button
+                            type="submit"
+                            className="btn-primary"
+                            disabled={submitState === 'loading'}
+                            style={{ opacity: submitState === 'loading' ? 0.7 : 1 }}
+                          >
+                            {submitState === 'loading' ? 'Sending…' : 'Send report'} <ArrowRight size={15} />
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 12, width: '100%', textAlign: 'center' }}>
+                      Check your spam folder if you don't see the report in 5 minutes.
+                    </p>
                   </div>
-                  <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 12, width: '100%', textAlign: 'center' }}>
-                    Check your spam folder if you don't see the report in 5 minutes.
-                  </p>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

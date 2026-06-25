@@ -910,7 +910,7 @@ function ControlRoom() {
               fontWeight: 600,
             }}
           >
-            Live view · Real-time
+            Example view · demo data
           </span>
         </div>
 
@@ -921,7 +921,7 @@ function ControlRoom() {
             gap: 1,
           }}
         >
-          {cards.map((c, i) => (
+          {cards.map((c) => (
             <div key={c.label} style={{ background: '#0F172A', padding: '32px' }}>
               <div style={mono('#475569', 12)}>{c.label}</div>
               <div
@@ -1231,6 +1231,102 @@ function ForumSignup() {
   );
 }
 
+// ─── BROKERAGE MEMORY · PAS BRAIN (C4) ───────────────────────────────────────
+function BrainMemory() {
+  return (
+    <Section borderTop>
+      <div className="grid-cols-2-responsive" style={{ alignItems: 'start', gap: 'clamp(32px, 5vw, 56px)' }}>
+        <div>
+          <motion.div {...fadeUp(0)}><Eyebrow>Brokerage memory · PAS Brain</Eyebrow></motion.div>
+          <motion.h2
+            {...fadeUp(0.05)}
+            className="h-section"
+            style={{ fontSize: 'clamp(32px, 4vw, 48px)', margin: '18px 0 0', lineHeight: 1.1 }}
+          >
+            Your brokerage doesn’t have a memory. It has a dozen people who can leave.
+          </motion.h2>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <motion.div
+            {...fadeUp(0.05)}
+            style={{ background: '#F8FAFC', border: '1.5px solid #E5E8F0', borderRadius: 20, padding: 24, display: 'flex', gap: 20, alignItems: 'flex-start' }}
+          >
+            <div style={{ width: 44, height: 44, borderRadius: 10, background: '#FEF2F2', color: '#DC2626', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: 'var(--shadow-xs)' }}>
+              <Users size={20} />
+            </div>
+            <p style={{ fontSize: 15, color: '#0F172A', lineHeight: 1.7, margin: 0, fontWeight: 500 }}>
+              By default, what your brokerage knows lives in individual heads, inboxes, call logs,
+              and a CRM nobody fully updates. When someone leaves, that knowledge leaves with them —
+              and the operation resets.
+            </p>
+          </motion.div>
+          <motion.div
+            {...fadeUp(0.1)}
+            style={{ background: '#F8FAFC', border: '1.5px solid #E5E8F0', borderRadius: 20, padding: 24, display: 'flex', gap: 20, alignItems: 'flex-start' }}
+          >
+            <div style={{ width: 44, height: 44, borderRadius: 10, background: '#F0EEFF', color: '#5B3FD4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: 'var(--shadow-xs)' }}>
+              <Database size={20} />
+            </div>
+            <p style={{ fontSize: 15, color: '#0F172A', lineHeight: 1.7, margin: 0, fontWeight: 500 }}>
+              PAS preserves what happened across the first-contact layer: every lead, every response
+              attempt, every outcome — held in the operation, not in a person. When people leave, the
+              operational record stays.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+// ─── OPERATIONAL VISIBILITY (C5) ─────────────────────────────────────────────
+function OperationalVisibility() {
+  const items = [
+    'When the lead arrived',
+    'Whether a response was attempted, and how fast',
+    'The conversation outcome',
+    'The qualification result',
+    'Who it was routed to',
+    'Whether it was booked',
+    'The follow-up state',
+    'If it didn’t convert, the reason it was lost, went cold, or stayed unresponsive',
+  ];
+  return (
+    <Section borderTop>
+      <div style={{ maxWidth: 840, marginBottom: 40 }}>
+        <motion.div {...fadeUp(0)}><Eyebrow>Operational visibility</Eyebrow></motion.div>
+        <motion.h2
+          {...fadeUp(0.05)}
+          className="h-section"
+          style={{ fontSize: 'clamp(32px, 4vw, 48px)', margin: '18px 0 20px', lineHeight: 1.1 }}
+        >
+          Operational visibility is not a list of what people say they did.
+        </motion.h2>
+        <motion.p
+          {...fadeUp(0.1)}
+          className="lead"
+          style={{ fontSize: 'clamp(17px, 1.8vw, 19px)', color: '#475569' }}
+        >
+          Real visibility is being able to see what actually happened to every lead — not
+          self-reported activity. For each inbound lead, PAS is built to show:
+        </motion.p>
+      </div>
+      <div className="grid-cols-responsive" style={{ gap: 16 }}>
+        {items.map((it, i) => (
+          <motion.div
+            key={it}
+            {...fadeUp(0.04 * i)}
+            style={{ background: '#F8FAFC', border: '1.5px solid #E5E8F0', borderRadius: 20, padding: 20, display: 'flex', gap: 14, alignItems: 'flex-start' }}
+          >
+            <Eye size={18} color="#5B3FD4" style={{ flexShrink: 0, marginTop: 2 }} />
+            <span style={{ fontSize: 14, color: '#0F172A', lineHeight: 1.55, fontWeight: 500 }}>{it}</span>
+          </motion.div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 export default function PAS() {
   useDocumentMeta({
     title: 'PAS — First-Contact Infrastructure',
@@ -1246,7 +1342,9 @@ export default function PAS() {
       <HowPASWorks />
       <Capabilities />
       <ProductProof />
+      <BrainMemory />
       <ControlRoom />
+      <OperationalVisibility />
       <UseCases />
       <ForumSignup />
     </PageWrapper>
