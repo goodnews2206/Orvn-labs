@@ -64,7 +64,7 @@ export default function PricingIllustration() {
         <rect x="205" y="80" width="110" height="180" rx="16" fill="#fff" stroke="#E5E8F0" strokeWidth="1.5"/>
 
         {/* Top accent bar */}
-        <rect x="205" y="80" width="110" height="5" rx="16 16 0 0" fill="#5B3FD4"/>
+        <rect x="205" y="80" width="110" height="5" rx="3" fill="#5B3FD4"/>
 
         {/* Shield icon */}
         <g transform="translate(260, 135)">
