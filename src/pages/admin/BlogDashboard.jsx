@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, LogOut, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, LogOut, Edit2, Trash2, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 
 import { supabase } from '../../lib/supabase';
 import { signOut, getCurrentUser } from '../../lib/admin-auth';
+import Modal from '../../components/ui/Modal';
 
 export default function BlogDashboard() {
   const navigate = useNavigate();
@@ -11,6 +12,11 @@ export default function BlogDashboard() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
+
+  // Modal State
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, slug: '', title: '' });
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
     checkAuth();
@@ -61,19 +67,24 @@ export default function BlogDashboard() {
     }
   };
 
-  const handleDelete = async (slug, title) => {
-    if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) {
-      return;
-    }
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+  };
+
+  const handleDelete = async () => {
+    const { slug } = deleteModal;
+    setIsDeleting(true);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        alert('Session expired. Please log in again.');
+        showToast('Session expired. Please login again.', 'error');
         navigate('/admin/login');
         return;
       }
 
+      // 1. Call the API to delete from DB and Storage
       const res = await fetch(`/api/blog/admin/delete?slug=${slug}`, {
         method: 'DELETE',
         headers: {
@@ -81,13 +92,21 @@ export default function BlogDashboard() {
         },
       });
 
-      if (!res.ok) throw new Error('Failed to delete post');
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to delete post');
+      }
 
-      setPosts(posts.filter((p) => p.slug !== slug));
-      alert('Post deleted successfully');
+      // 2. IMPORTANT: Update local state immediately
+      setPosts(prevPosts => prevPosts.filter((p) => p.slug !== slug));
+
+      showToast('Post deleted successfully');
+      setDeleteModal({ isOpen: false, slug: '', title: '' });
     } catch (err) {
       console.error('Delete failed:', err);
-      alert('Failed to delete post');
+      showToast(err.message || 'Failed to delete post', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -294,7 +313,7 @@ export default function BlogDashboard() {
                     <Edit2 size={14} />
                   </button>
                   <button
-                    onClick={() => handleDelete(post.slug, post.title)}
+                    onClick={() => setDeleteModal({ isOpen: true, slug: post.slug, title: post.title })}
                     style={{
                       background: '#FEE2E2',
                       border: 'none',
@@ -317,6 +336,97 @@ export default function BlogDashboard() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onClose={() => !isDeleting && setDeleteModal({ isOpen: false, slug: '', title: '' })}
+        title="Delete Post"
+        footer={
+          <>
+            <button
+              disabled={isDeleting}
+              onClick={() => setDeleteModal({ isOpen: false, slug: '', title: '' })}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: '1px solid #E2E8F0',
+                background: '#fff',
+                color: '#475569',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              disabled={isDeleting}
+              onClick={handleDelete}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: '#DC2626',
+                color: '#fff',
+                fontWeight: 600,
+                cursor: isDeleting ? 'wait' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: isDeleting ? 0.7 : 1,
+              }}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Post'}
+            </button>
+          </>
+        }
+      >
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+          <div style={{ padding: '10px', background: '#FEF2F2', borderRadius: '50%', color: '#DC2626' }}>
+            <AlertTriangle size={24} />
+          </div>
+          <div>
+            <p style={{ margin: '0 0 8px', fontWeight: 600, color: '#0F172A' }}>
+              Are you sure you want to delete this post?
+            </p>
+            <p style={{ margin: 0, color: '#64748B', fontSize: '14px' }}>
+              "<strong>{deleteModal.title}</strong>" will be permanently removed. This action cannot be undone.
+            </p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            padding: '12px 20px',
+            background: toast.type === 'success' ? '#0F172A' : '#DC2626',
+            color: '#fff',
+            borderRadius: '10px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            zIndex: 2000,
+            fontSize: '14px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            animation: 'slideIn 0.3s ease-out',
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideIn {
+          from { transform: translateX(20px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
